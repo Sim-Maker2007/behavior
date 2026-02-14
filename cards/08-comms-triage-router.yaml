@@ -1,0 +1,462 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Crisis Communication Triage
+# =============================================================================
+# Originally built for: Customer support ticket routing at an retailer
+# Forked for: Multilingual crisis communication triage in disaster response
+# =============================================================================
+
+identity:
+  name: "comms-triage-router"
+  display_name: "Communication Triage & Router"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["triage", "communication", "routing", "multilingual", "classification"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "information-synthesis-and-routing"
+  description: >
+    Ingests incoming messages from multiple channels, classifies them by
+    urgency and topic, extracts key information, and routes them to the
+    right responder — while handling language barriers automatically.
+
+  sub_patterns:
+    - "multi-channel-ingestion"
+    - "urgency-classification"
+    - "entity-extraction"
+    - "skill-based-routing"
+    - "language-detection-and-translation"
+
+  analogous_domains:
+    - domain: "customer-support-ticketing"
+      similarity: 0.88
+      notes: >
+        Original domain. Ticket classification, priority assignment, and
+        agent routing map almost directly. Key difference: "urgency" in
+        support means customer satisfaction; in crisis, it means survival.
+
+    - domain: "emergency-dispatch-911"
+      similarity: 0.78
+      notes: >
+        Similar urgency classification and routing logic. Dispatch systems
+        have stricter latency requirements and established protocols.
+
+    - domain: "hospital-er-triage"
+      similarity: 0.72
+      notes: >
+        Medical triage uses similar priority tiering. The classification
+        criteria are domain-specific but the routing logic is identical.
+
+    - domain: "content-moderation"
+      similarity: 0.55
+      notes: >
+        Classification and routing patterns overlap. Content moderation
+        focuses on policy violation; crisis triage focuses on need severity.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on new_message_received from any connected channel"
+      - "on batch_import of historical messages (backfill mode)"
+
+  inputs:
+    - name: "incoming_message"
+      type: "message_object"
+      required: true
+      description: >
+        Raw message with text content, sender metadata, channel source,
+        timestamp, and any attached media
+      freshness: "real-time"
+
+    - name: "responder_registry"
+      type: "list<responder_profile>"
+      required: true
+      description: >
+        Available responders with their skills, languages, capacity,
+        and current workload
+      freshness: "< 5 minutes"
+
+    - name: "category_taxonomy"
+      type: "classification_tree"
+      required: true
+      description: >
+        The set of categories messages can be classified into,
+        with routing rules per category
+
+    - name: "priority_rules"
+      type: "rule_set"
+      required: true
+      description: >
+        Rules that determine urgency level based on keywords,
+        context, and sender history
+
+    - name: "translation_capability"
+      type: "translation_service"
+      required: false
+      description: "Translation service for multilingual support"
+      default_behavior: "Process only messages in system default language"
+
+  outputs:
+    - name: "classified_message"
+      type: "enriched_message"
+      description: >
+        Original message enriched with: detected language, translated text,
+        urgency level, category, extracted entities, and confidence scores
+      confidence_included: true
+
+    - name: "routing_decision"
+      type: "routing_assignment"
+      description: >
+        Which responder should handle this, why, and with what priority
+
+    - name: "auto_response"
+      type: "message_draft"
+      description: >
+        Optional immediate acknowledgment to sender in their language,
+        with expected response time
+
+  reasoning:
+    method: "cascading-classification-pipeline"
+    objectives:
+      - "Correctly classify urgency to prevent life-threatening delays (weight: 0.7)"
+      - "Route to best-matched responder by skill and language (weight: 0.2)"
+      - "Minimize response latency (weight: 0.1)"
+    approach: >
+      Pipeline: (1) detect language, (2) translate if needed,
+      (3) classify urgency via keyword + semantic analysis,
+      (4) extract entities (location, needs, number of people),
+      (5) match to best available responder considering skills,
+      language match, and current workload.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Messages arrive as structured text with sender metadata"
+      strength: "hard"
+      adaptation_note: >
+        Crisis messages may come via radio transcription, handwritten notes
+        photographed and OCR'd, or verbal reports transcribed by field staff.
+        Add preprocessing layer for unstructured/noisy inputs.
+
+    - id: "DA-002"
+      assumption: "Category taxonomy is stable and pre-defined"
+      strength: "soft"
+      adaptation_note: >
+        In evolving crises, new categories emerge (e.g., a disease outbreak
+        adds medical categories mid-response). Support dynamic taxonomy
+        updates without retraining.
+
+    - id: "DA-003"
+      assumption: "Messages are in one of the system's supported languages"
+      strength: "soft"
+      adaptation_note: >
+        Crisis zones often involve rare dialects or code-switching between
+        languages within a single message. Partner with services like
+        Tarjimly for human-assisted translation of edge cases.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Reliable internet connectivity for all channels"
+      strength: "hard"
+      adaptation_note: >
+        Crisis zones frequently lose connectivity. Support offline message
+        queuing with priority sync when connection restores. SMS and radio
+        channels as fallback.
+
+    - id: "EA-002"
+      assumption: "Responders are available during business hours"
+      strength: "soft"
+      adaptation_note: >
+        Crisis response is 24/7 with shift rotations. Responder registry
+        must track shift schedules, rest requirements, and fatigue levels.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single organization manages all responders"
+      strength: "hard"
+      adaptation_note: >
+        Crisis response involves multiple orgs (UN agencies, local NGOs,
+        military, volunteers). Routing must respect organizational
+        mandates and coordination structures (cluster system).
+
+    - id: "AA-002"
+      assumption: "All messages can be read by the routing system"
+      strength: "hard"
+      adaptation_note: >
+        Crisis messages may contain sensitive protection information
+        (gender-based violence, persecution). Add confidentiality
+        classification and restricted routing for sensitive content.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "urgency_classifier"
+    type: "swappable_component"
+    current: "retail_priority_classifier"
+    interface: "UrgencyClassifier"
+    description: >
+      Classifies message urgency. Swap for domain-appropriate urgency
+      model. Interface: classify(message) → {level, confidence, signals}
+    suggested_alternatives:
+      - name: "crisis_severity_classifier"
+        for_domain: "humanitarian"
+        description: >
+          Uses humanitarian severity scale: life-threatening → urgent
+          medical → shelter/safety → basic needs → information request.
+          Trained on historical crisis communication data.
+      - name: "medical_triage_classifier"
+        for_domain: "healthcare"
+        description: >
+          Uses ESI (Emergency Severity Index) 1-5 scale based on
+          resource needs and acuity.
+
+  - id: "AP-002"
+    name: "entity_extractor"
+    type: "swappable_component"
+    current: "retail_entity_extractor"
+    interface: "EntityExtractor"
+    description: >
+      Extracts structured data from messages. Interface:
+      extract(message) → {entities: list<Entity>}
+    suggested_alternatives:
+      - name: "crisis_needs_extractor"
+        for_domain: "humanitarian"
+        description: >
+          Extracts: GPS coordinates, number of affected people, type
+          of need (water/food/medical/shelter), accessibility info,
+          security situation. Handles approximate locations ("near
+          the blue mosque", "2km north of the river").
+      - name: "medical_symptom_extractor"
+        for_domain: "healthcare"
+        description: "Extracts symptoms, vitals, medications, allergies"
+
+  - id: "AP-003"
+    name: "translation_layer"
+    type: "swappable_component"
+    current: "google_translate_api"
+    interface: "TranslationService"
+    description: >
+      Handles language detection and translation. Interface:
+      detect(text) → language; translate(text, target) → translated_text
+    suggested_alternatives:
+      - name: "tarjimly_hybrid_translation"
+        for_domain: "humanitarian"
+        description: >
+          AI translation with human-in-the-loop for critical messages
+          and rare languages. Includes cultural context notes for
+          responders unfamiliar with local communication styles.
+
+  - id: "AP-004"
+    name: "routing_strategy"
+    type: "configurable"
+    parameters:
+      - name: "matching_priorities"
+        current: ["skill_match", "workload_balance", "response_time"]
+        notes: >
+          In humanitarian contexts, reorder to: language_match first,
+          then protection_sensitivity, then skill_match, then proximity
+      - name: "overflow_behavior"
+        current: "queue"
+        notes: >
+          In crisis, overflow should escalate to coordination lead
+          rather than queue silently. Life-threatening messages must
+          never queue.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "translation-service"
+      interface: "TranslationService"
+      purpose: "Translate messages to responder's language"
+      required: false
+
+    - behavior: "auto-responder"
+      interface: "AutoResponder"
+      purpose: "Send immediate acknowledgment to message sender"
+      required: false
+
+    - behavior: "geocoder"
+      interface: "Geocoder"
+      purpose: "Convert location descriptions to coordinates"
+      required: false
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Central communication processing in a multi-agent crisis response system"
+
+  emits:
+    - event: "message_classified"
+      payload: "classified_message"
+      description: "Emitted after classification is complete"
+
+    - event: "critical_message_detected"
+      payload: "classified_message"
+      description: "Emitted for life-threatening urgency messages — triggers immediate alert"
+
+    - event: "routing_complete"
+      payload: "routing_assignment"
+      description: "Emitted when message is assigned to a responder"
+
+    - event: "translation_failed"
+      payload: "original_message"
+      description: "Emitted when automatic translation cannot handle the language"
+
+  listens_to:
+    - event: "new_message_received"
+      source: "channel-connector"
+      action: "Begin triage pipeline"
+
+    - event: "responder_status_changed"
+      source: "responder-tracker"
+      action: "Update routing availability"
+
+    - event: "taxonomy_updated"
+      source: "coordination-lead"
+      action: "Reload classification categories"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Life-threatening message misclassified as low priority"
+      impact: "Delayed response to someone in danger"
+      severity: "critical"
+      mitigation: >
+        Conservative bias: when uncertain, classify UP in severity.
+        All unclassifiable messages default to high priority.
+        Periodic human audit of classification decisions.
+
+    - id: "FM-002"
+      scenario: "Translation error changes meaning of message"
+      impact: "Wrong type of help sent, or wrong location"
+      severity: "high"
+      mitigation: >
+        Flag low-confidence translations for human review.
+        Include original text alongside translation.
+        For critical messages, require human translation verification.
+
+    - id: "FM-003"
+      scenario: "System overwhelmed by message volume during crisis peak"
+      impact: "Increased latency, messages lost or delayed"
+      severity: "high"
+      mitigation: >
+        Pre-classify by urgency keywords before full pipeline.
+        Life-threatening keyword detection runs first, always.
+        Graceful degradation: skip entity extraction before skipping
+        urgency classification.
+
+    - id: "FM-004"
+      scenario: "Sensitive protection case routed to wrong responder"
+      impact: "Breach of confidentiality, potential harm to vulnerable person"
+      severity: "critical"
+      mitigation: >
+        Protection-sensitive keyword detection runs early in pipeline.
+        Restricted routing pool for sensitive cases.
+        Audit trail with access controls.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: >
+        Automated triage of crisis messages risks dehumanizing
+        communication from people in distress
+      recommendation: >
+        Always generate empathetic acknowledgment in sender's language.
+        Never reduce people to ticket numbers in responder-facing output.
+
+    - context: "humanitarian"
+      concern: >
+        Language barriers may cause systematic under-prioritization
+        of speakers of less-supported languages
+      recommendation: >
+        Track classification accuracy by language. Flag languages
+        where accuracy drops below threshold. Escalate to human
+        translators proactively for underserved languages.
+
+    - context: "any"
+      concern: "Bias in urgency classification based on communication style"
+      recommendation: >
+        Some cultures communicate distress indirectly. Train classifier
+        on diverse communication styles. Include cultural context notes
+        in routing information.
+
+  performance:
+    tested_scale: "5,000 messages/hour across 3 channels"
+    latency: "< 3 seconds for classification and routing"
+    accuracy: "Urgency classification F1 > 0.91 on English; > 0.84 multilingual"
+    known_degradation: >
+      Accuracy drops below 0.70 for languages with < 500 training examples.
+      Code-switched messages (mixing 2+ languages) have ~0.75 accuracy.
+
+  observability:
+    logging: "Every classification decision logged with confidence and signals used"
+    explainability: >
+      Each routing decision includes: why this urgency level, why this
+      category, why this responder, what entities were extracted
+    reproducibility: "Deterministic given same model version and inputs"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Routing customer support messages (email, web chat, social media)
+      to the right team member based on topic (returns, product questions,
+      store inquiries) and urgency (complaint vs. question).
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail"
+      date: "2026-01-20"
+      notes: "Basic ticket classification and routing for RetailCo support"
+
+    - version: "1.5.0"
+      domain: "retail"
+      date: "2026-02-01"
+      notes: "Added bilingual support (English/French) for Canadian customers"
+      adaptation_points_changed: ["AP-003"]
+
+    - version: "2.0.0"
+      domain: "humanitarian-crisis-response"
+      date: "2026-02-13"
+      notes: >
+        Forked for crisis communication triage. Major changes: urgency
+        scale redesigned for life-safety, multilingual expansion via
+        Tarjimly integration, protection-sensitive routing added,
+        offline queuing for connectivity gaps.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-003", "EA-001", "AA-001", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI Tool wrapper"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph node with streaming support"

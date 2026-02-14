@@ -1,0 +1,346 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Daily Intelligence Briefer
+# =============================================================================
+# Originally built for: Competitive intelligence briefing for retail executives
+# Forked for: Humanitarian situation report (sitrep) generation
+# =============================================================================
+
+identity:
+  name: "daily-intelligence-briefer"
+  display_name: "Daily Intelligence Briefer"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["intelligence", "briefing", "synthesis", "sitrep", "reporting"]
+
+problem_pattern:
+  category: "information-synthesis-and-routing"
+  description: >
+    Collects information from multiple heterogeneous sources, identifies
+    what's new or changed, synthesizes into a structured briefing
+    calibrated to the audience, and highlights items requiring decisions.
+
+  sub_patterns:
+    - "multi-source-ingestion"
+    - "change-detection-and-deduplication"
+    - "priority-ranking-of-information"
+    - "audience-calibrated-summarization"
+    - "decision-point-extraction"
+
+  analogous_domains:
+    - domain: "competitive-intelligence"
+      similarity: 0.90
+      notes: >
+        Original domain. Daily scan of competitor activity, market
+        trends, and industry news for executive decision-making.
+    - domain: "humanitarian-sitrep-generation"
+      similarity: 0.80
+      notes: >
+        Daily situation reports from multiple field sources for
+        coordination leaders. Higher volume, more critical, and
+        multilingual inputs.
+    - domain: "security-threat-briefing"
+      similarity: 0.82
+      notes: >
+        Threat intelligence from multiple feeds synthesized into
+        actionable briefing. Similar priority frameworks.
+    - domain: "clinical-shift-handover"
+      similarity: 0.70
+      notes: >
+        Medical shift handover summarizing patient status changes.
+        Structured format critical for patient safety.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "daily at 06:00 local time for morning briefing"
+      - "on flash_update when critical event occurs mid-day"
+      - "on-demand for ad-hoc briefing request"
+
+  inputs:
+    - name: "source_feeds"
+      type: "list<information_feed>"
+      required: true
+      description: >
+        All information sources: news feeds, internal reports, social
+        media monitoring, field reports, partner communications,
+        and database updates.
+      freshness: "< 1 hour for scheduled; real-time for flash updates"
+
+    - name: "previous_briefing"
+      type: "briefing_document"
+      required: false
+      description: "Yesterday's briefing for change detection"
+      default_behavior: "No change detection; full synthesis"
+
+    - name: "audience_profile"
+      type: "audience_definition"
+      required: true
+      description: >
+        Who will read this: their role, expertise level, decision
+        authority, and what they care about most.
+
+    - name: "priority_framework"
+      type: "priority_rules"
+      required: true
+      description: >
+        Rules that determine what's important: keyword triggers,
+        threshold changes, geographic relevance, and topic weights.
+
+  outputs:
+    - name: "briefing"
+      type: "structured_document"
+      description: >
+        The briefing document with: executive summary, priority items
+        requiring action, detailed updates by category, and outlook.
+
+    - name: "action_items"
+      type: "list<decision_point>"
+      description: >
+        Extracted items that require decisions or responses, with
+        relevant context and recommended deadline.
+
+    - name: "source_confidence_map"
+      type: "source_quality_report"
+      description: >
+        Assessment of information reliability per source, flagging
+        unverified claims and single-source assertions.
+
+  reasoning:
+    method: "filter-rank-synthesize-calibrate"
+    objectives:
+      - "Never miss a critical development (weight: 0.4)"
+      - "Keep briefing concise and actionable (weight: 0.3)"
+      - "Accurately represent uncertainty and source quality (weight: 0.2)"
+      - "Calibrate depth to audience needs (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Sources are in a consistent language (English)"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian field reports arrive in local languages, UN
+        official languages, and everything in between. Requires
+        translation pipeline before synthesis. Some nuances are
+        lost in translation — flag translated content.
+
+    - id: "DA-002"
+      assumption: "Source credibility is established and consistent"
+      strength: "soft"
+      adaptation_note: >
+        In crisis contexts, information sources range from verified
+        UN reports to unverified social media posts. Each item needs
+        explicit source reliability scoring. Never present unverified
+        information as fact.
+
+    - id: "DA-003"
+      assumption: "Information volume is manageable (< 100 items/day)"
+      strength: "soft"
+      adaptation_note: >
+        Active crisis generates thousands of reports daily. Aggressive
+        deduplication and clustering required before synthesis.
+        Support multi-level briefings: flash update → daily sitrep →
+        weekly overview.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Audience reads the briefing on a screen at their desk"
+      strength: "soft"
+      adaptation_note: >
+        Field coordinators may receive briefings on mobile phones
+        with limited connectivity. Support: SMS summary, offline PDF,
+        and audio briefing generation for hands-free consumption.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Briefing serves a single organization"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian sitreps serve multiple organizations through
+        the cluster system. Must handle: what's shareable across
+        organizations vs. what's internal-only, and per-audience
+        versions of the same briefing.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "priority_ranker"
+    type: "swappable_component"
+    current: "business_impact_ranker"
+    interface: "PriorityRanker"
+    description: >
+      Ranks information items by importance. Interface:
+      rank(items, context) → sorted_items_with_scores
+    suggested_alternatives:
+      - name: "humanitarian_severity_ranker"
+        for_domain: "humanitarian"
+        description: >
+          Ranks by: lives at immediate risk, access deterioration,
+          protection concerns, epidemic signals, and displacement
+          movements. Uses humanitarian severity scale.
+
+  - id: "AP-002"
+    name: "synthesizer"
+    type: "swappable_component"
+    current: "executive_summary_writer"
+    interface: "BriefingSynthesizer"
+    description: >
+      Generates the actual briefing text. Interface:
+      synthesize(ranked_items, audience) → briefing_document
+    suggested_alternatives:
+      - name: "sitrep_generator"
+        for_domain: "humanitarian"
+        description: >
+          Follows standard OCHA sitrep format: situation overview,
+          humanitarian needs, response, gaps, and funding status.
+          Includes standardized humanitarian icons and color coding.
+
+  - id: "AP-003"
+    name: "delivery_channel"
+    type: "swappable_component"
+    current: "email_with_dashboard_link"
+    interface: "BriefingDeliverer"
+    description: >
+      How the briefing reaches its audience. Interface:
+      deliver(briefing, recipients) → delivery_confirmation
+    suggested_alternatives:
+      - name: "multi_channel_crisis_delivery"
+        for_domain: "humanitarian"
+        description: >
+          Email for HQ, WhatsApp for field coordination, SMS summary
+          for areas with limited connectivity, and voice briefing
+          (text-to-speech) for hands-free contexts.
+
+composition:
+  delegates_to:
+    - behavior: "translation-service"
+      interface: "TranslationService"
+      purpose: "Translate source material and output briefing"
+      required: false
+    - behavior: "anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Detect unusual changes in data patterns"
+      required: false
+    - behavior: "notification-sender"
+      interface: "NotificationService"
+      purpose: "Deliver briefing and flash alerts"
+      required: true
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Situational awareness component of coordination system"
+
+  emits:
+    - event: "briefing_published"
+      payload: "briefing_document"
+      description: "Daily briefing ready for distribution"
+    - event: "flash_update_triggered"
+      payload: "urgent_briefing"
+      description: "Critical development requiring immediate notification"
+    - event: "information_gap_detected"
+      payload: "gap_report"
+      description: "Expected source didn't report — potential blind spot"
+
+  listens_to:
+    - event: "new_field_report"
+      source: "field-reporting-system"
+      action: "Ingest and queue for next briefing cycle"
+    - event: "critical_event_detected"
+      source: "any-monitoring-agent"
+      action: "Trigger flash update generation"
+    - event: "audience_feedback"
+      source: "feedback-system"
+      action: "Adjust priority weights and depth calibration"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Critical development buried in low-priority section"
+      impact: "Decision-makers miss time-sensitive information"
+      severity: "high"
+      mitigation: >
+        Redundant priority checks: keyword trigger AND statistical
+        anomaly AND source urgency flags. If any says high-priority,
+        item gets elevated regardless of other signals.
+
+    - id: "FM-002"
+      scenario: "Unverified information presented as confirmed"
+      impact: "Decisions made on false information"
+      severity: "high"
+      mitigation: >
+        Source confidence tags on every claim. Single-source assertions
+        explicitly marked. Rumor tracking with verification status.
+
+    - id: "FM-003"
+      scenario: "Information overload makes briefing too long to read"
+      impact: "Audience stops reading; critical items missed"
+      severity: "medium"
+      mitigation: >
+        Hard length limits per section. Executive summary always
+        under 200 words. Progressive disclosure: summary → details →
+        full source links.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Sitreps can inadvertently reveal locations of vulnerable populations"
+      recommendation: >
+        Security review before publication. Aggregate location data.
+        Never include precise coordinates of protected sites in
+        widely distributed reports.
+
+    - context: "humanitarian"
+      concern: "Framing and language in sitreps shapes donor and media perception"
+      recommendation: >
+        Use neutral, fact-based language. Avoid sensationalism.
+        Include affected population perspectives alongside organizational
+        response metrics. Follow OCHA editorial guidelines.
+
+  performance:
+    tested_scale: "500 source items/day across 15 feeds"
+    latency: "< 3 minutes for full daily briefing generation"
+    accuracy: "Priority ranking agrees with expert assessment 88% of the time"
+    known_degradation: "Synthesis quality drops with > 1,000 items; clustering becomes noisy"
+
+  observability:
+    logging: "All sources ingested, items ranked, and synthesis decisions logged"
+    explainability: "Each briefing item traces to source documents with relevance score"
+    reproducibility: "Near-deterministic; minor variation in summarization phrasing"
+
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Daily briefing for company leadership on competitor activity,
+      industry trends, and market conditions in the retail
+      space across Canada.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail"
+      date: "2025-12-20"
+      notes: "Competitive intelligence daily digest for RetailCo"
+    - version: "2.0.0"
+      domain: "humanitarian-coordination"
+      date: "2026-02-13"
+      notes: >
+        Forked for humanitarian sitrep generation. Added multilingual
+        source processing, OCHA-format output, source reliability
+        scoring, security review layer, and multi-channel delivery.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

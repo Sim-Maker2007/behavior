@@ -1,0 +1,348 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Supply Chain Disruption Detector
+# =============================================================================
+# Originally built for: Retail supply chain monitoring for delivery anomalies
+# Forked for: Food security early warning systems
+# =============================================================================
+
+identity:
+  name: "supply-chain-disruption-detector"
+  display_name: "Supply Chain Disruption Detector"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["supply-chain", "disruption", "early-warning", "food-security", "monitoring"]
+
+problem_pattern:
+  category: "anomaly-detection-and-response"
+  description: >
+    Monitors multiple signals across a supply chain to detect
+    disruptions before they cause downstream shortages. Correlates
+    supplier behavior, logistics data, market signals, and external
+    events to produce early warnings with lead time for intervention.
+
+  sub_patterns:
+    - "multi-signal-correlation"
+    - "upstream-disruption-propagation-modeling"
+    - "lead-time-estimation"
+    - "alternative-source-identification"
+    - "cascading-failure-prediction"
+
+  analogous_domains:
+    - domain: "retail-supply-chain"
+      similarity: 0.92
+      notes: >
+        Original domain. Monitoring supplier delivery patterns, port
+        congestion, and raw material availability for consumer goods.
+    - domain: "food-security-early-warning"
+      similarity: 0.77
+      notes: >
+        Same pattern applied to food supply chains. Crop failures,
+        trade restrictions, conflict disruptions, and price spikes
+        replace supplier delays and shipping bottlenecks.
+    - domain: "pharmaceutical-supply-monitoring"
+      similarity: 0.83
+      notes: >
+        Critical medication supply chains. Higher consequences,
+        regulatory reporting requirements, and cold-chain monitoring.
+    - domain: "energy-supply-security"
+      similarity: 0.72
+      notes: >
+        Oil/gas/electricity supply disruption monitoring. Geopolitical
+        signals play a larger role.
+
+behavior:
+  trigger:
+    type: "continuous"
+    conditions:
+      - "monitors supply signals in real-time"
+      - "runs comprehensive risk assessment weekly"
+      - "triggered on external shock event (conflict, natural disaster, policy change)"
+
+  inputs:
+    - name: "supply_signals"
+      type: "stream<supply_event>"
+      required: true
+      description: >
+        Delivery confirmations, order acknowledgments, shipment
+        tracking, supplier communications, and inventory receipts.
+      freshness: "real-time"
+
+    - name: "market_signals"
+      type: "stream<market_event>"
+      required: false
+      description: >
+        Commodity prices, futures data, trade policy changes,
+        currency movements, and weather forecasts for growing regions.
+      default_behavior: "No market context; supply signals only"
+
+    - name: "external_intelligence"
+      type: "stream<news_event>"
+      required: false
+      description: >
+        Conflict reports, natural disaster alerts, political instability
+        indicators, and trade embargo announcements.
+      default_behavior: "No external context"
+
+    - name: "supply_network_map"
+      type: "graph<supplier_node, dependency_edge>"
+      required: true
+      description: >
+        Known supply chain dependencies: who supplies whom, alternative
+        sources, critical path identification.
+
+  outputs:
+    - name: "disruption_alert"
+      type: "early_warning"
+      description: >
+        Alert with: what's disrupted, estimated impact timeline,
+        affected downstream items, confidence level, and suggested
+        mitigation actions.
+      confidence_included: true
+
+    - name: "supply_risk_dashboard"
+      type: "risk_heatmap"
+      description: >
+        Visual risk assessment across the supply network showing
+        vulnerability hotspots and single points of failure.
+
+    - name: "contingency_recommendations"
+      type: "action_plan"
+      description: >
+        Specific actions to mitigate detected or predicted disruptions:
+        alternative suppliers, pre-orders, stockpile recommendations.
+
+  reasoning:
+    method: "multi-signal-correlation-with-propagation-modeling"
+    objectives:
+      - "Detect disruptions as early as possible — maximize lead time (weight: 0.4)"
+      - "Minimize false alarms that waste procurement resources (weight: 0.3)"
+      - "Identify actionable mitigations, not just warnings (weight: 0.2)"
+      - "Track cascading effects through the supply network (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Supply chain is digitized with electronic tracking"
+      strength: "hard"
+      adaptation_note: >
+        Food supply chains in developing regions are largely informal.
+        Market price data from mobile money platforms, community
+        reporter networks, and FAO/WFP sentinel site monitoring
+        replace electronic supply chain tracking.
+
+    - id: "DA-002"
+      assumption: "Supplier relationships are contractual and documented"
+      strength: "hard"
+      adaptation_note: >
+        Informal food systems have fluid, relationship-based supply
+        networks. Map through market surveys, trader interviews,
+        and trade flow analysis rather than contracts.
+
+    - id: "DA-003"
+      assumption: "Historical patterns are predictive of future behavior"
+      strength: "soft"
+      adaptation_note: >
+        Food security crises often involve unprecedented combinations
+        of factors (conflict + drought + pandemic). Increase weight
+        on external intelligence signals relative to historical patterns.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Alternative suppliers exist and can be activated"
+      strength: "soft"
+      adaptation_note: >
+        In food crises, the disruption may be regional or global —
+        no easy alternatives. Contingency shifts from alternative
+        sourcing to demand management (rationing), stockpile release,
+        and international food aid pipeline activation.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Organization can act on warnings by changing procurement"
+      strength: "soft"
+      adaptation_note: >
+        Food security early warnings require government and multilateral
+        action. The system feeds into decision-making bodies (e.g., IPC,
+        FEWS NET) rather than triggering procurement directly.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "signal_sources"
+    type: "swappable_component"
+    current: "erp_and_logistics_feeds"
+    interface: "SignalIngester"
+    description: >
+      Where supply signals come from. Interface:
+      ingest() → stream<signal>
+    suggested_alternatives:
+      - name: "food_security_signal_aggregator"
+        for_domain: "food-security"
+        description: >
+          Aggregates: FEWS NET alerts, WFP market price monitoring,
+          NDVI vegetation indices (satellite crop health), conflict
+          event data (ACLED), displacement tracking (IOM DTM),
+          and rainfall anomaly data.
+
+  - id: "AP-002"
+    name: "disruption_classifier"
+    type: "swappable_component"
+    current: "supplier_delay_classifier"
+    interface: "DisruptionClassifier"
+    description: >
+      Classifies type and severity of disruption. Interface:
+      classify(signals) → {type, severity, estimated_duration}
+    suggested_alternatives:
+      - name: "food_crisis_phase_classifier"
+        for_domain: "food-security"
+        description: >
+          Uses IPC (Integrated Food Security Phase Classification)
+          framework: Minimal → Stressed → Crisis → Emergency → Famine.
+          Each phase has defined indicators and response triggers.
+
+  - id: "AP-003"
+    name: "propagation_model"
+    type: "configurable"
+    parameters:
+      - name: "propagation_speed"
+        current: "days (logistics delays)"
+        notes: "Food crises propagate over weeks to months"
+      - name: "cascade_depth"
+        current: "2 tiers (supplier's supplier)"
+        notes: >
+          Food systems: trace from production → aggregation → transport
+          → wholesale → retail → consumer. 5-6 tiers with losses at each.
+      - name: "geographic_scope"
+        current: "national"
+        notes: "Food security requires cross-border analysis (regional trade flows)"
+
+composition:
+  delegates_to:
+    - behavior: "anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Detect unusual patterns in individual signal streams"
+      required: true
+    - behavior: "geocoder"
+      interface: "Geocoder"
+      purpose: "Map disruption locations for spatial impact analysis"
+      required: false
+    - behavior: "report-generator"
+      interface: "ReportGenerator"
+      purpose: "Generate situation reports for decision-makers"
+      required: true
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Early warning component feeding into response planning"
+
+  emits:
+    - event: "disruption_detected"
+      payload: "disruption_alert"
+      description: "Supply disruption identified with estimated impact"
+    - event: "crisis_phase_escalation"
+      payload: "phase_change_alert"
+      description: "Food security situation deteriorating to next phase"
+    - event: "supply_route_compromised"
+      payload: "route_status"
+      description: "Key supply route blocked or degraded"
+
+  listens_to:
+    - event: "conflict_event_reported"
+      source: "external-intelligence"
+      action: "Assess impact on supply routes and production areas"
+    - event: "weather_anomaly_detected"
+      source: "environmental-monitor"
+      action: "Model impact on crop production and transport"
+    - event: "price_spike_detected"
+      source: "market-monitor"
+      action: "Correlate with supply signals for root cause analysis"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Slow-onset crisis missed because each daily change is small"
+      impact: "Famine conditions develop without early warning"
+      severity: "critical"
+      mitigation: >
+        Trend analysis over 30/60/90 day windows in addition to
+        spike detection. Automatic comparison to same-period-last-year.
+
+    - id: "FM-002"
+      scenario: "False alarm triggers premature food aid deployment"
+      impact: "Wasted resources, market disruption from aid flooding"
+      severity: "high"
+      mitigation: >
+        Two-stage alerting: watch → warning → alert. Each stage
+        requires confirmation from additional signals before escalation.
+
+    - id: "FM-003"
+      scenario: "Conflict zone data gaps create blind spots"
+      impact: "Most vulnerable populations invisible to the system"
+      severity: "critical"
+      mitigation: >
+        Explicit blind spot mapping. Absence of data from a conflict
+        zone is itself an alert signal. Satellite-based proxy
+        indicators (market activity, crop health) for inaccessible areas.
+
+  ethical_flags:
+    - context: "food-security"
+      concern: "Early warnings can be politically sensitive — governments may suppress"
+      recommendation: >
+        Multi-channel dissemination. Ensure warnings reach humanitarian
+        community even if government channels are blocked. Protect
+        data sources in sensitive contexts.
+
+    - context: "food-security"
+      concern: "Commodity price predictions could be exploited for speculation"
+      recommendation: >
+        Restrict raw price prediction data. Publish food security
+        assessments focused on humanitarian need, not market opportunity.
+
+  performance:
+    tested_scale: "200 suppliers, 50 product categories, 12-month monitoring"
+    latency: "< 5 seconds per signal; weekly comprehensive assessment in < 5 minutes"
+    accuracy: "Detected 92% of supply disruptions with >7 days lead time in backtesting"
+    known_degradation: "Lead time drops below 3 days for sudden-onset events (earthquakes, coups)"
+
+  observability:
+    logging: "All signals, correlations, and alert decisions with evidence chain"
+    explainability: "Each alert traces back to contributing signals with confidence weights"
+    reproducibility: "Deterministic given same signal history"
+
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Monitoring delivery reliability from consumer goods suppliers,
+      detecting seasonal disruptions (winter shipping delays, Asian
+      manufacturing holidays), and triggering pre-orders for high-risk items.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail"
+      date: "2025-10-01"
+      notes: "Basic supplier delivery monitoring for RetailCo"
+    - version: "2.0.0"
+      domain: "food-security"
+      date: "2026-02-13"
+      notes: >
+        Forked for food security early warning. Replaced ERP feeds with
+        humanitarian data sources, added IPC phase classification,
+        cross-border trade flow analysis, and satellite-based proxies.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

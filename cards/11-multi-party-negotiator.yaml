@@ -1,0 +1,506 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Multi-Party Resource Negotiator
+# =============================================================================
+# Originally built for: Supplier pricing negotiation in retail procurement
+# Forked for: Multi-org resource sharing in humanitarian cluster coordination
+# =============================================================================
+
+identity:
+  name: "multi-party-negotiator"
+  display_name: "Multi-Party Resource Negotiator"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["negotiation", "multi-stakeholder", "coordination", "resource-sharing", "consensus"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "multi-stakeholder-negotiation"
+  description: >
+    Facilitates agreement between multiple parties with different goals,
+    constraints, and information. Proposes solutions that satisfy as many
+    parties as possible, identifies blockers, suggests compromises, and
+    tracks progress toward consensus.
+
+  sub_patterns:
+    - "preference-elicitation"
+    - "pareto-optimal-solution-finding"
+    - "constraint-aggregation"
+    - "compromise-generation"
+    - "deadlock-detection-and-breaking"
+
+  analogous_domains:
+    - domain: "supplier-procurement"
+      similarity: 0.90
+      notes: >
+        Original domain. Buyer wants low price, supplier wants high
+        price, both constrained by volume, timeline, quality specs.
+        Well-structured negotiation with clear metrics.
+
+    - domain: "humanitarian-cluster-coordination"
+      similarity: 0.75
+      notes: >
+        Multiple aid orgs (UN, NGOs, govts) must agree on who covers
+        what area and need. Similar structure but softer constraints,
+        higher stakes, and organizational politics layer.
+
+    - domain: "labor-union-negotiation"
+      similarity: 0.70
+      notes: >
+        Multi-issue negotiation with trade-offs across dimensions.
+        More adversarial dynamic than collaborative, but same
+        underlying optimization structure.
+
+    - domain: "international-treaty-negotiation"
+      similarity: 0.60
+      notes: >
+        Similar multi-party structure but much longer time horizons,
+        less quantifiable objectives, and sovereignty constraints.
+
+    - domain: "co-parenting-scheduling"
+      similarity: 0.65
+      notes: >
+        Surprisingly similar: multiple parties with constraints,
+        preferences, and emotions negotiating resource (time) allocation.
+        Lower technical complexity, higher emotional complexity.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "on-demand"
+    conditions:
+      - "invoked when a resource allocation decision requires multi-party agreement"
+      - "triggered automatically when resource conflict detected between parties"
+
+  inputs:
+    - name: "parties"
+      type: "list<party_profile>"
+      required: true
+      description: >
+        Each party with their identity, stated objectives, known
+        constraints, decision authority level, and historical
+        negotiation patterns.
+
+    - name: "resource_pool"
+      type: "resource_inventory"
+      required: true
+      description: >
+        What's being negotiated over: available resources, their
+        attributes, divisibility, and any pre-committed allocations.
+
+    - name: "constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Hard constraints that any agreement must satisfy (legal,
+        physical, policy, mandate-based).
+
+    - name: "precedent_agreements"
+      type: "list<past_agreement>"
+      required: false
+      description: "Historical agreements for similar situations"
+      default_behavior: "No precedent weighting; start from scratch"
+
+    - name: "deadline"
+      type: "datetime"
+      required: false
+      description: "When agreement must be reached"
+      default_behavior: "No time pressure applied"
+
+  outputs:
+    - name: "proposed_agreement"
+      type: "allocation_proposal"
+      description: >
+        One or more proposed solutions with trade-off analysis
+        showing what each party gains and gives up.
+      confidence_included: true
+
+    - name: "blocker_analysis"
+      type: "conflict_report"
+      description: >
+        Identified incompatibilities between parties' positions,
+        with suggested compromises for each blocker.
+
+    - name: "fairness_assessment"
+      type: "equity_report"
+      description: >
+        How equitable the proposed solution is across parties,
+        with metrics appropriate to the domain.
+
+    - name: "negotiation_summary"
+      type: "natural_language"
+      description: >
+        Human-readable summary of the negotiation state, progress
+        made, and remaining gaps — suitable for briefing decision-makers.
+
+  reasoning:
+    method: "constraint-satisfaction-with-preference-optimization"
+    objectives:
+      - "Find solutions that satisfy all hard constraints (weight: mandatory)"
+      - "Maximize aggregate satisfaction across parties (weight: 0.4)"
+      - "Ensure minimum acceptable outcome for every party (weight: 0.3)"
+      - "Minimize deviation from precedent/fairness norms (weight: 0.2)"
+      - "Simplicity of implementation (weight: 0.1)"
+    approach: >
+      (1) Aggregate hard constraints to find feasible solution space.
+      (2) Elicit or infer party preferences across dimensions.
+      (3) Generate Pareto-optimal solutions using multi-objective optimization.
+      (4) Rank solutions by aggregate satisfaction and equity.
+      (5) Identify minimum 2-3 options representing different trade-off
+      philosophies (efficiency-maximizing, equity-maximizing, precedent-following).
+      (6) Present with clear trade-off visualization.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Parties state their preferences and constraints honestly"
+      strength: "soft"
+      adaptation_note: >
+        In competitive procurement, parties strategically withhold
+        information. In humanitarian coordination, orgs may overstate
+        capacity or understate resources to protect turf. Build in
+        preference revelation mechanisms and cross-validation against
+        observed behavior.
+
+    - id: "DA-002"
+      assumption: "Resources are quantifiable and comparable"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian resources mix tangible (trucks, tents, medicine)
+        with intangible (coordination time, local relationships,
+        security access). Create composite scoring that weights
+        both quantifiable and qualitative resources.
+
+    - id: "DA-003"
+      assumption: "Party preferences are stable during negotiation"
+      strength: "soft"
+      adaptation_note: >
+        In evolving crises, needs change daily. The negotiation agent
+        must support rolling renegotiation and dynamic preference
+        updates without restarting from scratch.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "All parties are present and responsive"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian coordination often involves parties in different
+        time zones, with intermittent connectivity, and varying
+        decision-making speeds. Support asynchronous negotiation
+        with clear status tracking and deadline escalation.
+
+    - id: "EA-002"
+      assumption: "There exists a mutually acceptable solution"
+      strength: "soft"
+      adaptation_note: >
+        Sometimes parties' constraints are genuinely incompatible.
+        The agent must detect true deadlocks vs. positional bargaining,
+        and escalate genuine impossibilities to higher authority
+        rather than forcing a bad compromise.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Each party has a single decision-maker with full authority"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian orgs have complex internal approval chains
+        (field → country office → regional → HQ). The agent must
+        understand each party's approval workflow and work within
+        the authority level of the person at the table.
+
+    - id: "AA-002"
+      assumption: "Agreements are binding once made"
+      strength: "soft"
+      adaptation_note: >
+        In humanitarian contexts, agreements are often aspirational.
+        Capacity may not materialize as promised. Build monitoring
+        and accountability tracking into post-agreement phase.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "fairness_metric"
+    type: "swappable_component"
+    current: "price_efficiency_metric"
+    interface: "FairnessEvaluator"
+    description: >
+      Defines what "fair" means in this context. Interface:
+      evaluate(proposal, parties) → {score, explanation, per_party_scores}
+    suggested_alternatives:
+      - name: "needs_proportional_fairness"
+        for_domain: "humanitarian"
+        description: >
+          Fairness = allocation proportional to assessed need,
+          not equal shares. Uses vulnerability indices, population
+          affected, and severity assessments. Informed by
+          Sphere Standards and humanitarian principles.
+      - name: "effort_based_fairness"
+        for_domain: "labor"
+        description: "Fairness weighted by contribution/effort"
+
+  - id: "AP-002"
+    name: "compromise_generator"
+    type: "swappable_component"
+    current: "price_volume_tradeoff_generator"
+    interface: "CompromiseStrategy"
+    description: >
+      Generates creative compromise options when parties are stuck.
+      Interface: generate_options(deadlock, parties) → list<compromise>
+    suggested_alternatives:
+      - name: "humanitarian_creative_compromises"
+        for_domain: "humanitarian"
+        description: >
+          Domain-specific compromise patterns: temporal sharing
+          (Org A covers week 1-2, Org B covers week 3-4), geographic
+          splitting, capability-based division (one provides transport,
+          other provides goods), joint operations with shared credit.
+
+  - id: "AP-003"
+    name: "communication_style"
+    type: "configurable"
+    parameters:
+      - name: "formality_level"
+        current: "business_professional"
+        notes: >
+          Humanitarian coordination ranges from formal (inter-agency
+          standing committee) to informal (field-level cluster meeting).
+          Adjust language, document format, and protocol references.
+      - name: "cultural_sensitivity"
+        current: "western_business_norms"
+        notes: >
+          Critical to adapt. Negotiation norms differ enormously across
+          cultures. Direct disagreement acceptable in some contexts,
+          face-threatening in others. Agent must detect and adapt.
+      - name: "language"
+        current: "english"
+        notes: "Humanitarian coordination often requires French, Arabic, Spanish"
+
+  - id: "AP-004"
+    name: "precedent_engine"
+    type: "swappable_component"
+    current: "contract_precedent_database"
+    interface: "PrecedentLookup"
+    description: >
+      Finds relevant past agreements to inform current negotiation.
+      Interface: find_precedents(situation) → list<precedent>
+    suggested_alternatives:
+      - name: "humanitarian_coordination_precedents"
+        for_domain: "humanitarian"
+        description: >
+          Database of past humanitarian response coordination
+          agreements, including who-does-what matrices from previous
+          emergencies, cluster coordination patterns, and lessons learned.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "constraint-solver"
+      interface: "ConstraintSolver"
+      purpose: "Find feasible solution space given hard constraints"
+      required: true
+
+    - behavior: "translation-service"
+      interface: "TranslationService"
+      purpose: "Translate proposals and summaries for multilingual parties"
+      required: false
+
+    - behavior: "visualization-generator"
+      interface: "ChartGenerator"
+      purpose: "Create trade-off visualizations for decision-makers"
+      required: false
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Called when resource allocation disputes arise between responding orgs"
+    - pattern: "procurement-workflow"
+      role: "Called during supplier selection and contract negotiation phase"
+
+  emits:
+    - event: "proposal_generated"
+      payload: "proposed_agreement"
+      description: "New proposal ready for party review"
+
+    - event: "deadlock_detected"
+      payload: "blocker_analysis"
+      description: "Negotiation stuck — may need escalation or creative intervention"
+
+    - event: "agreement_reached"
+      payload: "final_agreement"
+      description: "All parties accepted a proposal"
+
+    - event: "fairness_concern_flagged"
+      payload: "equity_report"
+      description: "Proposed solution may disadvantage a vulnerable party"
+
+  listens_to:
+    - event: "party_response_received"
+      source: "negotiation-interface"
+      action: "Incorporate feedback and generate updated proposal"
+
+    - event: "constraint_changed"
+      source: "party-interface"
+      action: "Re-evaluate feasible solution space"
+
+    - event: "new_party_joined"
+      source: "coordination-manager"
+      action: "Incorporate new party's preferences and constraints"
+
+    - event: "resource_pool_updated"
+      source: "resource-tracker"
+      action: "Recalculate solutions with updated resource availability"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Agent proposes 'optimal' solution that ignores power dynamics"
+      impact: "Weaker parties feel railroaded; agreement doesn't hold"
+      severity: "high"
+      mitigation: >
+        Equity floor: every party must meet minimum acceptable outcome.
+        Explicit power-balance analysis in fairness assessment.
+        Advocate mode: agent can highlight when a powerful party's
+        preference disadvantages vulnerable populations.
+
+    - id: "FM-002"
+      scenario: "Deadlock resolution pushes parties to agree prematurely"
+      impact: "Bad agreement worse than no agreement"
+      severity: "medium"
+      mitigation: >
+        Agent explicitly flags when compromise quality drops below
+        threshold. Recommends escalation to higher authority rather
+        than forcing weak consensus.
+
+    - id: "FM-003"
+      scenario: "Party games the system by misrepresenting constraints"
+      impact: "Unfair outcomes; erosion of trust in the platform"
+      severity: "medium"
+      mitigation: >
+        Cross-reference stated constraints with observed behavior and
+        historical data. Flag inconsistencies privately to facilitator.
+        Build reputation tracking across negotiations.
+
+    - id: "FM-004"
+      scenario: "Cultural communication norms cause misunderstanding"
+      impact: "Offense, withdrawal, or false agreement"
+      severity: "high_in_humanitarian"
+      mitigation: >
+        Cultural context notes per party. Explicit confirmation of
+        agreement (not assumed from silence). Human facilitator
+        in the loop for cross-cultural negotiations.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: >
+        Optimizing for organizational efficiency may not align with
+        humanitarian principles (humanity, impartiality, neutrality,
+        independence)
+      recommendation: >
+        Embed humanitarian principles as hard constraints, not soft
+        preferences. Impartiality means allocation by need, not by
+        organizational capacity or political relationships.
+
+    - context: "humanitarian"
+      concern: >
+        Affected populations are not at the negotiation table but
+        are most impacted by the outcome
+      recommendation: >
+        Include "affected population advocate" as a synthetic party
+        whose preferences are derived from needs assessments and
+        community feedback data.
+
+    - context: "any"
+      concern: >
+        AI-facilitated negotiation could reduce human agency and
+        create pressure to accept algorithmic recommendations
+      recommendation: >
+        Always present multiple options, never single "optimal" answer.
+        Clearly label recommendations as suggestions. Preserve human
+        authority to reject all proposals.
+
+  performance:
+    tested_scale: "8 parties, 15 resource types, 50 constraints"
+    latency: "< 10 seconds for proposal generation; < 1 minute for full analysis"
+    accuracy: >
+      In procurement: 78% of proposals accepted with minor modifications.
+      In humanitarian simulation: 65% acceptance (lower due to less
+      structured preferences and more complex politics).
+    known_degradation: >
+      Quality degrades significantly beyond 12 parties. Recommend
+      sub-group negotiation with cross-group coordination for larger
+      groups. Constraint conflicts become computationally expensive
+      beyond 100 hard constraints.
+
+  observability:
+    logging: "Full negotiation transcript with proposals, responses, and rationale"
+    explainability: >
+      Each proposal includes: why this allocation, what trade-offs were
+      considered, how fairness was assessed, and what alternatives exist
+    reproducibility: "Deterministic given same inputs and random seed"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Negotiating bulk purchase agreements with consumer goods suppliers —
+      balancing price, volume commitments, delivery schedules, and
+      exclusive distribution terms across multiple supplier relationships.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail-procurement"
+      date: "2025-12-01"
+      notes: "Basic two-party price-volume negotiation support"
+
+    - version: "1.5.0"
+      domain: "retail-procurement"
+      date: "2026-01-15"
+      notes: "Extended to multi-supplier comparison and trade-off analysis"
+      adaptation_points_changed: ["AP-001", "AP-004"]
+
+    - version: "2.0.0"
+      domain: "humanitarian-coordination"
+      date: "2026-02-13"
+      notes: >
+        Forked for humanitarian cluster coordination. Replaced price
+        metrics with needs-based fairness, added cultural sensitivity
+        layer, integrated affected-population advocacy, and built
+        asynchronous negotiation support.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "AA-001", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI agent with conversation memory"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph stateful workflow with human-in-the-loop nodes"
+      - name: "AutoGen"
+        version: ">=0.2"
+        integration: "AutoGen multi-agent conversation participant"

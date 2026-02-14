@@ -1,0 +1,340 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Budget Envelope Allocator
+# =============================================================================
+# Originally built for: Marketing budget allocation across ad channels
+# Forked for: Emergency fund distribution across humanitarian response sectors
+# =============================================================================
+
+identity:
+  name: "budget-envelope-allocator"
+  display_name: "Budget Envelope Allocator"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["budget", "allocation", "optimization", "financial-planning", "resource-distribution"]
+
+problem_pattern:
+  category: "constrained-resource-allocation"
+  description: >
+    Distributes a finite monetary budget across competing categories
+    to maximize overall impact, respecting minimum commitments,
+    maximum caps, and performance feedback from prior allocations.
+
+  sub_patterns:
+    - "multi-objective-budget-optimization"
+    - "diminishing-returns-modeling"
+    - "minimum-floor-enforcement"
+    - "reallocation-based-on-performance"
+    - "scenario-planning-under-uncertainty"
+
+  analogous_domains:
+    - domain: "marketing-budget-optimization"
+      similarity: 0.93
+      notes: >
+        Original domain. Allocating ad spend across channels (Google,
+        Meta, email) based on ROI and strategic goals.
+    - domain: "emergency-fund-distribution"
+      similarity: 0.79
+      notes: >
+        Allocating donor funds across response sectors (health, shelter,
+        WASH, protection). "ROI" becomes "lives impacted per dollar."
+        Donor restrictions replace business strategy as constraint source.
+    - domain: "government-departmental-budgeting"
+      similarity: 0.75
+      notes: >
+        Annual budget across ministries/departments. Political constraints
+        add complexity beyond pure optimization.
+    - domain: "venture-capital-portfolio-allocation"
+      similarity: 0.72
+      notes: >
+        Distributing fund capital across startups. Higher uncertainty
+        and binary outcomes (win big or lose) vs. continuous returns.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "monthly budget planning cycle"
+      - "on emergency_funding_received for immediate allocation"
+      - "on mid-cycle performance review for rebalancing"
+
+  inputs:
+    - name: "total_budget"
+      type: "currency_amount"
+      required: true
+      description: "Total available budget for the allocation period"
+
+    - name: "categories"
+      type: "list<budget_category>"
+      required: true
+      description: >
+        Each category with: minimum required allocation, maximum cap,
+        historical performance data, and strategic priority level.
+
+    - name: "constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Earmarked funds, donor restrictions, contractual commitments,
+        and policy-mandated minimums.
+
+    - name: "performance_history"
+      type: "list<performance_record>"
+      required: false
+      description: "Past allocation outcomes to inform impact modeling"
+      default_behavior: "Equal distribution with manual adjustment"
+
+    - name: "scenarios"
+      type: "list<scenario_definition>"
+      required: false
+      description: "What-if scenarios to model (best case, worst case, etc.)"
+      default_behavior: "Single baseline scenario"
+
+  outputs:
+    - name: "allocation_plan"
+      type: "budget_distribution"
+      description: >
+        Recommended allocation per category with rationale, expected
+        impact, and comparison to alternatives.
+      confidence_included: true
+
+    - name: "scenario_comparison"
+      type: "scenario_analysis"
+      description: >
+        Side-by-side comparison of outcomes under different scenarios
+        or allocation strategies.
+
+    - name: "reallocation_triggers"
+      type: "list<monitoring_rule>"
+      description: >
+        Conditions that should trigger mid-cycle reallocation
+        (e.g., "if shelter response exceeds 80% spend by day 15").
+
+  reasoning:
+    method: "impact-maximization-with-constraints"
+    objectives:
+      - "Satisfy all earmarked and minimum allocation constraints (weight: mandatory)"
+      - "Maximize projected aggregate impact (weight: 0.5)"
+      - "Ensure minimum viable funding for every category (weight: 0.3)"
+      - "Preserve flexibility for emerging needs (weight: 0.2)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Performance data exists to model impact per dollar"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian impact measurement is harder than marketing ROI.
+        Use proxy indicators: cost per beneficiary, coverage rates,
+        mortality reduction estimates. Accept wider confidence intervals.
+
+    - id: "DA-002"
+      assumption: "Budget is received as a lump sum at start of cycle"
+      strength: "soft"
+      adaptation_note: >
+        Emergency funding arrives in waves — initial flash appeal,
+        then pledges over weeks/months. The allocator must handle
+        rolling budget updates and provisional allocations.
+
+    - id: "DA-003"
+      assumption: "Categories are independent — spending in one doesn't affect others"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian sectors are deeply interconnected. Underfunding
+        WASH (water/sanitation) increases health costs. The allocator
+        needs cross-sector impact modeling.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Single currency, predictable costs"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian operations span multiple currencies with volatile
+        exchange rates and supply-driven price spikes (e.g., post-disaster
+        construction material costs). Add currency hedging and price
+        volatility buffers.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single decision-maker controls the full budget"
+      strength: "hard"
+      adaptation_note: >
+        Emergency funds often come from multiple donors with different
+        restrictions. The allocator must track donor-specific earmarks
+        and report back per-donor on how their funds were used.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "impact_model"
+    type: "swappable_component"
+    current: "marketing_roi_model"
+    interface: "ImpactPredictor"
+    description: >
+      Predicts impact per dollar allocated to each category.
+      Interface: predict(category, amount) → {projected_impact, confidence}
+    suggested_alternatives:
+      - name: "humanitarian_impact_estimator"
+        for_domain: "emergency-response"
+        description: >
+          Uses DALYs averted, beneficiaries reached, mortality reduction,
+          and coverage rates as impact metrics. Incorporates WHO/UNICEF
+          cost-effectiveness benchmarks.
+
+  - id: "AP-002"
+    name: "constraint_handler"
+    type: "configurable"
+    parameters:
+      - name: "earmark_types"
+        current: ["channel_minimum", "campaign_commitment"]
+        notes: >
+          Humanitarian: donor earmarks (CERF for life-saving only,
+          bilateral funds for specific sectors), government co-funding
+          requirements, and pipeline commitments.
+      - name: "flexibility_reserve"
+        current: "10% of total budget"
+        notes: >
+          In emergencies, increase to 15-20% for rapidly emerging needs.
+          This is the fund's "insurance policy."
+
+  - id: "AP-003"
+    name: "reporting_format"
+    type: "swappable_component"
+    current: "marketing_dashboard"
+    interface: "AllocationReporter"
+    description: >
+      Generates allocation reports for stakeholders.
+      Interface: report(allocation, period) → formatted_report
+    suggested_alternatives:
+      - name: "donor_compliance_reporter"
+        for_domain: "humanitarian"
+        description: >
+          Generates per-donor financial reports showing how earmarked
+          funds were used, compliance with donor conditions, and
+          impact achieved. Matches IATI (International Aid Transparency
+          Initiative) reporting standards.
+
+composition:
+  delegates_to:
+    - behavior: "currency-converter"
+      interface: "CurrencyService"
+      purpose: "Handle multi-currency budget components"
+      required: false
+    - behavior: "report-generator"
+      interface: "ReportGenerator"
+      purpose: "Produce stakeholder-specific budget reports"
+      required: true
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Financial planning component of broader response coordination"
+
+  emits:
+    - event: "allocation_proposed"
+      payload: "budget_distribution"
+      description: "New allocation ready for approval"
+    - event: "underfunding_alert"
+      payload: "category_alert"
+      description: "A critical category cannot meet minimum viable funding"
+    - event: "reallocation_triggered"
+      payload: "rebalance_recommendation"
+      description: "Mid-cycle performance warrants budget reallocation"
+
+  listens_to:
+    - event: "new_funding_received"
+      source: "finance-system"
+      action: "Recalculate allocation with updated total budget"
+    - event: "spending_report_updated"
+      source: "accounting-system"
+      action: "Compare actuals to plan; flag over/under-spend"
+    - event: "needs_assessment_updated"
+      source: "field-assessment-team"
+      action: "Re-evaluate category priorities based on new data"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Impact model overestimates returns in one category"
+      impact: "Over-allocation to lower-impact area; under-allocation to critical needs"
+      severity: "high"
+      mitigation: >
+        Conservative impact estimates. Minimum floor per category.
+        Monthly performance review triggers reallocation.
+
+    - id: "FM-002"
+      scenario: "Donor earmarks consume most of the budget, leaving little flexibility"
+      impact: "Emerging needs can't be addressed"
+      severity: "high"
+      mitigation: >
+        Flag when earmarked funds exceed 70% of total. Recommend
+        negotiation with donors for more flexible funding.
+
+    - id: "FM-003"
+      scenario: "Cross-sector dependencies cause cascading underfunding"
+      impact: "Savings in one area create costs in another"
+      severity: "medium"
+      mitigation: >
+        Cross-sector impact modeling. Alert when cutting one category
+        is projected to increase costs in dependent categories.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Pure efficiency optimization may deprioritize hard-to-reach populations"
+      recommendation: >
+        Include equity weighting: allocations must consider access
+        barriers, not just cost-per-beneficiary. Remote or conflict-
+        affected populations cost more to reach but deserve equal consideration.
+
+    - context: "humanitarian"
+      concern: "Donor visibility preferences may distort allocation"
+      recommendation: >
+        Flag when donor earmarks create systematic bias toward
+        visible/media-friendly sectors over less visible but critical needs.
+
+  performance:
+    tested_scale: "15 categories, 8 donors, 3 currencies, quarterly cycle"
+    latency: "< 15 seconds for allocation; < 2 minutes with scenario analysis"
+    accuracy: "Allocation within 5% of expert-recommended distribution in backtesting"
+    known_degradation: "Impact prediction unreliable with < 2 cycles of performance data"
+
+  observability:
+    logging: "Full decision trail: inputs, constraints evaluated, alternatives ranked"
+    explainability: "Per-category explanation of why this amount, what alternatives existed"
+    reproducibility: "Deterministic given same inputs"
+
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Allocating monthly marketing budget across channels (Google Ads,
+      Meta, email campaigns, local events) to maximize customer
+      acquisition while maintaining brand presence.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail-marketing"
+      date: "2025-12-15"
+      notes: "Basic marketing budget allocator for RetailCo"
+    - version: "2.0.0"
+      domain: "humanitarian-emergency-funding"
+      date: "2026-02-13"
+      notes: >
+        Forked for emergency fund distribution. Replaced ROI model
+        with humanitarian impact estimator, added donor earmark
+        tracking, multi-currency support, and cross-sector dependencies.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

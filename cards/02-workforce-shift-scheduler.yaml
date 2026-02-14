@@ -1,0 +1,352 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Workforce Shift Scheduler
+# =============================================================================
+# Originally built for: Retail store employee shift scheduling
+# Forked for: Disaster relief volunteer coordination
+# =============================================================================
+
+identity:
+  name: "workforce-shift-scheduler"
+  display_name: "Workforce Shift Scheduler"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["scheduling", "workforce", "optimization", "shift-planning", "volunteer"]
+
+problem_pattern:
+  category: "constrained-resource-allocation"
+  description: >
+    Assigns people with specific skills and availability windows to
+    time-bound roles across multiple locations, while respecting labor
+    rules, fairness constraints, and individual preferences.
+
+  sub_patterns:
+    - "skill-to-role-matching"
+    - "temporal-constraint-satisfaction"
+    - "fairness-balanced-allocation"
+    - "coverage-gap-detection"
+    - "fatigue-and-burnout-prevention"
+
+  analogous_domains:
+    - domain: "retail-staff-scheduling"
+      similarity: 0.95
+      notes: >
+        Original domain. Employee availability, skill certifications,
+        labor law constraints, and fair hour distribution.
+    - domain: "disaster-volunteer-coordination"
+      similarity: 0.78
+      notes: >
+        Volunteers instead of employees. Less predictable availability,
+        no labor contracts, wider skill variance, and safety constraints
+        replace labor law constraints.
+    - domain: "hospital-nurse-rostering"
+      similarity: 0.82
+      notes: >
+        Nearly identical structure with higher stakes. Strict
+        credentialing requirements and patient safety implications.
+    - domain: "military-duty-rotation"
+      similarity: 0.70
+      notes: >
+        Similar rotation and fatigue management. Hierarchical authority
+        replaces preference-based scheduling.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "weekly on Sunday at 18:00 for upcoming week"
+      - "on coverage_gap_detected event for immediate rebalancing"
+      - "on new_volunteer_registered for integration into rotation"
+
+  inputs:
+    - name: "workforce_roster"
+      type: "list<person_profile>"
+      required: true
+      description: >
+        Each person with skills, certifications, availability windows,
+        location preferences, language capabilities, and historical hours.
+      freshness: "< 24 hours"
+
+    - name: "role_requirements"
+      type: "list<shift_template>"
+      required: true
+      description: >
+        What roles need to be filled, when, where, what skills required,
+        and minimum/maximum staffing levels.
+
+    - name: "scheduling_constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Hard rules: max hours per week, minimum rest between shifts,
+        required certifications per role, and any blackout periods.
+
+    - name: "historical_assignments"
+      type: "list<past_schedule>"
+      required: false
+      description: "Past schedules for fairness balancing and pattern learning"
+      default_behavior: "No fairness history; equal distribution assumed"
+
+  outputs:
+    - name: "schedule"
+      type: "shift_assignment_matrix"
+      description: >
+        Complete schedule mapping people to shifts with role assignments,
+        locations, and any special instructions.
+      confidence_included: true
+
+    - name: "coverage_report"
+      type: "gap_analysis"
+      description: >
+        Any unfilled shifts, understaffed periods, or skill gaps
+        that couldn't be resolved automatically.
+
+    - name: "fairness_report"
+      type: "equity_analysis"
+      description: >
+        Distribution of hours, undesirable shifts, and travel burden
+        across the workforce. Flags imbalances.
+
+  reasoning:
+    method: "constraint-satisfaction-with-preference-optimization"
+    objectives:
+      - "Fill all required shifts with qualified personnel (weight: mandatory)"
+      - "Respect all hard constraints — rest periods, max hours, certifications (weight: mandatory)"
+      - "Maximize preference satisfaction across workforce (weight: 0.3)"
+      - "Ensure fair distribution of desirable and undesirable shifts (weight: 0.3)"
+      - "Minimize travel/commute burden (weight: 0.2)"
+      - "Maintain team continuity where beneficial (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Worker availability is submitted in advance and reliable"
+      strength: "hard"
+      adaptation_note: >
+        Volunteers often have unpredictable availability. Support
+        real-time availability updates, standby lists, and automatic
+        backfill when someone doesn't show. SMS-based check-in system.
+
+    - id: "DA-002"
+      assumption: "Skills and certifications are verified and current"
+      strength: "hard"
+      adaptation_note: >
+        Volunteer skills are often self-reported and unverified. Add
+        skill assessment workflow and buddy-system pairing of unverified
+        volunteers with experienced responders.
+
+    - id: "DA-003"
+      assumption: "Roles and shift templates are stable week to week"
+      strength: "soft"
+      adaptation_note: >
+        Crisis response needs change daily. The scheduler must support
+        dynamic role creation, mid-week schedule overhauls, and
+        rapid scale-up from 20 to 200 people.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "All locations are fixed and accessible"
+      strength: "hard"
+      adaptation_note: >
+        Disaster response locations change as the situation evolves.
+        New sites open, others become inaccessible. Scheduler must
+        handle location additions/removals mid-cycle.
+
+    - id: "EA-002"
+      assumption: "Workers can reliably commute to assigned locations"
+      strength: "soft"
+      adaptation_note: >
+        In disaster zones, transport is unreliable. Factor in
+        accommodation proximity, transport availability, and
+        security escort requirements for certain areas.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single manager approves the final schedule"
+      strength: "hard"
+      adaptation_note: >
+        Volunteer coordination involves multiple organizations
+        each managing their own people. The scheduler must produce
+        per-organization views and respect each org's authority
+        over their volunteers while optimizing globally.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "constraint_engine"
+    type: "configurable"
+    parameters:
+      - name: "max_consecutive_hours"
+        current: "8 hours"
+        notes: "Crisis response may need 12-hour shifts but with mandatory rest"
+      - name: "min_rest_between_shifts"
+        current: "11 hours"
+        notes: "Maintain or increase for volunteer safety in high-stress environments"
+      - name: "max_weekly_hours"
+        current: "40 hours"
+        notes: "Volunteers often work shorter stints (1-2 weeks intense, then leave)"
+      - name: "fairness_window"
+        current: "rolling 4 weeks"
+        notes: "For short-term volunteers, fairness window = their entire deployment"
+
+  - id: "AP-002"
+    name: "skill_matcher"
+    type: "swappable_component"
+    current: "retail_skill_matcher"
+    interface: "SkillMatcher"
+    description: >
+      Matches people to roles based on skills.
+      Interface: match(person, role) → {score, gaps, can_fill}
+    suggested_alternatives:
+      - name: "humanitarian_competency_matcher"
+        for_domain: "disaster-response"
+        description: >
+          Matches against humanitarian competency framework including
+          languages spoken, cultural familiarity, security training,
+          psychosocial support certification, and first aid levels.
+
+  - id: "AP-003"
+    name: "wellbeing_monitor"
+    type: "swappable_component"
+    current: "overtime_tracker"
+    interface: "WellbeingAssessor"
+    description: >
+      Monitors workforce wellbeing signals.
+      Interface: assess(person, recent_history) → {risk_level, recommendations}
+    suggested_alternatives:
+      - name: "responder_burnout_detector"
+        for_domain: "disaster-response"
+        description: >
+          Tracks cumulative stress indicators: consecutive days deployed,
+          exposure to traumatic situations, sleep disruption patterns,
+          and self-reported wellbeing. Triggers mandatory rest or
+          psychosocial support referral.
+
+composition:
+  delegates_to:
+    - behavior: "notification-sender"
+      interface: "NotificationService"
+      purpose: "Send schedule updates to workers via their preferred channel"
+      required: true
+    - behavior: "translation-service"
+      interface: "TranslationService"
+      purpose: "Translate schedule communications for multilingual workforce"
+      required: false
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Manages human resource allocation within broader response"
+
+  emits:
+    - event: "schedule_published"
+      payload: "shift_assignment_matrix"
+      description: "New schedule ready for distribution"
+    - event: "coverage_gap_critical"
+      payload: "gap_analysis"
+      description: "Unable to fill essential shifts — needs escalation"
+    - event: "burnout_risk_detected"
+      payload: "wellbeing_alert"
+      description: "Individual at risk of burnout based on schedule patterns"
+
+  listens_to:
+    - event: "availability_updated"
+      source: "workforce-portal"
+      action: "Recalculate affected shifts"
+    - event: "new_site_activated"
+      source: "operations-manager"
+      action: "Add new location's shift requirements to schedule"
+    - event: "person_unavailable"
+      source: "check-in-system"
+      action: "Trigger immediate backfill for affected shifts"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Key skill gap unfilled — no qualified person available"
+      impact: "Critical role empty during shift"
+      severity: "high"
+      mitigation: >
+        Advance warning when schedule is published. Escalation to
+        coordinator. Cross-training recommendations to build redundancy.
+
+    - id: "FM-002"
+      scenario: "Optimizer prioritizes coverage over individual wellbeing"
+      impact: "Burnout, injury, or psychological harm"
+      severity: "critical"
+      mitigation: >
+        Wellbeing constraints are hard, not soft. No override without
+        explicit human authorization. Mandatory rest is non-negotiable.
+
+    - id: "FM-003"
+      scenario: "Unfair distribution goes undetected"
+      impact: "Resentment, volunteer attrition"
+      severity: "medium"
+      mitigation: >
+        Automated fairness report with every schedule. Flag any person
+        receiving >20% more undesirable shifts than average.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Scheduling algorithms may not account for cultural and religious needs"
+      recommendation: >
+        Include prayer times, religious holidays, dietary requirements
+        for shift meal planning, and gender-appropriate team composition
+        as scheduling constraints.
+
+    - context: "humanitarian"
+      concern: "Power dynamics between paid staff and volunteers"
+      recommendation: >
+        Ensure the scheduler doesn't systematically assign undesirable
+        shifts to volunteers while giving paid staff better schedules.
+        Fairness metrics must cross employment-type boundaries.
+
+  performance:
+    tested_scale: "200 workers, 50 roles, 15 locations, 7-day horizon"
+    latency: "< 60 seconds for full schedule generation"
+    accuracy: "98% of shifts filled on first pass; 100% with manual intervention"
+    known_degradation: >
+      Beyond 500 workers, optimization time increases significantly.
+      Recommend sub-group scheduling with cross-group coordination.
+
+  observability:
+    logging: "Every assignment decision with reasoning and alternatives considered"
+    explainability: "Per-person report showing why they were assigned specific shifts"
+    reproducibility: "Deterministic given same inputs and random seed"
+
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Scheduling part-time and full-time employees across RetailCo
+      store locations based on skills (fishing expertise, camping gear,
+      bilingual service) and availability.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail"
+      date: "2026-01-05"
+      notes: "Basic employee shift scheduling for multiple retail locations"
+
+    - version: "2.0.0"
+      domain: "disaster-volunteer-coordination"
+      date: "2026-02-13"
+      notes: >
+        Forked for disaster response volunteer coordination. Added
+        dynamic availability, burnout monitoring, multi-org authority,
+        and rapid scale-up support.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

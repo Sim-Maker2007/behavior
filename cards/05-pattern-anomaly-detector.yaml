@@ -1,0 +1,504 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Pattern Anomaly Detector
+# =============================================================================
+# Originally built for: Transaction fraud detection in e-commerce
+# Forked for: Early disease outbreak detection in rural health networks
+# =============================================================================
+
+identity:
+  name: "pattern-anomaly-detector"
+  display_name: "Pattern Anomaly Detector & Alerter"
+  version: "2.1.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["anomaly-detection", "pattern-recognition", "alerting", "time-series", "surveillance"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "anomaly-detection-and-response"
+  description: >
+    Monitors streams of events over time, learns what "normal" looks like,
+    detects deviations from normal patterns, determines if those deviations
+    are significant, and triggers appropriate alerts with context.
+
+  sub_patterns:
+    - "baseline-learning"
+    - "deviation-scoring"
+    - "alert-threshold-management"
+    - "contextual-false-positive-filtering"
+    - "trend-vs-spike-differentiation"
+
+  analogous_domains:
+    - domain: "financial-fraud-detection"
+      similarity: 0.92
+      notes: >
+        Original domain. Transaction patterns, velocity checks, and
+        geographic anomalies map directly to event monitoring patterns.
+
+    - domain: "disease-outbreak-surveillance"
+      similarity: 0.80
+      notes: >
+        Syndromic surveillance uses identical statistical methods.
+        Key difference: "transactions" become "symptom reports" and
+        "fraud" becomes "outbreak signal." Time scales differ (minutes
+        for fraud, days/weeks for disease).
+
+    - domain: "equipment-predictive-maintenance"
+      similarity: 0.75
+      notes: >
+        Sensor readings replacing transaction data. Same baseline +
+        deviation approach. Equipment has more predictable patterns
+        than human behavior.
+
+    - domain: "cybersecurity-intrusion-detection"
+      similarity: 0.85
+      notes: >
+        Network traffic anomalies use nearly identical detection
+        methods. Alert fatigue management is a shared challenge.
+
+    - domain: "environmental-monitoring"
+      similarity: 0.70
+      notes: >
+        Water quality, air quality, seismic activity — same pattern
+        of baseline + deviation + alert. Slower time scales.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "continuous"
+    conditions:
+      - "processes each event as it arrives (streaming mode)"
+      - "runs batch analysis every 6 hours for trend detection"
+
+  inputs:
+    - name: "event_stream"
+      type: "stream<event>"
+      required: true
+      description: >
+        Continuous stream of events to monitor. Each event has a
+        timestamp, source, type, and domain-specific attributes.
+      freshness: "real-time"
+
+    - name: "baseline_model"
+      type: "statistical_model"
+      required: true
+      description: >
+        Learned model of "normal" patterns. Updated periodically
+        as the system learns. Includes seasonal adjustments.
+      freshness: "< 24 hours (auto-updated)"
+
+    - name: "alert_rules"
+      type: "rule_set"
+      required: true
+      description: >
+        Thresholds and conditions that determine when a deviation
+        becomes an alert. Configurable per event type.
+
+    - name: "contextual_data"
+      type: "map<string, any>"
+      required: false
+      description: >
+        External context that explains expected deviations (holidays,
+        promotions, known events) to reduce false positives.
+      default_behavior: "No context filtering; higher false positive rate"
+
+  outputs:
+    - name: "anomaly_score"
+      type: "scored_event"
+      description: >
+        Each event annotated with its deviation score from baseline,
+        which dimensions are anomalous, and historical context.
+      confidence_included: true
+
+    - name: "alert"
+      type: "alert_notification"
+      description: >
+        Triggered when anomaly exceeds threshold. Includes: severity,
+        affected dimensions, trend direction, recommended actions,
+        and supporting evidence.
+
+    - name: "pattern_report"
+      type: "trend_analysis"
+      description: >
+        Periodic summary of emerging patterns, slow-moving trends,
+        and shifts in baseline behavior.
+
+  reasoning:
+    method: "statistical-deviation-with-contextual-filtering"
+    objectives:
+      - "Detect true anomalies with high recall — never miss a real one (weight: 0.5)"
+      - "Minimize false positives to prevent alert fatigue (weight: 0.3)"
+      - "Provide actionable context with every alert (weight: 0.2)"
+    approach: >
+      Multi-layer: (1) Statistical deviation scoring (z-score, IQR, and
+      isolation forest ensemble), (2) Contextual filtering removes
+      explainable deviations, (3) Temporal analysis distinguishes spikes
+      from trends, (4) Alert enrichment adds historical comparisons
+      and suggested investigation paths.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Events arrive with consistent schema and reliable timestamps"
+      strength: "hard"
+      adaptation_note: >
+        Health facility reports in rural areas may arrive as free-text SMS,
+        paper forms digitized with OCR, or verbal reports. Add preprocessing
+        to normalize into structured events. Timestamps may be approximate
+        ("last Tuesday") rather than precise.
+
+    - id: "DA-002"
+      assumption: "Sufficient historical data exists to build a baseline (>6 months)"
+      strength: "hard"
+      adaptation_note: >
+        New health surveillance programs may have little history. Use
+        population-level epidemiological baselines as a prior, then
+        learn facility-specific patterns over time. Transfer learning
+        from similar facilities in the same region.
+
+    - id: "DA-003"
+      assumption: "Events are independent or have known correlations"
+      strength: "soft"
+      adaptation_note: >
+        Disease events are inherently correlated — one case of cholera
+        means more are coming. The detector must understand contagion
+        dynamics, not just treat each case independently. Add
+        epidemiological propagation models.
+
+    - id: "DA-004"
+      assumption: "Ground truth labels exist for training (fraud/not-fraud)"
+      strength: "soft"
+      adaptation_note: >
+        Outbreak confirmation is slow (lab results take days/weeks).
+        System must operate mostly unsupervised, with retrospective
+        labeling to improve over time.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Data sources report consistently without long gaps"
+      strength: "soft"
+      adaptation_note: >
+        Rural health facilities may go offline for days. A facility
+        that stops reporting is itself an anomaly signal (staff
+        overwhelmed? infrastructure failure?). Distinguish "no data"
+        from "nothing to report."
+
+    - id: "EA-002"
+      assumption: "Alert recipients are monitoring dashboards in real-time"
+      strength: "soft"
+      adaptation_note: >
+        Health officers in rural districts may check systems once daily.
+        Critical alerts must use push channels: SMS, phone call, WhatsApp.
+        Escalation chains for unacknowledged alerts.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Alerts are informational — humans decide response"
+      strength: "hard"
+      adaptation_note: >
+        Same in health context but with clearer escalation protocols.
+        Suspected outbreak triggers notification chain: facility →
+        district health officer → regional epidemiologist → ministry.
+
+    - id: "AA-002"
+      assumption: "Single organization owns all data sources"
+      strength: "hard"
+      adaptation_note: >
+        Health data spans government facilities, NGO clinics, private
+        pharmacies, and community health workers. Requires federated
+        anomaly detection that works with partial data visibility and
+        respects data sovereignty.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "baseline_model"
+    type: "swappable_component"
+    current: "transaction_frequency_baseline"
+    interface: "BaselineModel"
+    description: >
+      The model of "normal" that deviations are measured against.
+      Interface: score(event) → deviation_score; update(events) → void
+    suggested_alternatives:
+      - name: "epidemiological_baseline"
+        for_domain: "health-surveillance"
+        description: >
+          Seasonal disease incidence rates by region, adjusted for
+          population, climate, and historical outbreak patterns.
+          Incorporates WHO/CDC reference baselines.
+      - name: "sensor_degradation_baseline"
+        for_domain: "predictive-maintenance"
+        description: >
+          Equipment sensor readings with degradation curves and
+          maintenance cycle adjustments.
+      - name: "network_traffic_baseline"
+        for_domain: "cybersecurity"
+        description: >
+          Normal network flow patterns with workday/weekend cycles,
+          seasonal business patterns, and known application behaviors.
+
+  - id: "AP-002"
+    name: "anomaly_dimensions"
+    type: "configurable"
+    parameters:
+      - name: "monitored_dimensions"
+        current:
+          - "transaction_velocity"
+          - "geographic_spread"
+          - "amount_distribution"
+          - "time_of_day_pattern"
+        notes: >
+          For health surveillance, replace with:
+          - symptom_cluster_frequency
+          - geographic_clustering
+          - age_distribution_shift
+          - facility_reporting_rate
+          - drug_consumption_anomaly (pharmacy data)
+      - name: "correlation_window"
+        current: "1 hour"
+        notes: >
+          For disease: extend to 7-14 days. Outbreaks develop
+          over days/weeks, not minutes.
+      - name: "spatial_resolution"
+        current: "city-level"
+        notes: "For health: district or catchment-area level"
+
+  - id: "AP-003"
+    name: "alert_channel"
+    type: "swappable_component"
+    current: "dashboard_and_email"
+    interface: "AlertDispatcher"
+    description: >
+      How alerts are delivered. Interface:
+      dispatch(alert, recipients) → delivery_confirmation
+    suggested_alternatives:
+      - name: "sms_escalation_chain"
+        for_domain: "health-surveillance"
+        description: >
+          SMS-first for rural areas. Escalates through district →
+          regional → national chain if unacknowledged within timeframe.
+          Supports low-bandwidth environments.
+
+  - id: "AP-004"
+    name: "false_positive_filter"
+    type: "swappable_component"
+    current: "known_event_calendar_filter"
+    interface: "ContextFilter"
+    description: >
+      Filters out explainable anomalies. Interface:
+      is_explainable(anomaly, context) → {explainable: bool, reason: string}
+    suggested_alternatives:
+      - name: "health_event_filter"
+        for_domain: "health-surveillance"
+        description: >
+          Accounts for: vaccination campaigns (spike in facility visits),
+          mass gatherings (temporary population increase), seasonal
+          migration, school calendar (childhood disease patterns),
+          and reporting artifacts (month-end data dumps).
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "geocoder"
+      interface: "Geocoder"
+      purpose: "Map event locations for spatial clustering analysis"
+      required: false
+
+    - behavior: "notification-sender"
+      interface: "NotificationService"
+      purpose: "Deliver alerts via configured channels"
+      required: true
+
+    - behavior: "report-generator"
+      interface: "ReportGenerator"
+      purpose: "Create periodic trend reports for stakeholders"
+      required: false
+
+  orchestrated_by:
+    - pattern: "surveillance-dashboard"
+      role: "Feeds real-time anomaly data to monitoring dashboard"
+    - pattern: "crisis-coordination-hub"
+      role: "Provides early warning signals to coordination system"
+
+  emits:
+    - event: "anomaly_detected"
+      payload: "anomaly_score"
+      description: "Every scored anomaly above minimum threshold"
+
+    - event: "alert_triggered"
+      payload: "alert_notification"
+      description: "Significant anomaly requiring human attention"
+
+    - event: "trend_shift_detected"
+      payload: "pattern_report"
+      description: "Slow-moving baseline shift identified"
+
+    - event: "data_source_silent"
+      payload: "source_status"
+      description: "A data source stopped reporting unexpectedly"
+
+  listens_to:
+    - event: "alert_acknowledged"
+      source: "responder-interface"
+      action: "Mark alert as seen; stop escalation"
+
+    - event: "alert_resolved"
+      source: "responder-interface"
+      action: "Feed outcome back to model for learning"
+
+    - event: "context_event_registered"
+      source: "context-manager"
+      action: "Add to false positive filter (e.g., known holiday)"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Real outbreak missed because it looked like a gradual trend"
+      impact: "Delayed public health response; preventable deaths"
+      severity: "critical"
+      mitigation: >
+        Dual detection: spike detector AND trend detector run in parallel.
+        Trend alerts have lower thresholds than spike alerts.
+
+    - id: "FM-002"
+      scenario: "Alert fatigue causes responders to ignore real alerts"
+      impact: "True positives missed due to too many false positives"
+      severity: "high"
+      mitigation: >
+        Track alert-to-action ratio. If < 30% of alerts lead to action,
+        automatically raise thresholds. Weekly false positive review.
+
+    - id: "FM-003"
+      scenario: "Reporting gap misinterpreted as 'no anomalies'"
+      impact: "Silence mistaken for safety"
+      severity: "high"
+      mitigation: >
+        Explicit "silence detection" — alert when expected data sources
+        stop reporting. No data ≠ no problem.
+
+    - id: "FM-004"
+      scenario: "Baseline contaminated by undetected past anomaly"
+      impact: "Abnormal becomes the new normal; future anomalies missed"
+      severity: "high"
+      mitigation: >
+        Robust baseline estimation that downweights outliers.
+        Periodic baseline review with domain expert validation.
+
+  ethical_flags:
+    - context: "health-surveillance"
+      concern: >
+        Disease surveillance data can be used for discrimination
+        against affected communities or ethnic groups
+      recommendation: >
+        Aggregate data before external reporting. Never include
+        individual-identifiable information in alerts. Ensure
+        alerts describe disease patterns, not population groups.
+
+    - context: "health-surveillance"
+      concern: >
+        False alarms can cause public panic and economic damage
+        (quarantines, trade restrictions, stigma)
+      recommendation: >
+        Two-stage alerting: internal investigation trigger first,
+        public health alert only after human verification.
+        Include confidence levels and alternative explanations.
+
+    - context: "any"
+      concern: "Surveillance systems can be repurposed for population monitoring"
+      recommendation: >
+        Purpose limitation built into design. Data retention policies
+        enforced technically. Access controls and audit logs.
+        Regular ethical review of system scope.
+
+  performance:
+    tested_scale: "100,000 events/hour across 200 data sources"
+    latency: "< 500ms for per-event scoring; < 5 minutes for cluster detection"
+    accuracy: >
+      Fraud domain: precision 0.87, recall 0.94 (tuned for recall).
+      Health domain (simulated): precision 0.72, recall 0.96.
+      Lower precision in health is acceptable — false alarms investigated.
+    known_degradation: >
+      Spatial clustering accuracy drops in areas with sparse data sources.
+      New data sources need ~30 days to establish reliable baseline.
+
+  observability:
+    logging: "All events scored with anomaly dimensions and evidence"
+    explainability: >
+      Each alert includes: which dimensions are anomalous, how they
+      compare to baseline, what the trend looks like, and what
+      contextual factors were considered
+    reproducibility: "Deterministic scoring given same baseline model and inputs"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "e-commerce"
+    organization: "ABC Registry"
+    original_use_case: >
+      Detecting fraudulent transactions in an retail e-commerce
+      platform — unusual purchase patterns, velocity anomalies, and
+      geographic inconsistencies.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "e-commerce-fraud"
+      date: "2025-11-01"
+      notes: "Basic transaction anomaly detection for an online retail store"
+
+    - version: "1.5.0"
+      domain: "e-commerce-fraud"
+      date: "2026-01-10"
+      notes: "Added spatial clustering and seasonal adjustment"
+      adaptation_points_changed: ["AP-002"]
+
+    - version: "2.0.0"
+      domain: "health-surveillance"
+      date: "2026-02-10"
+      notes: >
+        Forked for disease outbreak early warning. Replaced transaction
+        model with epidemiological baseline, extended time windows,
+        added silence detection and SMS alerting.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "DA-004", "EA-001", "EA-002", "AA-002"]
+
+    - version: "2.1.0"
+      domain: "health-surveillance"
+      date: "2026-02-13"
+      notes: "Added federated detection for multi-org environments"
+      adaptation_points_changed: ["AP-001"]
+      assumptions_changed: ["AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI streaming tool wrapper"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph node with state management"
+      - name: "Apache Kafka"
+        version: ">=3.0"
+        integration: "Kafka consumer/producer for event streaming"

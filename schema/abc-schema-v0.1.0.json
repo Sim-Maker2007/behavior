@@ -1,0 +1,418 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentbehaviorcard.org/schema/v0.1.0/abc.json",
+  "title": "Agent Behavior Card (ABC)",
+  "description": "A standardized metadata document describing an AI agent behavior, its problem pattern, adaptation points, and composability interface.",
+  "type": "object",
+  "required": ["abc_version", "identity", "problem_pattern", "behavior", "domain_assumptions", "adaptation_points", "trust"],
+  "properties": {
+    "abc_version": {
+      "type": "string",
+      "description": "Version of the ABC specification this card conforms to",
+      "enum": ["0.1.0"]
+    },
+    "identity": {
+      "type": "object",
+      "required": ["name", "display_name", "version", "authors", "created"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Machine-readable identifier (kebab-case)"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "org": { "type": "string" },
+              "contact": { "type": "string" }
+            }
+          }
+        },
+        "license": { "type": "string" },
+        "created": { "type": "string", "format": "date" },
+        "updated": { "type": "string", "format": "date" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "problem_pattern": {
+      "type": "object",
+      "required": ["category", "description"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Abstract problem pattern category",
+          "enum": [
+            "constrained-resource-allocation",
+            "anomaly-detection-and-response",
+            "multi-stakeholder-negotiation",
+            "information-synthesis-and-routing",
+            "sequential-decision-under-uncertainty",
+            "compliance-and-constraint-checking",
+            "adaptive-communication",
+            "pattern-matching-and-classification",
+            "custom"
+          ]
+        },
+        "custom_category": {
+          "type": "string",
+          "description": "Custom category name when category is 'custom'"
+        },
+        "description": {
+          "type": "string",
+          "description": "Plain language description of what this behavior does"
+        },
+        "sub_patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Universal sub-problems this behavior addresses"
+        },
+        "analogous_domains": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["domain", "similarity"],
+            "properties": {
+              "domain": { "type": "string" },
+              "similarity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Estimated structural similarity (0-1)"
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "required": ["trigger", "inputs", "outputs"],
+      "properties": {
+        "trigger": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["scheduled", "event-driven", "continuous", "on-demand"]
+            },
+            "conditions": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "type", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "required": { "type": "boolean", "default": true },
+              "description": { "type": "string" },
+              "freshness": {
+                "type": "string",
+                "description": "Maximum acceptable age of this data"
+              },
+              "default_behavior": {
+                "type": "string",
+                "description": "What happens if this optional input is absent"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "type", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "type": { "type": "string" },
+              "description": { "type": "string" },
+              "confidence_included": { "type": "boolean" }
+            }
+          }
+        },
+        "reasoning": {
+          "type": "object",
+          "properties": {
+            "method": { "type": "string" },
+            "objectives": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "approach": { "type": "string" }
+          }
+        }
+      }
+    },
+    "domain_assumptions": {
+      "type": "object",
+      "properties": {
+        "data_assumptions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/assumption" }
+        },
+        "environment_assumptions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/assumption" }
+        },
+        "authority_assumptions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/assumption" }
+        }
+      }
+    },
+    "adaptation_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AP-\\d{3}$"
+          },
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["swappable_component", "configurable", "extensible"]
+          },
+          "current": { "type": "string" },
+          "interface": { "type": "string" },
+          "description": { "type": "string" },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "current"],
+              "properties": {
+                "name": { "type": "string" },
+                "current": {},
+                "range": { "type": "string" },
+                "notes": { "type": "string" }
+              }
+            }
+          },
+          "suggested_alternatives": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "for_domain"],
+              "properties": {
+                "name": { "type": "string" },
+                "for_domain": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "properties": {
+        "delegates_to": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["behavior", "interface", "purpose"],
+            "properties": {
+              "behavior": { "type": "string" },
+              "interface": { "type": "string" },
+              "purpose": { "type": "string" },
+              "required": { "type": "boolean" }
+            }
+          }
+        },
+        "orchestrated_by": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pattern", "role"],
+            "properties": {
+              "pattern": { "type": "string" },
+              "role": { "type": "string" }
+            }
+          }
+        },
+        "emits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["event", "payload"],
+            "properties": {
+              "event": { "type": "string" },
+              "payload": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "listens_to": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["event", "source", "action"],
+            "properties": {
+              "event": { "type": "string" },
+              "source": { "type": "string" },
+              "action": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "required": ["failure_modes"],
+      "properties": {
+        "failure_modes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "scenario", "impact", "severity"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^FM-\\d{3}$"
+              },
+              "scenario": { "type": "string" },
+              "impact": { "type": "string" },
+              "severity": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical", "high_in_humanitarian"]
+              },
+              "mitigation": { "type": "string" }
+            }
+          }
+        },
+        "ethical_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["context", "concern", "recommendation"],
+            "properties": {
+              "context": { "type": "string" },
+              "concern": { "type": "string" },
+              "recommendation": { "type": "string" }
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "properties": {
+            "tested_scale": { "type": "string" },
+            "latency": { "type": "string" },
+            "accuracy": { "type": "string" },
+            "known_degradation": { "type": "string" }
+          }
+        },
+        "observability": {
+          "type": "object",
+          "properties": {
+            "logging": { "type": "string" },
+            "explainability": { "type": "string" },
+            "reproducibility": { "type": "string" }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "object",
+          "required": ["domain"],
+          "properties": {
+            "domain": { "type": "string" },
+            "organization": { "type": "string" },
+            "original_use_case": { "type": "string" }
+          }
+        },
+        "lineage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["version", "domain", "date"],
+            "properties": {
+              "version": { "type": "string" },
+              "domain": { "type": "string" },
+              "date": { "type": "string", "format": "date" },
+              "notes": { "type": "string" },
+              "adaptation_points_changed": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "assumptions_changed": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "compatibility": {
+          "type": "object",
+          "properties": {
+            "frameworks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "version": { "type": "string" },
+                  "integration": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "assumption": {
+      "type": "object",
+      "required": ["id", "assumption", "strength"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}-\\d{3}$"
+        },
+        "assumption": {
+          "type": "string",
+          "description": "What is assumed to be true"
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["hard", "soft"],
+          "description": "hard = behavior breaks without this; soft = degrades gracefully"
+        },
+        "adaptation_note": {
+          "type": "string",
+          "description": "What needs to change when this assumption doesn't hold"
+        }
+      }
+    }
+  }
+}

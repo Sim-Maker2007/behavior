@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABC Registry — Agent Behavior Card Registry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg-deep: #030712;
+    --bg-surface: #0a1628;
+    --bg-card: #0d1f3c;
+    --bg-card-hover: #112a4a;
+    --cyan-glow: #00e5ff;
+    --cyan-dim: #0097a7;
+    --cyan-faint: rgba(0, 229, 255, 0.08);
+    --blue-glow: #4fc3f7;
+    --purple-glow: #b388ff;
+    --text-primary: #e8edf5;
+    --text-secondary: #8899b0;
+    --text-muted: #4a5d78;
+    --border: rgba(0, 229, 255, 0.12);
+    --border-active: rgba(0, 229, 255, 0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== CANVAS BACKGROUND ===== */
+  #bg-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 100px 24px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid var(--border-active);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cyan-glow);
+    background: var(--cyan-faint);
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan-glow);
+    box-shadow: 0 0 8px var(--cyan-glow);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--cyan-glow) 50%, var(--blue-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0 auto 40px;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 48px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--cyan-glow);
+    font-family: 'JetBrains Mono', monospace;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ===== SEARCH ===== */
+  .search-section {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  .search-container {
+    position: relative;
+  }
+
+  .search-container svg {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    width: 20px;
+    height: 20px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 16px 16px 16px 50px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .search-input:focus {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1), 0 0 30px rgba(0, 229, 255, 0.05);
+  }
+
+  /* ===== FILTERS ===== */
+  .filters {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .filter-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--border-active);
+    color: var(--text-primary);
+    background: var(--cyan-faint);
+  }
+
+  .filter-btn.active {
+    border-color: var(--cyan-glow);
+    color: var(--cyan-glow);
+    background: var(--cyan-faint);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+  }
+
+  /* ===== CARDS GRID ===== */
+  .cards-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover {
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 229, 255, 0.08), 0 0 60px rgba(0, 229, 255, 0.03);
+  }
+
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .card-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan-dim);
+    background: var(--cyan-faint);
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .card-pattern {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+
+  .card-pattern.constrained-resource-allocation {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--cyan-glow);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+  }
+  .card-pattern.anomaly-detection-and-response {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ffb74d;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+  .card-pattern.information-synthesis-and-routing {
+    background: rgba(76, 175, 80, 0.1);
+    color: #81c784;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+  .card-pattern.multi-stakeholder-negotiation {
+    background: rgba(179, 136, 255, 0.1);
+    color: var(--purple-glow);
+    border: 1px solid rgba(179, 136, 255, 0.2);
+  }
+  .card-pattern.sequential-decision-under-uncertainty {
+    background: rgba(244, 67, 54, 0.1);
+    color: #ef9a9a;
+    border: 1px solid rgba(244, 67, 54, 0.2);
+  }
+
+  .card-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-fork {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-fork-arrow {
+    color: var(--cyan-dim);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .card-fork span {
+    color: var(--text-secondary);
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ===== DETAIL MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 24px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: 20px;
+    max-width: 800px;
+    width: 100%;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 0 80px rgba(0, 229, 255, 0.08);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover {
+    border-color: var(--cyan-glow);
+    color: var(--cyan-glow);
+  }
+
+  .modal h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-right: 40px;
+  }
+
+  .modal-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .modal-section {
+    margin-bottom: 28px;
+  }
+
+  .modal-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cyan-glow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-section h3::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--cyan-glow);
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--cyan-glow);
+  }
+
+  .modal-section p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .modal-fork-story {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .modal-fork-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .modal-fork-flow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .modal-fork-flow .origin {
+    color: var(--text-secondary);
+  }
+
+  .modal-fork-flow .arrow {
+    color: var(--cyan-glow);
+    font-size: 20px;
+  }
+
+  .modal-fork-flow .target {
+    color: var(--cyan-glow);
+  }
+
+  .adaptation-list {
+    list-style: none;
+  }
+
+  .adaptation-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .adaptation-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .adaptation-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .adaptation-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--cyan-faint);
+    color: var(--cyan-dim);
+    border: 1px solid var(--border);
+  }
+
+  .adaptation-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .domain-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .domain-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .domain-similarity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan-dim);
+  }
+
+  .failure-list {
+    list-style: none;
+  }
+
+  .failure-item {
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .failure-severity {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .failure-severity.critical { background: rgba(244, 67, 54, 0.15); color: #ef5350; border: 1px solid rgba(244, 67, 54, 0.3); }
+  .failure-severity.high { background: rgba(255, 152, 0, 0.15); color: #ffb74d; border: 1px solid rgba(255, 152, 0, 0.3); }
+  .failure-severity.medium { background: rgba(255, 235, 59, 0.15); color: #fff176; border: 1px solid rgba(255, 235, 59, 0.3); }
+  .failure-severity.high_in_humanitarian { background: rgba(255, 152, 0, 0.15); color: #ffb74d; border: 1px solid rgba(255, 152, 0, 0.3); }
+
+  .failure-scenario {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .failure-impact {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  footer a {
+    color: var(--cyan-dim);
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: var(--cyan-glow);
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 60px 16px 40px; }
+    .hero-stats { gap: 24px; }
+    .stat-number { font-size: 28px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .modal { padding: 24px; }
+    .modal h2 { font-size: 22px; }
+    .modal-fork-flow { flex-direction: column; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Open Standard v0.1.0</div>
+  <h1>Agent Behavior Card Registry</h1>
+  <p>The Rosetta Stone for AI agent behaviors. Discover, adapt, and compose agent behaviors across domains — because a retail startup's solution shouldn't die in a silo when it could save lives in a refugee camp.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-number" id="card-count">10</div>
+      <div class="stat-label">Behavior Cards</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">5</div>
+      <div class="stat-label">Pattern Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">10</div>
+      <div class="stat-label">Domain Bridges</div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<section class="search-section">
+  <div class="search-container">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" class="search-input" id="search" placeholder="Search by problem, domain, or keyword...">
+  </div>
+</section>
+
+<!-- FILTERS -->
+<section class="filters" id="filters">
+  <button class="filter-btn active" data-filter="all">All Cards</button>
+  <button class="filter-btn" data-filter="constrained-resource-allocation">Resource Allocation</button>
+  <button class="filter-btn" data-filter="anomaly-detection-and-response">Anomaly Detection</button>
+  <button class="filter-btn" data-filter="information-synthesis-and-routing">Info Synthesis</button>
+  <button class="filter-btn" data-filter="multi-stakeholder-negotiation">Negotiation</button>
+  <button class="filter-btn" data-filter="sequential-decision-under-uncertainty">Sequential Decisions</button>
+</section>
+
+<!-- CARDS -->
+<section class="cards-section">
+  <div class="cards-grid" id="cards-grid"></div>
+  <div class="no-results" id="no-results" style="display:none;">
+    No behavior cards match your search. <br>
+    <span style="font-size:14px; margin-top:8px; display:block;">Try a different problem pattern or keyword.</span>
+  </div>
+</section>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built by <a href="https://github.com/abc-registry" target="_blank">ABC Registry Contributors</a> &middot; <a href="https://github.com/abc-registry/abc-registry" target="_blank">GitHub</a> &middot; Licensed under Apache 2.0 &amp; CC BY 4.0</p>
+</footer>
+
+<script>
+// ===== CARD DATA =====
+const cards = [
+  {
+    id: "01",
+    name: "Inventory Rebalance Optimizer",
+    slug: "inventory-rebalance-optimizer",
+    version: "1.2.0",
+    pattern: "constrained-resource-allocation",
+    patternLabel: "Resource Allocation",
+    description: "Allocates finite resources across multiple locations to minimize stockouts while respecting budget constraints, lead times, and demand uncertainty.",
+    origin: "Retail",
+    fork: "Humanitarian Aid Distribution",
+    originDetail: "Rebalancing seasonal consumer goods across multiple store locations",
+    forkDetail: "Medical supply allocation to field hospitals in crisis zones",
+    adaptationPoints: [
+      { name: "demand_model", type: "swappable_component", desc: "Swap seasonal ARIMA forecast for crisis surge detector using news feeds and displacement data" },
+      { name: "constraint_solver", type: "configurable", desc: "Adjust optimization horizon (1hr–90 days) and objective weights (humanitarian: stockout weight 0.9+)" },
+      { name: "explanation_language", type: "swappable_component", desc: "Swap English business report for multilingual field reports via Tarjimly-style translation" }
+    ],
+    analogousDomains: [
+      { domain: "Humanitarian Aid Distribution", similarity: 0.82 },
+      { domain: "Energy Grid Balancing", similarity: 0.65 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Stale inventory data (>24h)", impact: "Transfer plan based on wrong stock levels" },
+      { severity: "medium", scenario: "Demand forecast completely wrong (black swan)", impact: "Suboptimal allocation, potential stockouts" },
+      { severity: "high_in_humanitarian", scenario: "Optimization concentrates resources in few locations", impact: "Equity concerns — some locations get nothing" }
+    ],
+    tags: ["optimization", "resource-allocation", "logistics", "inventory", "rebalancing"],
+    frameworks: ["CrewAI", "LangGraph", "AutoGen"]
+  },
+  {
+    id: "02",
+    name: "Workforce Shift Scheduler",
+    slug: "workforce-shift-scheduler",
+    version: "2.0.0",
+    pattern: "constrained-resource-allocation",
+    patternLabel: "Resource Allocation",
+    description: "Assigns people with specific skills and availability windows to time-bound roles across multiple locations, while respecting labor rules, fairness constraints, and individual preferences.",
+    origin: "Retail Employee Scheduling",
+    fork: "Disaster Volunteer Coordination",
+    originDetail: "Scheduling part-time and full-time employees across retail store locations",
+    forkDetail: "Coordinating disaster relief volunteers with dynamic availability and burnout monitoring",
+    adaptationPoints: [
+      { name: "constraint_engine", type: "configurable", desc: "Adjust max hours (8→12), rest periods, and fairness windows for short-term volunteer deployments" },
+      { name: "skill_matcher", type: "swappable_component", desc: "Swap retail skills for humanitarian competency framework (languages, security training, first aid)" },
+      { name: "wellbeing_monitor", type: "swappable_component", desc: "Replace overtime tracker with responder burnout detector tracking cumulative stress indicators" }
+    ],
+    analogousDomains: [
+      { domain: "Disaster Volunteer Coordination", similarity: 0.78 },
+      { domain: "Hospital Nurse Rostering", similarity: 0.82 },
+      { domain: "Military Duty Rotation", similarity: 0.70 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Key skill gap unfilled — no qualified person available", impact: "Critical role empty during shift" },
+      { severity: "critical", scenario: "Optimizer prioritizes coverage over individual wellbeing", impact: "Burnout, injury, or psychological harm" },
+      { severity: "medium", scenario: "Unfair distribution goes undetected", impact: "Resentment, volunteer attrition" }
+    ],
+    tags: ["scheduling", "workforce", "optimization", "shift-planning", "volunteer"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "03",
+    name: "Budget Envelope Allocator",
+    slug: "budget-envelope-allocator",
+    version: "2.0.0",
+    pattern: "constrained-resource-allocation",
+    patternLabel: "Resource Allocation",
+    description: "Distributes a finite monetary budget across competing categories to maximize overall impact, respecting minimum commitments, maximum caps, and performance feedback from prior allocations.",
+    origin: "Marketing Budget Optimization",
+    fork: "Emergency Fund Distribution",
+    originDetail: "Allocating monthly marketing budget across channels for RetailCo",
+    forkDetail: "Distributing donor funds across humanitarian response sectors (health, shelter, WASH)",
+    adaptationPoints: [
+      { name: "impact_model", type: "swappable_component", desc: "Replace marketing ROI model with humanitarian impact estimator (DALYs averted, beneficiaries reached)" },
+      { name: "constraint_handler", type: "configurable", desc: "Handle donor earmarks, government co-funding requirements, and 15-20% flexibility reserves" },
+      { name: "reporting_format", type: "swappable_component", desc: "Swap marketing dashboard for donor compliance reporter matching IATI standards" }
+    ],
+    analogousDomains: [
+      { domain: "Emergency Fund Distribution", similarity: 0.79 },
+      { domain: "Government Departmental Budgeting", similarity: 0.75 },
+      { domain: "Venture Capital Portfolio Allocation", similarity: 0.72 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Impact model overestimates returns in one category", impact: "Over-allocation to lower-impact area" },
+      { severity: "high", scenario: "Donor earmarks consume most of the budget", impact: "Emerging needs can't be addressed" },
+      { severity: "medium", scenario: "Cross-sector dependencies cause cascading underfunding", impact: "Savings in one area create costs in another" }
+    ],
+    tags: ["budget", "allocation", "optimization", "financial-planning", "resource-distribution"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "05",
+    name: "Pattern Anomaly Detector",
+    slug: "pattern-anomaly-detector",
+    version: "2.1.0",
+    pattern: "anomaly-detection-and-response",
+    patternLabel: "Anomaly Detection",
+    description: "Monitors streams of events over time, learns what 'normal' looks like, detects deviations from normal patterns, determines if those deviations are significant, and triggers appropriate alerts with context.",
+    origin: "E-commerce Fraud Detection",
+    fork: "Disease Outbreak Surveillance",
+    originDetail: "Detecting fraudulent transactions in an retail e-commerce platform",
+    forkDetail: "Early disease outbreak detection in rural health networks via syndromic surveillance",
+    adaptationPoints: [
+      { name: "baseline_model", type: "swappable_component", desc: "Swap transaction baseline for epidemiological baseline with seasonal disease incidence rates" },
+      { name: "anomaly_dimensions", type: "configurable", desc: "Replace transaction velocity with symptom clusters; extend correlation window from 1hr to 7-14 days" },
+      { name: "alert_channel", type: "swappable_component", desc: "Replace dashboard with SMS escalation chain for rural areas" },
+      { name: "false_positive_filter", type: "swappable_component", desc: "Account for vaccination campaigns, mass gatherings, and reporting artifacts" }
+    ],
+    analogousDomains: [
+      { domain: "Financial Fraud Detection", similarity: 0.92 },
+      { domain: "Disease Outbreak Surveillance", similarity: 0.80 },
+      { domain: "Cybersecurity Intrusion Detection", similarity: 0.85 },
+      { domain: "Equipment Predictive Maintenance", similarity: 0.75 },
+      { domain: "Environmental Monitoring", similarity: 0.70 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Real outbreak missed because it looked like a gradual trend", impact: "Delayed public health response; preventable deaths" },
+      { severity: "high", scenario: "Alert fatigue causes responders to ignore real alerts", impact: "True positives missed due to too many false positives" },
+      { severity: "high", scenario: "Reporting gap misinterpreted as 'no anomalies'", impact: "Silence mistaken for safety" }
+    ],
+    tags: ["anomaly-detection", "pattern-recognition", "alerting", "time-series", "surveillance"],
+    frameworks: ["CrewAI", "LangGraph", "Apache Kafka"]
+  },
+  {
+    id: "06",
+    name: "Equipment Health Monitor",
+    slug: "equipment-health-monitor",
+    version: "2.0.0",
+    pattern: "anomaly-detection-and-response",
+    patternLabel: "Anomaly Detection",
+    description: "Continuously monitors physical assets through sensor data or periodic inspections, detects degradation patterns, predicts failures before they occur, and recommends interventions prioritized by risk and cost.",
+    origin: "Predictive Maintenance",
+    fork: "Post-Disaster Infrastructure Assessment",
+    originDetail: "Monitoring HVAC, refrigeration, and security systems across retail store locations",
+    forkDetail: "Assessing structural integrity of buildings and bridges after earthquakes using field reports and drone imagery",
+    adaptationPoints: [
+      { name: "assessment_model", type: "swappable_component", desc: "Replace degradation curves with ATC-20 damage classification (green/yellow/red tagging)" },
+      { name: "data_source", type: "swappable_component", desc: "Accept drone photos, smartphone photos, OCR'd inspection forms, and community WhatsApp reports" },
+      { name: "prioritization_logic", type: "configurable", desc: "Replace cost-based factors with occupancy count, structural criticality, and aftershock vulnerability" }
+    ],
+    analogousDomains: [
+      { domain: "Post-Disaster Infrastructure Assessment", similarity: 0.74 },
+      { domain: "Fleet Vehicle Maintenance", similarity: 0.85 },
+      { domain: "Utility Grid Monitoring", similarity: 0.78 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Unsafe building classified as safe", impact: "Occupants at risk of collapse" },
+      { severity: "high", scenario: "Over-classification of damage causes unnecessary displacement", impact: "People kept from homes unnecessarily" },
+      { severity: "critical", scenario: "Aftershock changes damage level of previously assessed building", impact: "Stale assessment creates false sense of safety" }
+    ],
+    tags: ["monitoring", "predictive-maintenance", "sensor-data", "infrastructure", "assessment"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "07",
+    name: "Supply Chain Disruption Detector",
+    slug: "supply-chain-disruption-detector",
+    version: "2.0.0",
+    pattern: "anomaly-detection-and-response",
+    patternLabel: "Anomaly Detection",
+    description: "Monitors multiple signals across a supply chain to detect disruptions before they cause downstream shortages. Correlates supplier behavior, logistics data, market signals, and external events to produce early warnings.",
+    origin: "Retail Supply Chain",
+    fork: "Food Security Early Warning",
+    originDetail: "Monitoring delivery reliability from consumer goods suppliers and detecting seasonal disruptions",
+    forkDetail: "Food security early warning using FEWS NET, WFP price monitoring, and satellite crop health data",
+    adaptationPoints: [
+      { name: "signal_sources", type: "swappable_component", desc: "Replace ERP feeds with FEWS NET alerts, NDVI vegetation indices, conflict data (ACLED), and displacement tracking" },
+      { name: "disruption_classifier", type: "swappable_component", desc: "Use IPC food security phase classification: Minimal → Stressed → Crisis → Emergency → Famine" },
+      { name: "propagation_model", type: "configurable", desc: "Extend from 2-tier supply chain to 5-6 tier food system with cross-border trade flows" }
+    ],
+    analogousDomains: [
+      { domain: "Food Security Early Warning", similarity: 0.77 },
+      { domain: "Pharmaceutical Supply Monitoring", similarity: 0.83 },
+      { domain: "Energy Supply Security", similarity: 0.72 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Slow-onset crisis missed because each daily change is small", impact: "Famine conditions develop without early warning" },
+      { severity: "high", scenario: "False alarm triggers premature food aid deployment", impact: "Wasted resources, market disruption from aid flooding" },
+      { severity: "critical", scenario: "Conflict zone data gaps create blind spots", impact: "Most vulnerable populations invisible to the system" }
+    ],
+    tags: ["supply-chain", "disruption", "early-warning", "food-security", "monitoring"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "08",
+    name: "Communication Triage & Router",
+    slug: "comms-triage-router",
+    version: "2.0.0",
+    pattern: "information-synthesis-and-routing",
+    patternLabel: "Info Synthesis",
+    description: "Ingests incoming messages from multiple channels, classifies them by urgency and topic, extracts key information, and routes them to the right responder — while handling language barriers automatically.",
+    origin: "Customer Support Routing",
+    fork: "Crisis Communication Triage",
+    originDetail: "Routing customer support messages to the right team member based on topic and urgency",
+    forkDetail: "Multilingual crisis triage where distress messages are classified by life-or-death urgency",
+    adaptationPoints: [
+      { name: "urgency_classifier", type: "swappable_component", desc: "Replace retail priority with humanitarian severity scale: life-threatening → urgent medical → basic needs" },
+      { name: "entity_extractor", type: "swappable_component", desc: "Extract GPS coordinates, affected people count, need types, and accessibility info" },
+      { name: "translation_layer", type: "swappable_component", desc: "Integrate Tarjimly hybrid translation with human-in-the-loop for critical messages" },
+      { name: "routing_strategy", type: "configurable", desc: "Reorder to language match → protection sensitivity → skill match → proximity" }
+    ],
+    analogousDomains: [
+      { domain: "Customer Support Ticketing", similarity: 0.88 },
+      { domain: "Emergency Dispatch 911", similarity: 0.78 },
+      { domain: "Hospital ER Triage", similarity: 0.72 },
+      { domain: "Content Moderation", similarity: 0.55 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Life-threatening message misclassified as low priority", impact: "Delayed response to someone in danger" },
+      { severity: "high", scenario: "Translation error changes meaning of message", impact: "Wrong type of help sent, or wrong location" },
+      { severity: "critical", scenario: "Sensitive protection case routed to wrong responder", impact: "Breach of confidentiality, potential harm" }
+    ],
+    tags: ["triage", "communication", "routing", "multilingual", "classification"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "10",
+    name: "Daily Intelligence Briefer",
+    slug: "daily-intelligence-briefer",
+    version: "2.0.0",
+    pattern: "information-synthesis-and-routing",
+    patternLabel: "Info Synthesis",
+    description: "Collects information from multiple heterogeneous sources, identifies what's new or changed, synthesizes into a structured briefing calibrated to the audience, and highlights items requiring decisions.",
+    origin: "Competitive Intelligence",
+    fork: "Humanitarian Sitrep Generation",
+    originDetail: "Daily briefing for company leadership on competitor activity and market conditions",
+    forkDetail: "Daily situation reports from multiple field sources for crisis coordination leaders",
+    adaptationPoints: [
+      { name: "priority_ranker", type: "swappable_component", desc: "Rank by lives at risk, access deterioration, protection concerns, and displacement movements" },
+      { name: "synthesizer", type: "swappable_component", desc: "Follow standard OCHA sitrep format: situation overview, needs, response, gaps, funding" },
+      { name: "delivery_channel", type: "swappable_component", desc: "Email for HQ, WhatsApp for field, SMS summary for limited connectivity, voice briefing for hands-free" }
+    ],
+    analogousDomains: [
+      { domain: "Humanitarian Sitrep Generation", similarity: 0.80 },
+      { domain: "Security Threat Briefing", similarity: 0.82 },
+      { domain: "Clinical Shift Handover", similarity: 0.70 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Critical development buried in low-priority section", impact: "Decision-makers miss time-sensitive information" },
+      { severity: "high", scenario: "Unverified information presented as confirmed", impact: "Decisions made on false information" },
+      { severity: "medium", scenario: "Information overload makes briefing too long", impact: "Audience stops reading; critical items missed" }
+    ],
+    tags: ["intelligence", "briefing", "synthesis", "sitrep", "reporting"],
+    frameworks: ["CrewAI", "LangGraph"]
+  },
+  {
+    id: "11",
+    name: "Multi-Party Resource Negotiator",
+    slug: "multi-party-negotiator",
+    version: "2.0.0",
+    pattern: "multi-stakeholder-negotiation",
+    patternLabel: "Negotiation",
+    description: "Facilitates agreement between multiple parties with different goals, constraints, and information. Proposes solutions that satisfy as many parties as possible, identifies blockers, and suggests compromises.",
+    origin: "Supplier Pricing Negotiation",
+    fork: "Humanitarian Cluster Coordination",
+    originDetail: "Negotiating bulk purchase agreements with consumer goods suppliers",
+    forkDetail: "Multi-org resource sharing in humanitarian cluster coordination with affected population advocacy",
+    adaptationPoints: [
+      { name: "fairness_metric", type: "swappable_component", desc: "Replace price efficiency with needs-proportional fairness using vulnerability indices and Sphere Standards" },
+      { name: "compromise_generator", type: "swappable_component", desc: "Domain-specific patterns: temporal sharing, geographic splitting, capability-based division" },
+      { name: "communication_style", type: "configurable", desc: "Adapt formality, cultural sensitivity, and language for cross-cultural humanitarian coordination" },
+      { name: "precedent_engine", type: "swappable_component", desc: "Database of past humanitarian who-does-what matrices and cluster coordination patterns" }
+    ],
+    analogousDomains: [
+      { domain: "Humanitarian Cluster Coordination", similarity: 0.75 },
+      { domain: "Labor Union Negotiation", similarity: 0.70 },
+      { domain: "International Treaty Negotiation", similarity: 0.60 },
+      { domain: "Co-Parenting Scheduling", similarity: 0.65 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Agent proposes 'optimal' solution ignoring power dynamics", impact: "Weaker parties feel railroaded; agreement doesn't hold" },
+      { severity: "medium", scenario: "Deadlock resolution pushes premature agreement", impact: "Bad agreement worse than no agreement" },
+      { severity: "high_in_humanitarian", scenario: "Cultural communication norms cause misunderstanding", impact: "Offense, withdrawal, or false agreement" }
+    ],
+    tags: ["negotiation", "multi-stakeholder", "coordination", "resource-sharing", "consensus"],
+    frameworks: ["CrewAI", "LangGraph", "AutoGen"]
+  },
+  {
+    id: "15",
+    name: "Project Risk Cascade Planner",
+    slug: "project-risk-cascade-planner",
+    version: "2.0.0",
+    pattern: "sequential-decision-under-uncertainty",
+    patternLabel: "Sequential Decisions",
+    description: "Plans a sequence of interdependent activities where each step's outcome is uncertain and affects what's possible next. Identifies critical path risks, models cascade failures, and recommends contingency branches.",
+    origin: "Construction Project Management",
+    fork: "Disaster Recovery Planning",
+    originDetail: "Managing construction project risks for retail store buildout",
+    forkDetail: "Disaster recovery sequencing: rescue → shelter → infrastructure → services → permanent housing",
+    adaptationPoints: [
+      { name: "risk_model", type: "swappable_component", desc: "Incorporate seismological aftershock models, funding pipeline uncertainty, and inter-org coordination friction" },
+      { name: "priority_framework", type: "configurable", desc: "Life-saving infrastructure first: life → safety → essential services → economic activity → full recovery" },
+      { name: "progress_tracker", type: "swappable_component", desc: "Accept mobile forms, photo evidence, GPS-tagged reports, and satellite imagery verification" }
+    ],
+    analogousDomains: [
+      { domain: "Disaster Recovery Planning", similarity: 0.78 },
+      { domain: "Software Release Planning", similarity: 0.75 },
+      { domain: "Clinical Trial Sequencing", similarity: 0.68 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Hidden dependency causes unexpected cascade", impact: "Multiple activities blocked simultaneously" },
+      { severity: "medium", scenario: "Overly optimistic replanning after delays", impact: "Stakeholders given false hope" },
+      { severity: "high", scenario: "Plan complexity exceeds coordination capacity", impact: "Organizations can't follow the plan" }
+    ],
+    tags: ["risk-management", "project-planning", "dependency", "sequencing", "recovery"],
+    frameworks: ["CrewAI", "LangGraph"]
+  }
+];
+
+// ===== RENDER CARDS =====
+const grid = document.getElementById('cards-grid');
+const noResults = document.getElementById('no-results');
+const searchInput = document.getElementById('search');
+const filtersEl = document.getElementById('filters');
+let activeFilter = 'all';
+
+function renderCards(filtered) {
+  grid.innerHTML = '';
+  if (filtered.length === 0) {
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  filtered.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.onclick = () => openModal(card);
+    el.innerHTML = `
+      <div class="card-header">
+        <span class="card-number">ABC-${card.id}</span>
+        <span class="card-version">v${card.version}</span>
+      </div>
+      <div class="card-title">${card.name}</div>
+      <div class="card-pattern ${card.pattern}">${card.patternLabel}</div>
+      <div class="card-description">${card.description}</div>
+      <div class="card-fork">
+        <span>${card.origin}</span>
+        <span class="card-fork-arrow">→</span>
+        <span style="color: var(--cyan-dim)">${card.fork}</span>
+      </div>
+      <div class="card-meta">
+        <span class="card-meta-item">${card.adaptationPoints.length} adaptation points</span>
+        <span class="card-meta-item">${card.analogousDomains.length} domains</span>
+        <span class="card-meta-item">${card.frameworks.join(', ')}</span>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function filterCards() {
+  const query = searchInput.value.toLowerCase();
+  let filtered = cards;
+
+  if (activeFilter !== 'all') {
+    filtered = filtered.filter(c => c.pattern === activeFilter);
+  }
+
+  if (query) {
+    filtered = filtered.filter(c =>
+      c.name.toLowerCase().includes(query) ||
+      c.description.toLowerCase().includes(query) ||
+      c.origin.toLowerCase().includes(query) ||
+      c.fork.toLowerCase().includes(query) ||
+      c.tags.some(t => t.includes(query)) ||
+      c.pattern.replace(/-/g, ' ').includes(query) ||
+      c.analogousDomains.some(d => d.domain.toLowerCase().includes(query))
+    );
+  }
+
+  renderCards(filtered);
+}
+
+searchInput.addEventListener('input', filterCards);
+
+filtersEl.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('filter-btn')) return;
+  filtersEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  activeFilter = e.target.dataset.filter;
+  filterCards();
+});
+
+// ===== MODAL =====
+const overlay = document.getElementById('modal-overlay');
+const modalContent = document.getElementById('modal-content');
+
+function openModal(card) {
+  modalContent.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>${card.name}</h2>
+    <div class="modal-subtitle">ABC-${card.id} &middot; v${card.version} &middot; ${card.pattern}</div>
+
+    <div class="modal-fork-story">
+      <div class="modal-fork-label">Fork Story</div>
+      <div class="modal-fork-flow">
+        <span class="origin">${card.originDetail}</span>
+        <span class="arrow">→</span>
+        <span class="target">${card.forkDetail}</span>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Description</h3>
+      <p>${card.description}</p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Adaptation Points</h3>
+      <ul class="adaptation-list">
+        ${card.adaptationPoints.map(ap => `
+          <li class="adaptation-item">
+            <div class="adaptation-item-header">
+              <span class="adaptation-name">${ap.name}</span>
+              <span class="adaptation-type">${ap.type}</span>
+            </div>
+            <div class="adaptation-desc">${ap.desc}</div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+
+    <div class="modal-section">
+      <h3>Analogous Domains</h3>
+      <div class="domain-tag-list">
+        ${card.analogousDomains.map(d => `
+          <div class="domain-tag">
+            ${d.domain}
+            <span class="domain-similarity">${(d.similarity * 100).toFixed(0)}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Failure Modes</h3>
+      <ul class="failure-list">
+        ${card.failureModes.map(fm => `
+          <li class="failure-item">
+            <span class="failure-severity ${fm.severity}">${fm.severity.replace(/_/g, ' ')}</span>
+            <div class="failure-scenario">${fm.scenario}</div>
+            <div class="failure-impact">${fm.impact}</div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+
+    <div class="modal-section">
+      <h3>Compatible Frameworks</h3>
+      <div class="domain-tag-list">
+        ${card.frameworks.map(f => `<div class="domain-tag">${f}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) closeModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ===== INITIAL RENDER =====
+renderCards(cards);
+
+// ===== WIREFRAME CUBE BACKGROUND =====
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, cubes = [], particles = [], mouse = { x: -1000, y: -1000 };
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  // Cube class
+  class Cube {
+    constructor() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.z = Math.random() * 600 + 100;
+      this.size = Math.random() * 30 + 15;
+      this.rx = Math.random() * Math.PI * 2;
+      this.ry = Math.random() * Math.PI * 2;
+      this.rz = Math.random() * Math.PI * 2;
+      this.drx = (Math.random() - 0.5) * 0.008;
+      this.dry = (Math.random() - 0.5) * 0.008;
+      this.drz = (Math.random() - 0.5) * 0.005;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.vx = (Math.random() - 0.5) * 0.15;
+    }
+
+    update() {
+      this.rx += this.drx;
+      this.ry += this.dry;
+      this.rz += this.drz;
+      this.y += this.vy;
+      this.x += this.vx;
+      if (this.y < -100) this.y = H + 100;
+      if (this.y > H + 100) this.y = -100;
+      if (this.x < -100) this.x = W + 100;
+      if (this.x > W + 100) this.x = -100;
+    }
+
+    project(px, py, pz) {
+      const scale = 400 / (400 + this.z);
+      return {
+        x: this.x + px * scale,
+        y: this.y + py * scale,
+        scale: scale
+      };
+    }
+
+    draw() {
+      const s = this.size;
+      const cos = Math.cos, sin = Math.sin;
+      const rx = this.rx, ry = this.ry, rz = this.rz;
+
+      // 8 vertices of a cube
+      const verts = [
+        [-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],
+        [-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s]
+      ];
+
+      // Rotate
+      const rotated = verts.map(([x,y,z]) => {
+        let x1 = x, y1 = y*cos(rx)-z*sin(rx), z1 = y*sin(rx)+z*cos(rx);
+        let x2 = x1*cos(ry)+z1*sin(ry), y2 = y1, z2 = -x1*sin(ry)+z1*cos(ry);
+        let x3 = x2*cos(rz)-y2*sin(rz), y3 = x2*sin(rz)+y2*cos(rz), z3 = z2;
+        return [x3,y3,z3];
+      });
+
+      const projected = rotated.map(([px,py,pz]) => this.project(px,py,pz));
+
+      // Edges
+      const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+
+      const dist = Math.hypot(mouse.x - this.x, mouse.y - this.y);
+      const glow = Math.max(0, 1 - dist / 300);
+      const baseAlpha = 0.12 + glow * 0.25;
+
+      ctx.strokeStyle = `rgba(0, 229, 255, ${baseAlpha})`;
+      ctx.lineWidth = 0.5 + glow * 1;
+
+      if (glow > 0.1) {
+        ctx.shadowColor = 'rgba(0, 229, 255, 0.3)';
+        ctx.shadowBlur = 10 * glow;
+      }
+
+      edges.forEach(([a,b]) => {
+        ctx.beginPath();
+        ctx.moveTo(projected[a].x, projected[a].y);
+        ctx.lineTo(projected[b].x, projected[b].y);
+        ctx.stroke();
+      });
+
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // Particle class
+  class Particle {
+    constructor() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.r = Math.random() * 1.2 + 0.3;
+      this.vx = (Math.random() - 0.5) * 0.2;
+      this.vy = (Math.random() - 0.5) * 0.2;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0) this.x = W;
+      if (this.x > W) this.x = 0;
+      if (this.y < 0) this.y = H;
+      if (this.y > H) this.y = 0;
+    }
+    draw() {
+      const dist = Math.hypot(mouse.x - this.x, mouse.y - this.y);
+      const glow = Math.max(0, 1 - dist / 200);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 229, 255, ${this.alpha + glow * 0.4})`;
+      ctx.fill();
+    }
+  }
+
+  // Init
+  for (let i = 0; i < 18; i++) cubes.push(new Cube());
+  for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Subtle gradient overlay
+    const grad = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.3, W*0.8);
+    grad.addColorStop(0, 'rgba(0, 40, 80, 0.08)');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    particles.forEach(p => { p.update(); p.draw(); });
+    cubes.forEach(c => { c.update(); c.draw(); });
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>

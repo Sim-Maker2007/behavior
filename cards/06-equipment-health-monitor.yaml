@@ -1,0 +1,351 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Equipment Health Monitor
+# =============================================================================
+# Originally built for: Predictive maintenance for industrial retail equipment
+# Forked for: Post-disaster infrastructure damage assessment
+# =============================================================================
+
+identity:
+  name: "equipment-health-monitor"
+  display_name: "Equipment Health Monitor"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["monitoring", "predictive-maintenance", "sensor-data", "infrastructure", "assessment"]
+
+problem_pattern:
+  category: "anomaly-detection-and-response"
+  description: >
+    Continuously monitors physical assets through sensor data or
+    periodic inspections, detects degradation patterns, predicts
+    failures before they occur, and recommends interventions
+    prioritized by risk and cost.
+
+  sub_patterns:
+    - "time-series-degradation-modeling"
+    - "remaining-useful-life-estimation"
+    - "risk-prioritized-intervention-planning"
+    - "multi-sensor-fusion"
+    - "inspection-schedule-optimization"
+
+  analogous_domains:
+    - domain: "retail-equipment-maintenance"
+      similarity: 0.90
+      notes: >
+        Original domain. HVAC, refrigeration, POS systems — monitoring
+        for failures that disrupt business operations.
+    - domain: "post-disaster-infrastructure-assessment"
+      similarity: 0.74
+      notes: >
+        Assessing structural integrity of buildings, bridges, and utilities
+        after earthquake/flood. Shift from degradation over time to
+        acute damage assessment with aftershock risk.
+    - domain: "fleet-vehicle-maintenance"
+      similarity: 0.85
+      notes: >
+        Nearly identical pattern applied to vehicles instead of
+        fixed equipment. Mileage-based rather than time-based.
+    - domain: "utility-grid-monitoring"
+      similarity: 0.78
+      notes: >
+        Power/water infrastructure monitoring. Similar sensors and
+        degradation models. Higher consequence of failure.
+
+behavior:
+  trigger:
+    type: "continuous"
+    conditions:
+      - "processes sensor readings as they arrive (streaming)"
+      - "runs comprehensive health assessment daily"
+      - "triggered immediately on seismic/weather event for rapid assessment"
+
+  inputs:
+    - name: "sensor_readings"
+      type: "stream<sensor_event>"
+      required: true
+      description: >
+        Continuous data from sensors: vibration, temperature, pressure,
+        humidity, structural stress, tilt — varies by asset type.
+      freshness: "real-time to hourly depending on sensor type"
+
+    - name: "asset_registry"
+      type: "list<asset_profile>"
+      required: true
+      description: >
+        Each asset with: type, age, location, construction specs,
+        maintenance history, criticality rating, and occupancy info.
+
+    - name: "environmental_context"
+      type: "environmental_data"
+      required: false
+      description: "Weather, seismic activity, flood levels — external stressors"
+      default_behavior: "No environmental context; sensor data only"
+
+    - name: "degradation_models"
+      type: "list<model_definition>"
+      required: true
+      description: >
+        Expected degradation curves for each asset type. How readings
+        should change over time under normal conditions.
+
+  outputs:
+    - name: "health_scorecard"
+      type: "asset_health_report"
+      description: >
+        Per-asset health score with trend direction, anomalous
+        readings, and remaining useful life estimate.
+      confidence_included: true
+
+    - name: "intervention_plan"
+      type: "prioritized_action_list"
+      description: >
+        Recommended interventions ranked by: risk of failure,
+        consequence of failure, and cost of intervention.
+
+    - name: "safety_alert"
+      type: "urgent_notification"
+      description: >
+        Immediate alert when readings indicate imminent failure
+        or unsafe conditions requiring evacuation or shutdown.
+
+  reasoning:
+    method: "degradation-modeling-with-risk-ranking"
+    objectives:
+      - "Detect imminent safety hazards immediately (weight: mandatory)"
+      - "Predict failures before they occur (weight: 0.4)"
+      - "Prioritize interventions by risk × consequence (weight: 0.3)"
+      - "Minimize unnecessary inspections and false alarms (weight: 0.2)"
+      - "Optimize maintenance scheduling for cost efficiency (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Sensors are installed, calibrated, and reporting reliably"
+      strength: "hard"
+      adaptation_note: >
+        Post-disaster, sensors may be damaged or destroyed. Fall back
+        to manual inspection reports: photos, written assessments,
+        and GPS-tagged observations from field engineers. Support
+        image-based assessment as sensor replacement.
+
+    - id: "DA-002"
+      assumption: "Degradation follows predictable curves with known parameters"
+      strength: "hard"
+      adaptation_note: >
+        Disaster damage is acute, not gradual. Replace degradation
+        curves with damage classification models (green/yellow/red
+        tagging system used in post-earthquake building assessment).
+        Aftershock risk adds ongoing uncertainty.
+
+    - id: "DA-003"
+      assumption: "Asset registry is complete and accurate"
+      strength: "soft"
+      adaptation_note: >
+        In disaster zones, building registries may not exist or be
+        outdated. Support rapid asset registration from field surveys,
+        satellite imagery, and OpenStreetMap data.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Assets are physically accessible for inspection"
+      strength: "soft"
+      adaptation_note: >
+        Damaged areas may be inaccessible due to debris, flooding,
+        or security. Support remote assessment via drone imagery,
+        satellite data, and community-reported observations.
+
+    - id: "EA-002"
+      assumption: "Maintenance resources are available when needed"
+      strength: "soft"
+      adaptation_note: >
+        Post-disaster, engineering capacity is overwhelmed. The system
+        must support extreme triage — identifying the critical few
+        structures that need immediate attention vs. those that can wait.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single organization owns and maintains all assets"
+      strength: "hard"
+      adaptation_note: >
+        Post-disaster assessment involves government, military engineers,
+        humanitarian orgs, and private contractors. Federated assessment
+        with shared dashboards and coordinated inspection assignments.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "assessment_model"
+    type: "swappable_component"
+    current: "equipment_degradation_model"
+    interface: "HealthAssessor"
+    description: >
+      Core assessment logic. Interface:
+      assess(asset, readings) → {health_score, risk_level, recommendation}
+    suggested_alternatives:
+      - name: "structural_damage_classifier"
+        for_domain: "post-disaster"
+        description: >
+          ATC-20 inspired rapid assessment: Inspected (green),
+          Restricted Use (yellow), Unsafe (red). Uses structural
+          engineering heuristics plus visual/sensor damage indicators.
+
+  - id: "AP-002"
+    name: "data_source"
+    type: "swappable_component"
+    current: "iot_sensor_pipeline"
+    interface: "DataIngester"
+    description: >
+      How health data is collected. Interface:
+      ingest() → stream<reading>
+    suggested_alternatives:
+      - name: "multimodal_field_assessment"
+        for_domain: "post-disaster"
+        description: >
+          Accepts: drone photos, smartphone photos with GPS, written
+          inspection forms (OCR'd), voice notes (transcribed), and
+          community WhatsApp reports. Normalizes all into structured
+          assessment records.
+
+  - id: "AP-003"
+    name: "prioritization_logic"
+    type: "configurable"
+    parameters:
+      - name: "risk_factors"
+        current: ["failure_probability", "repair_cost", "downtime_impact"]
+        notes: >
+          Post-disaster: replace with occupancy_count, structural_criticality
+          (hospital > warehouse), aftershock_vulnerability, and access_route_dependency
+          (a damaged bridge blocking aid routes is higher priority than a damaged warehouse).
+      - name: "response_tiers"
+        current: ["routine", "urgent", "emergency"]
+        notes: "Map to: safe_to_occupy, restricted_entry, evacuate_immediately, demolish"
+
+composition:
+  delegates_to:
+    - behavior: "geocoder"
+      interface: "Geocoder"
+      purpose: "Map asset locations for spatial analysis"
+      required: false
+    - behavior: "image-classifier"
+      interface: "ImageClassifier"
+      purpose: "Classify damage from photos when sensors unavailable"
+      required: false
+    - behavior: "notification-sender"
+      interface: "NotificationService"
+      purpose: "Deliver safety alerts and inspection assignments"
+      required: true
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Infrastructure assessment component of disaster response"
+
+  emits:
+    - event: "safety_hazard_detected"
+      payload: "safety_alert"
+      description: "Immediate danger requiring evacuation or access restriction"
+    - event: "assessment_complete"
+      payload: "health_scorecard"
+      description: "Asset health assessment updated"
+    - event: "inspection_needed"
+      payload: "inspection_request"
+      description: "Asset requires physical inspection to resolve ambiguity"
+
+  listens_to:
+    - event: "seismic_event_detected"
+      source: "environmental-monitor"
+      action: "Trigger rapid reassessment of all assets in affected area"
+    - event: "inspection_report_submitted"
+      source: "field-team"
+      action: "Incorporate manual inspection data into health model"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Unsafe building classified as safe"
+      impact: "Occupants at risk of collapse"
+      severity: "critical"
+      mitigation: >
+        Conservative bias: when uncertain, classify as restricted/unsafe.
+        All green-tagged buildings require physical engineer sign-off
+        before reoccupation. No automated clearance.
+
+    - id: "FM-002"
+      scenario: "Over-classification of damage causes unnecessary displacement"
+      impact: "People kept from homes unnecessarily; shelter burden increases"
+      severity: "high"
+      mitigation: >
+        Rapid re-inspection queue for yellow-tagged buildings.
+        Clear communication that restriction is precautionary.
+        Track and minimize time-to-reinspection.
+
+    - id: "FM-003"
+      scenario: "Aftershock changes damage level of previously assessed building"
+      impact: "Stale assessment creates false sense of safety"
+      severity: "critical"
+      mitigation: >
+        Automatic re-trigger of assessment after any seismic event
+        above threshold. Time-stamp all assessments prominently.
+
+  ethical_flags:
+    - context: "post-disaster"
+      concern: "Assessment priorities may reflect property value over human need"
+      recommendation: >
+        Prioritize by occupancy and vulnerability, not property value.
+        Informal settlements and low-income housing assessed with
+        equal urgency as commercial buildings.
+
+    - context: "post-disaster"
+      concern: "Red-tagging a building has enormous consequences for displaced families"
+      recommendation: >
+        Always pair red-tag notification with shelter alternatives.
+        Assessment report must include clear path to reinspection
+        and potential reclassification.
+
+  performance:
+    tested_scale: "1,000 assets with 50 sensor types"
+    latency: "< 1 second per sensor reading; < 30 seconds for full asset assessment"
+    accuracy: "Predictive maintenance: 89% of failures predicted 7+ days ahead. Damage classification: 85% agreement with expert engineers in simulation."
+    known_degradation: "Photo-based assessment drops to 70% accuracy in poor lighting or dust conditions"
+
+  observability:
+    logging: "All readings, assessments, and intervention decisions logged with timestamps"
+    explainability: "Each assessment includes contributing factors and confidence breakdown"
+    reproducibility: "Deterministic given same sensor data and model version"
+
+provenance:
+  origin:
+    domain: "retail"
+    organization: "RetailCo"
+    original_use_case: >
+      Monitoring HVAC, refrigeration (for perishable goods),
+      and security systems across retail store locations to predict
+      failures and schedule preventive maintenance.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "retail"
+      date: "2025-11-15"
+      notes: "Basic equipment monitoring for multiple store locations"
+    - version: "2.0.0"
+      domain: "post-disaster-infrastructure"
+      date: "2026-02-13"
+      notes: >
+        Forked for post-disaster building assessment. Replaced sensor
+        pipeline with multimodal field data, degradation models with
+        damage classification, and added seismic re-trigger and
+        occupancy-based prioritization.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

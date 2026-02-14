@@ -1,0 +1,374 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Project Risk Cascade Planner
+# =============================================================================
+# Originally built for: Construction project risk management
+# Forked for: Disaster recovery sequencing and planning
+# =============================================================================
+
+identity:
+  name: "project-risk-cascade-planner"
+  display_name: "Project Risk Cascade Planner"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-13"
+  updated: "2026-02-13"
+  tags: ["risk-management", "project-planning", "dependency", "sequencing", "recovery"]
+
+problem_pattern:
+  category: "sequential-decision-under-uncertainty"
+  description: >
+    Plans a sequence of interdependent activities where each step's
+    outcome is uncertain and affects what's possible next. Identifies
+    critical path risks, models cascade failures, and recommends
+    contingency branches at key decision points.
+
+  sub_patterns:
+    - "dependency-graph-construction"
+    - "critical-path-risk-analysis"
+    - "cascade-failure-modeling"
+    - "contingency-branch-planning"
+    - "progress-monitoring-with-replanning"
+
+  analogous_domains:
+    - domain: "construction-project-management"
+      similarity: 0.90
+      notes: >
+        Original domain. Building projects with sequential dependencies,
+        weather risk, permit delays, and subcontractor reliability.
+    - domain: "disaster-recovery-planning"
+      similarity: 0.78
+      notes: >
+        Recovery activities are deeply sequenced: rescue → emergency
+        shelter → infrastructure repair → service restoration →
+        permanent housing. Each phase depends on prior completion
+        and external factors (aftershocks, funding, access).
+    - domain: "software-release-planning"
+      similarity: 0.75
+      notes: >
+        Feature dependencies, testing sequences, and deployment risks.
+        Faster cycles but similar dependency management.
+    - domain: "clinical-trial-sequencing"
+      similarity: 0.68
+      notes: >
+        Phase I → II → III with go/no-go decisions at each gate.
+        Regulatory dependencies add complexity.
+
+behavior:
+  trigger:
+    type: "on-demand"
+    conditions:
+      - "initial project plan generation"
+      - "on milestone_completed for replanning"
+      - "on risk_event_occurred for contingency activation"
+      - "weekly progress review and reforecast"
+
+  inputs:
+    - name: "activity_list"
+      type: "list<activity>"
+      required: true
+      description: >
+        All planned activities with: estimated duration, resource
+        requirements, dependencies, and completion criteria.
+
+    - name: "dependency_graph"
+      type: "directed_acyclic_graph"
+      required: true
+      description: >
+        Which activities depend on which. Includes both hard
+        dependencies (must finish A before starting B) and soft
+        dependencies (B is better after A but not strictly required).
+
+    - name: "risk_register"
+      type: "list<risk_entry>"
+      required: true
+      description: >
+        Known risks with: probability, impact, affected activities,
+        and available mitigations.
+
+    - name: "resource_availability"
+      type: "resource_timeline"
+      required: true
+      description: >
+        What resources (people, equipment, funding, materials) are
+        available when, and any constraints on their use.
+
+    - name: "progress_data"
+      type: "progress_report"
+      required: false
+      description: "Current status of all activities for replanning"
+      default_behavior: "Plan from scratch; no progress data"
+
+  outputs:
+    - name: "sequenced_plan"
+      type: "project_schedule"
+      description: >
+        Optimized activity sequence with start/end dates, resource
+        assignments, and critical path identification.
+      confidence_included: true
+
+    - name: "risk_cascade_map"
+      type: "cascade_analysis"
+      description: >
+        Visualization of how each risk propagates through the plan.
+        "If X fails, here's what else breaks and by how much."
+
+    - name: "contingency_branches"
+      type: "list<contingency_plan>"
+      description: >
+        Pre-planned alternative paths at key decision points.
+        "If the bridge isn't repaired by day 30, switch to Plan B."
+
+    - name: "reforecast"
+      type: "updated_projections"
+      description: >
+        Updated completion timeline incorporating actual progress,
+        realized risks, and remaining uncertainty.
+
+  reasoning:
+    method: "monte-carlo-critical-path-with-contingency-planning"
+    objectives:
+      - "Identify the most likely critical path and its vulnerabilities (weight: 0.3)"
+      - "Minimize overall completion time (weight: 0.3)"
+      - "Ensure contingency plans exist for high-impact risks (weight: 0.2)"
+      - "Optimize resource utilization across the plan (weight: 0.1)"
+      - "Maximize early detection of cascade failures (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Activity durations can be estimated with reasonable accuracy"
+      strength: "soft"
+      adaptation_note: >
+        Disaster recovery timelines are highly uncertain — rubble
+        clearance depends on equipment availability, infrastructure
+        repair depends on material supply chains, and everything
+        depends on aftershock risk. Use wide confidence intervals
+        and update frequently as work progresses.
+
+    - id: "DA-002"
+      assumption: "Dependencies are known in advance"
+      strength: "soft"
+      adaptation_note: >
+        In recovery, hidden dependencies emerge: a road must be cleared
+        before heavy equipment can reach a hospital, but the road
+        damage isn't known until assessment is complete. Support
+        dynamic dependency discovery and plan revision.
+
+    - id: "DA-003"
+      assumption: "Risk probabilities can be quantified"
+      strength: "soft"
+      adaptation_note: >
+        Aftershock probability is scientifically modeled, but political
+        risks (funding delays, coordination failures, access restrictions)
+        are harder to quantify. Use scenario-based planning for
+        unquantifiable risks.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Work proceeds continuously once started"
+      strength: "soft"
+      adaptation_note: >
+        Recovery work is interrupted by: aftershocks, security
+        incidents, weather events, and shifting priorities. Plan
+        must handle stop-start patterns without cascading delays.
+
+    - id: "EA-002"
+      assumption: "Resources committed to the project remain available"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian resources are competitive — a new crisis elsewhere
+        pulls funding and personnel. Build in resource fragility
+        scoring and trigger replanning when key resources depart.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single project manager controls all activities"
+      strength: "hard"
+      adaptation_note: >
+        Disaster recovery involves dozens of organizations each
+        controlling their own activities. The planner must work as
+        a coordinator — showing the shared dependency picture without
+        having authority to direct individual organizations.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "risk_model"
+    type: "swappable_component"
+    current: "construction_risk_model"
+    interface: "RiskAssessor"
+    description: >
+      Assesses and quantifies risks. Interface:
+      assess(activity, context) → {risks, probabilities, impacts}
+    suggested_alternatives:
+      - name: "disaster_recovery_risk_model"
+        for_domain: "disaster-recovery"
+        description: >
+          Incorporates seismological aftershock models, seasonal
+          weather patterns, funding pipeline uncertainty, and
+          inter-organizational coordination friction factors.
+
+  - id: "AP-002"
+    name: "priority_framework"
+    type: "configurable"
+    parameters:
+      - name: "critical_path_objectives"
+        current: ["minimize_completion_time", "minimize_cost"]
+        notes: >
+          Recovery: prioritize life-saving infrastructure (hospitals,
+          water systems) over economic recovery. Use humanitarian
+          priority framework: life → safety → essential services →
+          economic activity → full recovery.
+      - name: "parallel_work_tolerance"
+        current: "high"
+        notes: >
+          In recovery, parallel workstreams are essential but
+          coordination overhead is higher. Balance parallelism
+          against coordination capacity.
+
+  - id: "AP-003"
+    name: "progress_tracker"
+    type: "swappable_component"
+    current: "gantt_chart_tracker"
+    interface: "ProgressMonitor"
+    description: >
+      Tracks actual progress against plan. Interface:
+      track(plan, actuals) → {status, variance, forecast}
+    suggested_alternatives:
+      - name: "field_progress_tracker"
+        for_domain: "disaster-recovery"
+        description: >
+          Accepts progress updates via mobile forms, photo evidence,
+          GPS-tagged completion reports, and satellite imagery
+          verification. Handles intermittent reporting.
+
+composition:
+  delegates_to:
+    - behavior: "resource-allocator"
+      interface: "ResourceAllocator"
+      purpose: "Optimize resource assignment across activities"
+      required: true
+    - behavior: "report-generator"
+      interface: "ReportGenerator"
+      purpose: "Generate progress reports for stakeholders"
+      required: true
+
+  orchestrated_by:
+    - pattern: "crisis-coordination-hub"
+      role: "Recovery planning component of broader response"
+
+  emits:
+    - event: "plan_updated"
+      payload: "sequenced_plan"
+      description: "Revised plan after progress update or risk event"
+    - event: "cascade_risk_critical"
+      payload: "cascade_analysis"
+      description: "A delay is about to trigger cascading failures"
+    - event: "contingency_activated"
+      payload: "contingency_plan"
+      description: "Switching to Plan B for a specific workstream"
+    - event: "milestone_at_risk"
+      payload: "milestone_alert"
+      description: "Key milestone unlikely to be met on schedule"
+
+  listens_to:
+    - event: "activity_completed"
+      source: "progress-tracker"
+      action: "Update plan and reforecast"
+    - event: "risk_materialized"
+      source: "risk-monitor"
+      action: "Evaluate cascade impact and activate contingency if needed"
+    - event: "resource_withdrawn"
+      source: "resource-manager"
+      action: "Replan affected activities with remaining resources"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Hidden dependency causes unexpected cascade"
+      impact: "Multiple activities blocked simultaneously"
+      severity: "high"
+      mitigation: >
+        Regular dependency review sessions with field teams.
+        Pattern detection from similar past recoveries. Explicit
+        "unknown dependencies" risk factor in every plan.
+
+    - id: "FM-002"
+      scenario: "Overly optimistic replanning after delays"
+      impact: "Stakeholders given false hope; resource planning misaligned"
+      severity: "medium"
+      mitigation: >
+        Show probability distributions, not single-point estimates.
+        Historical bias correction: if past estimates were 30% optimistic,
+        apply correction factor to future estimates.
+
+    - id: "FM-003"
+      scenario: "Plan complexity exceeds coordination capacity"
+      impact: "Organizations can't follow the plan; it becomes irrelevant"
+      severity: "high"
+      mitigation: >
+        Simplicity constraint: no organization should have more than
+        5 active dependencies at once. Split complex plans into
+        manageable work packages with clear interfaces.
+
+  ethical_flags:
+    - context: "disaster-recovery"
+      concern: "Recovery sequencing choices determine who gets help first"
+      recommendation: >
+        Transparent priority criteria. Community input on recovery
+        sequence. Ensure marginalized communities aren't systematically
+        last in queue due to cost-efficiency optimization.
+
+    - context: "disaster-recovery"
+      concern: "Building back better' pressure may delay immediate relief"
+      recommendation: >
+        Plan must distinguish between temporary solutions (fast) and
+        permanent solutions (better). Never delay life-safety
+        improvements for quality optimization.
+
+  performance:
+    tested_scale: "500 activities, 200 dependencies, 50 risk factors"
+    latency: "< 30 seconds for full plan generation; < 10 seconds for reforecast"
+    accuracy: "Monte Carlo completion estimates within ±15% of actual in 80% of backtests"
+    known_degradation: "Accuracy drops for projects > 2 years due to compounding uncertainty"
+
+  observability:
+    logging: "All planning decisions, risk assessments, and replanning triggers logged"
+    explainability: "Each sequence decision traces to dependency logic and risk assessment"
+    reproducibility: "Monte Carlo outputs vary; median estimates are stable given same inputs"
+
+provenance:
+  origin:
+    domain: "construction"
+    organization: "ABC Registry"
+    original_use_case: >
+      Managing construction project risks and dependencies for
+      retail store buildout — sequencing permits, contractors,
+      material deliveries, and inspections with weather risk.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "construction"
+      date: "2025-09-01"
+      notes: "Construction project risk planner for a retail store buildout"
+    - version: "2.0.0"
+      domain: "disaster-recovery"
+      date: "2026-02-13"
+      notes: >
+        Forked for disaster recovery planning. Added multi-org
+        coordination, humanitarian priority framework, field progress
+        tracking, and aftershock risk integration.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"
