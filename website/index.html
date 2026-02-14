@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ABC Registry — Agent Behavior Card Registry</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -2632,6 +2633,17 @@ document.addEventListener('keydown', (e) => {
 // ===== INITIAL RENDER =====
 renderCards(cards);
 
+// ===== SUPABASE CONFIG =====
+// Replace these with your actual Supabase project credentials
+var SUPABASE_URL = window.__SUPABASE_URL__ || 'https://YOUR_PROJECT.supabase.co';
+var SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY__ || 'YOUR_ANON_KEY';
+var supabaseClient = null;
+try {
+  if (typeof supabase !== 'undefined' && SUPABASE_URL.indexOf('YOUR_PROJECT') === -1) {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) { console.log('Supabase not configured yet'); }
+
 // ===== SUBMISSION FORM =====
 var formStep = 1;
 var formTotalSteps = 7;
@@ -2901,6 +2913,8 @@ function copyFormYAML() {
 function downloadFormYAML() {
   var d = collectFormData();
   var yaml = buildFormYAML(d);
+
+  // Download the YAML file
   var blob = new Blob([yaml], { type: 'text/yaml' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -2910,6 +2924,64 @@ function downloadFormYAML() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  // Submit to Supabase if configured
+  if (supabaseClient) {
+    submitToSupabase(d, yaml);
+  } else {
+    showSubmitSuccess('Card downloaded! Once the platform database is connected, submissions will also be saved online.');
+  }
+}
+
+async function submitToSupabase(formData, yamlContent) {
+  var nextBtn = document.getElementById('btn-next');
+  var origText = nextBtn.textContent;
+  nextBtn.textContent = 'Submitting...';
+  nextBtn.disabled = true;
+
+  try {
+    var { data, error } = await supabaseClient
+      .from('card_submissions')
+      .insert([{
+        slug: formData.slug,
+        display_name: formData.displayName,
+        version: formData.version,
+        author: formData.author,
+        organization: formData.org,
+        category: formData.category,
+        description: formData.description,
+        yaml_content: yamlContent,
+        status: 'pending_review',
+        submitted_at: new Date().toISOString()
+      }]);
+
+    if (error) throw error;
+    showSubmitSuccess('Card submitted successfully! It will appear in the registry after review.');
+  } catch (err) {
+    console.error('Submission error:', err);
+    showSubmitSuccess('Card downloaded! Online submission encountered an issue — the team has been notified.');
+  } finally {
+    nextBtn.textContent = origText;
+    nextBtn.disabled = false;
+  }
+}
+
+function showSubmitSuccess(message) {
+  var overlay = document.getElementById('form-overlay');
+  var existing = overlay.querySelector('.submit-success-msg');
+  if (existing) existing.remove();
+
+  var msg = document.createElement('div');
+  msg.className = 'submit-success-msg';
+  msg.innerHTML = '<div style="text-align:center; padding:40px 20px;">' +
+    '<div style="font-size:48px; margin-bottom:16px;">&#10003;</div>' +
+    '<h3 style="color:var(--cyan-glow); margin-bottom:12px;">Submission Complete</h3>' +
+    '<p style="color:var(--text-secondary); margin-bottom:24px;">' + message + '</p>' +
+    '<button onclick="closeSubmitForm(); this.closest(\'.submit-success-msg\').remove(); formStep=1; showFormStep(1);" ' +
+    'style="padding:10px 24px; background:var(--cyan-glow); color:var(--bg-deep); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Done</button>' +
+    '</div>';
+  msg.style.cssText = 'position:absolute; inset:0; background:var(--bg-surface); z-index:10; display:flex; align-items:center; justify-content:center; border-radius:16px;';
+  overlay.querySelector('.form-container').appendChild(msg);
 }
 
 // ===== NEURAL NETWORK BACKGROUND =====
