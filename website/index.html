@@ -437,6 +437,27 @@
     gap: 4px;
   }
 
+  .compliance-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .badge-certified {
+    background: rgba(0, 230, 118, 0.15);
+    color: #00e676;
+    border: 1px solid rgba(0, 230, 118, 0.3);
+  }
+  .badge-compatible {
+    background: rgba(255, 215, 0, 0.12);
+    color: #ffd740;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+  }
+
   /* ===== DETAIL MODAL ===== */
   .modal-overlay {
     position: fixed;
@@ -632,6 +653,35 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--cyan-dim);
+  }
+
+  .similar-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .similar-card-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .similar-card-item:hover {
+    border-color: var(--cyan-glow);
+  }
+  .similar-card-name {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .similar-card-badge {
+    font-size: 9px;
+    padding: 2px 6px;
   }
 
   .failure-list {
@@ -1253,6 +1303,10 @@
     <div class="stat">
       <div class="stat-number">25</div>
       <div class="stat-label">Domain Bridges</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">10</div>
+      <div class="stat-label">Certified</div>
     </div>
   </div>
 </section>
@@ -2403,6 +2457,10 @@ const searchInput = document.getElementById('search');
 const filtersEl = document.getElementById('filters');
 let activeFilter = 'all';
 
+function getCardSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function renderCards(filtered) {
   grid.innerHTML = '';
   if (filtered.length === 0) {
@@ -2421,6 +2479,13 @@ function renderCards(filtered) {
         <span class="card-number">ABC-${esc(card.id)}</span>
         <span class="card-version">v${esc(card.version)}</span>
       </div>
+      ${(() => {
+        const slug = getCardSlug(card.name);
+        const comp = complianceScores[slug];
+        if (!comp) return '';
+        const badgeClass = comp.level === 'Certified' ? 'badge-certified' : 'badge-compatible';
+        return '<div class="compliance-badge ' + badgeClass + '">ABC ' + comp.level + ' — ' + comp.overall + '</div>';
+      })()}
       <div class="card-title">${esc(card.name)}</div>
       <div class="card-pattern ${esc(card.pattern)}">${esc(card.patternLabel)}</div>
       <div class="card-description">${esc(card.description)}</div>
@@ -2628,6 +2693,25 @@ function openModal(card) {
   });
   html += '</div></div>';
 
+  // Similar Behaviors
+  var slug = getCardSlug(card.name);
+  var similar = similarityMap[slug];
+  if (similar && similar.length > 0) {
+    html += '<div class="modal-section"><h3>Similar Behaviors</h3>';
+    html += '<div class="similar-cards-list">';
+    similar.forEach(function(simSlug) {
+      var simCard = cards.find(function(c) { return getCardSlug(c.name) === simSlug; });
+      if (simCard) {
+        var simComp = complianceScores[simSlug];
+        html += '<div class="similar-card-item" onclick="closeModal(); setTimeout(function(){ openModal(cards.find(function(c){return getCardSlug(c.name)===\'' + esc(simSlug) + '\';})); }, 300);">';
+        html += '<span class="similar-card-name">' + esc(simCard.name) + '</span>';
+        if (simComp) html += '<span class="similar-card-badge ' + (simComp.level === 'Certified' ? 'badge-certified' : 'badge-compatible') + '">' + simComp.level + '</span>';
+        html += '</div>';
+      }
+    });
+    html += '</div></div>';
+  }
+
   modalContent.innerHTML = html;
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -2645,6 +2729,64 @@ overlay.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
 });
+
+// ===== INITIAL RENDER =====
+// ===== COMPLIANCE & SIMILARITY DATA =====
+const complianceScores = {
+  "inventory-rebalance-optimizer": { overall: 93.2, level: "Certified" },
+  "workforce-shift-scheduler": { overall: 89.9, level: "Compatible" },
+  "budget-envelope-allocator": { overall: 89.9, level: "Compatible" },
+  "fleet-route-optimizer": { overall: 88.8, level: "Compatible" },
+  "pattern-anomaly-detector": { overall: 89.9, level: "Compatible" },
+  "equipment-health-monitor": { overall: 89.9, level: "Compatible" },
+  "supply-chain-disruption-detector": { overall: 89.9, level: "Compatible" },
+  "comms-triage-router": { overall: 89.9, level: "Compatible" },
+  "regulatory-compliance-checker": { overall: 89.9, level: "Compatible" },
+  "daily-intelligence-briefer": { overall: 89.9, level: "Compatible" },
+  "multi-party-negotiator": { overall: 92.1, level: "Certified" },
+  "patient-risk-stratifier": { overall: 92.1, level: "Certified" },
+  "environmental-impact-monitor": { overall: 92.1, level: "Certified" },
+  "safety-incident-predictor": { overall: 93.2, level: "Certified" },
+  "project-risk-cascade-planner": { overall: 88.8, level: "Compatible" },
+  "customer-journey-orchestrator": { overall: 89.9, level: "Compatible" },
+  "dynamic-pricing-engine": { overall: 89.9, level: "Compatible" },
+  "travel-disruption-manager": { overall: 88.8, level: "Compatible" },
+  "adaptive-content-personalizer": { overall: 91.0, level: "Certified" },
+  "data-privacy-guardian": { overall: 91.0, level: "Certified" },
+  "visual-damage-assessor": { overall: 92.1, level: "Certified" },
+  "document-intelligence-extractor": { overall: 91.0, level: "Certified" },
+  "infrastructure-capacity-planner": { overall: 86.4, level: "Compatible" },
+  "sentiment-and-feedback-analyzer": { overall: 88.8, level: "Compatible" },
+  "crisis-simulation-planner": { overall: 88.7, level: "Compatible" }
+};
+
+const similarityMap = {
+  "inventory-rebalance-optimizer": ["workforce-shift-scheduler","budget-envelope-allocator","fleet-route-optimizer"],
+  "workforce-shift-scheduler": ["inventory-rebalance-optimizer","travel-disruption-manager","fleet-route-optimizer"],
+  "budget-envelope-allocator": ["inventory-rebalance-optimizer","workforce-shift-scheduler","daily-intelligence-briefer"],
+  "fleet-route-optimizer": ["workforce-shift-scheduler","inventory-rebalance-optimizer","budget-envelope-allocator"],
+  "pattern-anomaly-detector": ["environmental-impact-monitor","supply-chain-disruption-detector","equipment-health-monitor"],
+  "equipment-health-monitor": ["supply-chain-disruption-detector","regulatory-compliance-checker","pattern-anomaly-detector"],
+  "supply-chain-disruption-detector": ["equipment-health-monitor","pattern-anomaly-detector","patient-risk-stratifier"],
+  "comms-triage-router": ["daily-intelligence-briefer","sentiment-and-feedback-analyzer","travel-disruption-manager"],
+  "regulatory-compliance-checker": ["equipment-health-monitor","daily-intelligence-briefer","patient-risk-stratifier"],
+  "daily-intelligence-briefer": ["comms-triage-router","sentiment-and-feedback-analyzer","patient-risk-stratifier"],
+  "multi-party-negotiator": ["workforce-shift-scheduler","travel-disruption-manager","daily-intelligence-briefer"],
+  "patient-risk-stratifier": ["daily-intelligence-briefer","regulatory-compliance-checker","safety-incident-predictor"],
+  "environmental-impact-monitor": ["pattern-anomaly-detector","safety-incident-predictor","equipment-health-monitor"],
+  "safety-incident-predictor": ["environmental-impact-monitor","project-risk-cascade-planner","customer-journey-orchestrator"],
+  "project-risk-cascade-planner": ["safety-incident-predictor","crisis-simulation-planner","daily-intelligence-briefer"],
+  "customer-journey-orchestrator": ["safety-incident-predictor","daily-intelligence-briefer","dynamic-pricing-engine"],
+  "dynamic-pricing-engine": ["infrastructure-capacity-planner","customer-journey-orchestrator","travel-disruption-manager"],
+  "travel-disruption-manager": ["workforce-shift-scheduler","daily-intelligence-briefer","multi-party-negotiator"],
+  "adaptive-content-personalizer": ["comms-triage-router","daily-intelligence-briefer","travel-disruption-manager"],
+  "data-privacy-guardian": ["regulatory-compliance-checker","visual-damage-assessor","infrastructure-capacity-planner"],
+  "visual-damage-assessor": ["daily-intelligence-briefer","data-privacy-guardian","patient-risk-stratifier"],
+  "document-intelligence-extractor": ["comms-triage-router","sentiment-and-feedback-analyzer","daily-intelligence-briefer"],
+  "infrastructure-capacity-planner": ["crisis-simulation-planner","environmental-impact-monitor","inventory-rebalance-optimizer"],
+  "sentiment-and-feedback-analyzer": ["comms-triage-router","daily-intelligence-briefer","environmental-impact-monitor"],
+  "crisis-simulation-planner": ["infrastructure-capacity-planner","project-risk-cascade-planner","travel-disruption-manager"]
+};
 
 // ===== INITIAL RENDER =====
 renderCards(cards);
