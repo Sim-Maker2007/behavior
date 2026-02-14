@@ -10,6 +10,11 @@
 <meta property="og:url" content="https://abcstandard.org">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://abcstandard.org">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<meta property="og:image" content="https://abcstandard.org/favicon-512.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -873,12 +878,16 @@
   }
   .main-nav.scrolled { background: rgba(3, 7, 18, 0.95); }
   .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 16px;
     font-weight: 700;
     color: var(--cyan-glow);
     text-decoration: none;
     letter-spacing: -0.5px;
   }
+  .nav-logo img { width: 28px; height: 28px; border-radius: 6px; }
   .nav-logo span { color: var(--text-secondary); font-weight: 400; }
   .nav-links {
     display: flex;
@@ -1319,7 +1328,7 @@
 
 <!-- NAVIGATION -->
 <nav class="main-nav" id="main-nav">
-  <a href="#" class="nav-logo">ABC <span>Registry</span></a>
+  <a href="#" class="nav-logo"><img src="favicon-32.png" alt="ABC Logo">ABC <span>Standard</span></a>
   <ul class="nav-links" id="nav-links">
     <li><a href="how-it-works.html">How It Works</a></li>
     <li><a href="#cards-section">Cards</a></li>
