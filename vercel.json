@@ -1,8 +1,8 @@
 {
   "outputDirectory": "website",
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/how-it-works", "destination": "/how-it-works.html" },
-    { "source": "/((?!how-it-works).*)", "destination": "/index.html" }
+    { "source": "/how-it-works", "destination": "/how-it-works.html" }
   ],
   "headers": [
     {
