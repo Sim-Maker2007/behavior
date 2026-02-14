@@ -1467,7 +1467,7 @@
           <p class="step-desc">Basic information about your behavior card.</p>
           <div class="field-group">
             <label>Display Name <span class="required">*</span></label>
-            <input type="text" id="f-display-name" placeholder="e.g., Inventory Rebalance Optimizer" required>
+            <input type="text" id="f-display-name" placeholder="e.g., Inventory Rebalance Optimizer" required maxlength="200">
           </div>
           <div class="field-group">
             <label>Slug (auto-generated)</label>
@@ -1475,19 +1475,19 @@
           </div>
           <div class="field-group">
             <label>Version <span class="required">*</span></label>
-            <input type="text" id="f-version" placeholder="1.0.0" value="1.0.0">
+            <input type="text" id="f-version" placeholder="1.0.0" value="1.0.0" maxlength="20" pattern="^\d+\.\d+\.\d+$" title="Semantic version (e.g., 1.0.0)">
           </div>
           <div class="field-group">
             <label>Author Name <span class="required">*</span></label>
-            <input type="text" id="f-author" placeholder="Your name">
+            <input type="text" id="f-author" placeholder="Your name" maxlength="150">
           </div>
           <div class="field-group">
             <label>Organization</label>
-            <input type="text" id="f-org" placeholder="Your organization">
+            <input type="text" id="f-org" placeholder="Your organization" maxlength="200">
           </div>
           <div class="field-group">
             <label>Tags (comma-separated)</label>
-            <input type="text" id="f-tags" placeholder="optimization, logistics, resource-allocation">
+            <input type="text" id="f-tags" placeholder="optimization, logistics, resource-allocation" maxlength="500">
           </div>
         </div>
 
@@ -1507,11 +1507,19 @@
               <option value="compliance-and-constraint-checking">Compliance &amp; Constraint Checking</option>
               <option value="adaptive-communication">Adaptive Communication</option>
               <option value="pattern-matching-and-classification">Pattern Matching &amp; Classification</option>
+              <option value="anomaly-classification-response">Anomaly Classification &amp; Response</option>
+              <option value="similarity-ranking-selection">Similarity Ranking &amp; Selection</option>
+              <option value="retrieval-augmented-generation">Retrieval-Augmented Generation</option>
+              <option value="adaptive-sequencing">Adaptive Sequencing</option>
+              <option value="document-structure-extraction">Document Structure Extraction</option>
+              <option value="temporal-signal-extraction">Temporal Signal Extraction</option>
+              <option value="hierarchical-task-decomposition">Hierarchical Task Decomposition</option>
+              <option value="temporal-prediction-scheduling">Temporal Prediction &amp; Scheduling</option>
             </select>
           </div>
           <div class="field-group">
             <label>Description <span class="required">*</span></label>
-            <textarea id="f-description" rows="4" placeholder="Plain-language description of what this behavior does and what problem it solves."></textarea>
+            <textarea id="f-description" rows="4" placeholder="Plain-language description of what this behavior does and what problem it solves." maxlength="5000"></textarea>
           </div>
         </div>
 
@@ -3186,7 +3194,7 @@ try {
   if (typeof supabase !== 'undefined' && SUPABASE_URL.indexOf('YOUR_PROJECT') === -1) {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
-} catch(e) { console.log('Supabase not configured yet'); }
+} catch(e) { /* Supabase not loaded */ }
 
 // ===== SUBMISSION FORM =====
 var formStep = 1;
@@ -3223,14 +3231,26 @@ function validateCurrentStep() {
     var name = document.getElementById('f-display-name').value.trim();
     if (!name) { alert('Please enter a display name.'); return false; }
     if (name.length > 200) { alert('Display name too long (max 200 characters).'); return false; }
+    var ver = document.getElementById('f-version').value.trim();
+    if (ver && !/^\d+\.\d+\.\d+$/.test(ver)) { alert('Version must be semantic (e.g., 1.0.0).'); return false; }
+    var author = document.getElementById('f-author').value.trim();
+    if (!author) { alert('Please enter an author name.'); return false; }
   }
   if (formStep === 2) {
+    var cat = document.getElementById('f-category').value;
+    if (!cat) { alert('Please select a pattern category.'); return false; }
     var desc = document.getElementById('f-description').value.trim();
     if (!desc) { alert('Please enter a description.'); return false; }
     if (desc.length > 5000) { alert('Description too long (max 5000 characters).'); return false; }
   }
+  if (formStep === 3) {
+    var trigger = document.getElementById('f-trigger').value;
+    if (!trigger) { alert('Please select a trigger type.'); return false; }
+  }
   return true;
 }
+
+var lastSubmitTime = 0;
 
 function nextFormStep() {
   if (!validateCurrentStep()) return;
@@ -3437,14 +3457,14 @@ function buildFormYAML(d) {
   if (d.origin) {
     y += '  origin:\n';
     y += '    domain: "' + d.origin.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '"\n';
-    if (d.usecase) y += '    original_use_case: "' + d.usecase + '"\n';
+    if (d.usecase) y += '    original_use_case: "' + Y(d.usecase) + '"\n';
   }
   if (d.fork) {
     y += '  lineage:\n';
-    y += '    - version: "' + d.version + '"\n';
+    y += '    - version: "' + Y(d.version) + '"\n';
     y += '      domain: "' + d.fork.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '"\n';
     y += '      date: "' + new Date().toISOString().split('T')[0] + '"\n';
-    if (d.forkNotes) y += '      notes: "' + d.forkNotes + '"\n';
+    if (d.forkNotes) y += '      notes: "' + Y(d.forkNotes) + '"\n';
   }
   if (d.frameworks) {
     y += '  compatibility:\n    frameworks:\n';
@@ -3494,6 +3514,13 @@ function downloadFormYAML() {
 }
 
 async function submitToSupabase(formData, yamlContent) {
+  var now = Date.now();
+  if (now - lastSubmitTime < 10000) {
+    showSubmitSuccess('Please wait a moment before submitting again.');
+    return;
+  }
+  lastSubmitTime = now;
+
   var nextBtn = document.getElementById('btn-next');
   var origText = nextBtn.textContent;
   nextBtn.textContent = 'Submitting...';
@@ -3518,7 +3545,7 @@ async function submitToSupabase(formData, yamlContent) {
     if (error) throw error;
     showSubmitSuccess('Card submitted successfully! It will appear in the registry after review.');
   } catch (err) {
-    console.error('Submission error:', err);
+    // Submission error — user sees fallback message below
     showSubmitSuccess('Card downloaded! Online submission encountered an issue — the team has been notified.');
   } finally {
     nextBtn.textContent = origText;
@@ -3536,7 +3563,7 @@ function showSubmitSuccess(message) {
   msg.innerHTML = '<div style="text-align:center; padding:40px 20px;">' +
     '<div style="font-size:48px; margin-bottom:16px;">&#10003;</div>' +
     '<h3 style="color:var(--cyan-glow); margin-bottom:12px;">Submission Complete</h3>' +
-    '<p style="color:var(--text-secondary); margin-bottom:24px;">' + message + '</p>' +
+    '<p style="color:var(--text-secondary); margin-bottom:24px;">' + esc(message) + '</p>' +
     '<button onclick="closeSubmitForm(); this.closest(\'.submit-success-msg\').remove(); formStep=1; showFormStep(1);" ' +
     'style="padding:10px 24px; background:var(--cyan-glow); color:var(--bg-deep); border:none; border-radius:8px; cursor:pointer; font-weight:600;">Done</button>' +
     '</div>';
