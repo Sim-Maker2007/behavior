@@ -10,7 +10,7 @@
 <meta property="og:url" content="https://abcstandard.org">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://abcstandard.org">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb" crossorigin="anonymous"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -1581,6 +1581,16 @@
 </footer>
 
 <script>
+// ===== SECURITY: HTML SANITIZER =====
+function esc(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+function escYAML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '');
+}
+
 // ===== CARD DATA =====
 const cards = [
   {
@@ -2408,21 +2418,21 @@ function renderCards(filtered) {
     el.onclick = () => openModal(card);
     el.innerHTML = `
       <div class="card-header">
-        <span class="card-number">ABC-${card.id}</span>
-        <span class="card-version">v${card.version}</span>
+        <span class="card-number">ABC-${esc(card.id)}</span>
+        <span class="card-version">v${esc(card.version)}</span>
       </div>
-      <div class="card-title">${card.name}</div>
-      <div class="card-pattern ${card.pattern}">${card.patternLabel}</div>
-      <div class="card-description">${card.description}</div>
+      <div class="card-title">${esc(card.name)}</div>
+      <div class="card-pattern ${esc(card.pattern)}">${esc(card.patternLabel)}</div>
+      <div class="card-description">${esc(card.description)}</div>
       <div class="card-fork">
-        <span>${card.origin}</span>
+        <span>${esc(card.origin)}</span>
         <span class="card-fork-arrow">→</span>
-        <span style="color: var(--cyan-dim)">${card.fork}</span>
+        <span style="color: var(--cyan-dim)">${esc(card.fork)}</span>
       </div>
       <div class="card-meta">
         <span class="card-meta-item">${card.adaptationPoints.length} adaptation points</span>
         <span class="card-meta-item">${card.analogousDomains.length} domains</span>
-        <span class="card-meta-item">${card.frameworks.join(', ')}</span>
+        <span class="card-meta-item">${esc(card.frameworks.join(', '))}</span>
       </div>
     `;
     grid.appendChild(el);
@@ -2553,8 +2563,8 @@ function openModal(card) {
 
   let html = '';
   html += '<button class="modal-close" onclick="closeModal()">&#10005;</button>';
-  html += '<h2>' + card.name + '</h2>';
-  html += '<div class="modal-subtitle">ABC-' + card.id + ' &middot; v' + card.version + ' &middot; ' + card.pattern + '</div>';
+  html += '<h2>' + esc(card.name) + '</h2>';
+  html += '<div class="modal-subtitle">ABC-' + esc(card.id) + ' &middot; v' + esc(card.version) + ' &middot; ' + esc(card.pattern) + '</div>';
 
   // Action buttons
   html += '<div class="modal-actions">';
@@ -2570,24 +2580,24 @@ function openModal(card) {
   html += '<div class="modal-fork-story">';
   html += '<div class="modal-fork-label">Fork Story</div>';
   html += '<div class="modal-fork-flow">';
-  html += '<span class="origin">' + card.originDetail + '</span>';
+  html += '<span class="origin">' + esc(card.originDetail) + '</span>';
   html += '<span class="arrow">&rarr;</span>';
-  html += '<span class="target">' + card.forkDetail + '</span>';
+  html += '<span class="target">' + esc(card.forkDetail) + '</span>';
   html += '</div></div>';
 
   // Description
   html += '<div class="modal-section"><h3>Description</h3>';
-  html += '<p>' + card.description + '</p></div>';
+  html += '<p>' + esc(card.description) + '</p></div>';
 
   // Adaptation Points
   html += '<div class="modal-section"><h3>Adaptation Points</h3><ul class="adaptation-list">';
   card.adaptationPoints.forEach(function(ap) {
     html += '<li class="adaptation-item">';
     html += '<div class="adaptation-item-header">';
-    html += '<span class="adaptation-name">' + ap.name + '</span>';
-    html += '<span class="adaptation-type">' + ap.type + '</span>';
+    html += '<span class="adaptation-name">' + esc(ap.name) + '</span>';
+    html += '<span class="adaptation-type">' + esc(ap.type) + '</span>';
     html += '</div>';
-    html += '<div class="adaptation-desc">' + ap.desc + '</div>';
+    html += '<div class="adaptation-desc">' + esc(ap.desc) + '</div>';
     html += '</li>';
   });
   html += '</ul></div>';
@@ -2595,7 +2605,7 @@ function openModal(card) {
   // Analogous Domains
   html += '<div class="modal-section"><h3>Analogous Domains</h3><div class="domain-tag-list">';
   card.analogousDomains.forEach(function(d) {
-    html += '<div class="domain-tag">' + d.domain;
+    html += '<div class="domain-tag">' + esc(d.domain);
     html += ' <span class="domain-similarity">' + (d.similarity * 100).toFixed(0) + '%</span></div>';
   });
   html += '</div></div>';
@@ -2604,9 +2614,9 @@ function openModal(card) {
   html += '<div class="modal-section"><h3>Failure Modes</h3><ul class="failure-list">';
   card.failureModes.forEach(function(fm) {
     html += '<li class="failure-item">';
-    html += '<span class="failure-severity ' + fm.severity + '">' + fm.severity.replace(/_/g, ' ') + '</span>';
-    html += '<div class="failure-scenario">' + fm.scenario + '</div>';
-    html += '<div class="failure-impact">' + fm.impact + '</div>';
+    html += '<span class="failure-severity ' + esc(fm.severity) + '">' + esc(fm.severity.replace(/_/g, ' ')) + '</span>';
+    html += '<div class="failure-scenario">' + esc(fm.scenario) + '</div>';
+    html += '<div class="failure-impact">' + esc(fm.impact) + '</div>';
     html += '</li>';
   });
   html += '</ul></div>';
@@ -2614,7 +2624,7 @@ function openModal(card) {
   // Frameworks
   html += '<div class="modal-section"><h3>Compatible Frameworks</h3><div class="domain-tag-list">';
   card.frameworks.forEach(function(f) {
-    html += '<div class="domain-tag">' + f + '</div>';
+    html += '<div class="domain-tag">' + esc(f) + '</div>';
   });
   html += '</div></div>';
 
@@ -2640,9 +2650,9 @@ document.addEventListener('keydown', (e) => {
 renderCards(cards);
 
 // ===== SUPABASE CONFIG =====
-// Replace these with your actual Supabase project credentials
-var SUPABASE_URL = window.__SUPABASE_URL__ || 'https://dpdpbijikttsuehznvkb.supabase.co';
-var SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY__ || 'sb_publishable_m4t24tSWI4SG4oYDuBtHGw_w-aiTKPZ';
+// Publishable key — safe for client-side use, protected by Row Level Security (RLS)
+var SUPABASE_URL = 'https://dpdpbijikttsuehznvkb.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_m4t24tSWI4SG4oYDuBtHGw_w-aiTKPZ';
 var supabaseClient = null;
 try {
   if (typeof supabase !== 'undefined' && SUPABASE_URL.indexOf('YOUR_PROJECT') === -1) {
@@ -2680,7 +2690,22 @@ function showFormStep(step) {
   updateFormPreview();
 }
 
+function validateCurrentStep() {
+  if (formStep === 1) {
+    var name = document.getElementById('f-display-name').value.trim();
+    if (!name) { alert('Please enter a display name.'); return false; }
+    if (name.length > 200) { alert('Display name too long (max 200 characters).'); return false; }
+  }
+  if (formStep === 2) {
+    var desc = document.getElementById('f-description').value.trim();
+    if (!desc) { alert('Please enter a description.'); return false; }
+    if (desc.length > 5000) { alert('Description too long (max 5000 characters).'); return false; }
+  }
+  return true;
+}
+
 function nextFormStep() {
+  if (!validateCurrentStep()) return;
   if (formStep === formTotalSteps) {
     downloadFormYAML();
     return;
@@ -2797,38 +2822,39 @@ function collectFormData() {
 }
 
 function buildFormYAML(d) {
+  var Y = escYAML; // shorthand
   var y = 'abc_version: "0.1.0"\n\n';
   y += 'identity:\n';
-  y += '  name: "' + d.slug + '"\n';
-  y += '  display_name: "' + d.displayName + '"\n';
-  y += '  version: "' + d.version + '"\n';
+  y += '  name: "' + Y(d.slug) + '"\n';
+  y += '  display_name: "' + Y(d.displayName) + '"\n';
+  y += '  version: "' + Y(d.version) + '"\n';
   y += '  authors:\n';
-  y += '    - name: "' + d.author + '"\n';
-  if (d.org) y += '      org: "' + d.org + '"\n';
+  y += '    - name: "' + Y(d.author) + '"\n';
+  if (d.org) y += '      org: "' + Y(d.org) + '"\n';
   y += '  license: "Apache-2.0"\n';
   y += '  created: "' + new Date().toISOString().split('T')[0] + '"\n';
   if (d.tags) {
-    y += '  tags: [' + d.tags.split(',').map(function(t) { return '"' + t.trim() + '"'; }).join(', ') + ']\n';
+    y += '  tags: [' + d.tags.split(',').map(function(t) { return '"' + Y(t.trim()) + '"'; }).join(', ') + ']\n';
   }
   y += '\nproblem_pattern:\n';
-  y += '  category: "' + d.category + '"\n';
+  y += '  category: "' + Y(d.category) + '"\n';
   y += '  description: >\n    ' + (d.description || '').replace(/\n/g, '\n    ') + '\n';
   y += '\nbehavior:\n';
-  y += '  trigger:\n    type: "' + d.trigger + '"\n';
+  y += '  trigger:\n    type: "' + Y(d.trigger) + '"\n';
   if (d.inputs.length > 0) {
     y += '  inputs:\n';
     d.inputs.forEach(function(inp) {
-      y += '    - name: "' + inp.name + '"\n';
-      y += '      type: "' + inp.type + '"\n';
-      y += '      description: "' + inp.desc + '"\n';
+      y += '    - name: "' + Y(inp.name) + '"\n';
+      y += '      type: "' + Y(inp.type) + '"\n';
+      y += '      description: "' + Y(inp.desc) + '"\n';
     });
   }
   if (d.outputs.length > 0) {
     y += '  outputs:\n';
     d.outputs.forEach(function(out) {
-      y += '    - name: "' + out.name + '"\n';
-      y += '      type: "' + out.type + '"\n';
-      y += '      description: "' + out.desc + '"\n';
+      y += '    - name: "' + Y(out.name) + '"\n';
+      y += '      type: "' + Y(out.type) + '"\n';
+      y += '      description: "' + Y(out.desc) + '"\n';
     });
   }
   if (d.assumptions.length > 0) {
@@ -2840,24 +2866,24 @@ function buildFormYAML(d) {
       y += '  data_assumptions:\n';
       dataA.forEach(function(a, i) {
         y += '    - id: "DA-' + String(i + 1).padStart(3, '0') + '"\n';
-        y += '      assumption: "' + a.assumption + '"\n';
-        y += '      strength: "' + a.strength + '"\n';
+        y += '      assumption: "' + Y(a.assumption) + '"\n';
+        y += '      strength: "' + Y(a.strength) + '"\n';
       });
     }
     if (envA.length > 0) {
       y += '  environment_assumptions:\n';
       envA.forEach(function(a, i) {
         y += '    - id: "EA-' + String(i + 1).padStart(3, '0') + '"\n';
-        y += '      assumption: "' + a.assumption + '"\n';
-        y += '      strength: "' + a.strength + '"\n';
+        y += '      assumption: "' + Y(a.assumption) + '"\n';
+        y += '      strength: "' + Y(a.strength) + '"\n';
       });
     }
     if (authA.length > 0) {
       y += '  authority_assumptions:\n';
       authA.forEach(function(a, i) {
         y += '    - id: "AA-' + String(i + 1).padStart(3, '0') + '"\n';
-        y += '      assumption: "' + a.assumption + '"\n';
-        y += '      strength: "' + a.strength + '"\n';
+        y += '      assumption: "' + Y(a.assumption) + '"\n';
+        y += '      strength: "' + Y(a.strength) + '"\n';
       });
     }
   }
@@ -2865,8 +2891,8 @@ function buildFormYAML(d) {
     y += '\nadaptation_points:\n';
     d.adaptations.forEach(function(ap, i) {
       y += '  - id: "AP-' + String(i + 1).padStart(3, '0') + '"\n';
-      y += '    name: "' + ap.name + '"\n';
-      y += '    type: "' + ap.type + '"\n';
+      y += '    name: "' + Y(ap.name) + '"\n';
+      y += '    type: "' + Y(ap.type) + '"\n';
       if (ap.desc) y += '    description: >\n      ' + ap.desc.replace(/\n/g, '\n      ') + '\n';
     });
   }
@@ -2874,9 +2900,9 @@ function buildFormYAML(d) {
     y += '\ntrust:\n  failure_modes:\n';
     d.failures.forEach(function(fm, i) {
       y += '    - id: "FM-' + String(i + 1).padStart(3, '0') + '"\n';
-      y += '      scenario: "' + fm.scenario + '"\n';
-      y += '      impact: "' + fm.impact + '"\n';
-      y += '      severity: "' + fm.severity + '"\n';
+      y += '      scenario: "' + Y(fm.scenario) + '"\n';
+      y += '      impact: "' + Y(fm.impact) + '"\n';
+      y += '      severity: "' + Y(fm.severity) + '"\n';
     });
   }
   y += '\nprovenance:\n';

@@ -2,4 +2,27 @@ node_modules/
 .DS_Store
 *.log
 dist/
+
+# Environment variables
 .env
+.env.*
+.env.local
+.env.production
+.env.development
+
+# Secrets
+secrets.json
+.supabaserc
+.vercelrc
+credentials.json
+private-key.json
+*.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
