@@ -24,6 +24,8 @@
     --border-active: rgba(0, 229, 255, 0.35);
   }
 
+  html { scroll-behavior: smooth; }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -48,7 +50,7 @@
     position: relative;
     z-index: 1;
     text-align: center;
-    padding: 100px 24px 60px;
+    padding: 120px 24px 60px;
     max-width: 900px;
     margin: 0 auto;
   }
@@ -724,18 +726,480 @@
     font-size: 16px;
   }
 
+  /* ===== NAVIGATION ===== */
+  .main-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(3, 7, 18, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+  .main-nav.scrolled { background: rgba(3, 7, 18, 0.95); }
+  .nav-logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cyan-glow);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--text-secondary); font-weight: 400; }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan-glow); }
+  .hamburger {
+    display: none;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .hamburger svg { width: 20px; height: 20px; display: block; }
+
+  /* ===== HOW IT WORKS ===== */
+  .how-it-works {
+    position: relative;
+    z-index: 1;
+    padding: 80px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .how-it-works h2 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--cyan-glow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .how-it-works .section-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin-bottom: 48px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: all 0.3s ease;
+  }
+  .feature-card:hover {
+    border-color: var(--border-active);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 229, 255, 0.08);
+  }
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--cyan-faint);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--cyan-glow);
+  }
+  .feature-icon svg { width: 24px; height: 24px; }
+  .feature-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .feature-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .cards-count {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .cards-count span {
+    color: var(--cyan-glow);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card { opacity: 0; animation: fadeInUp 0.4s ease-out forwards; }
+
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 40;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-active);
+    color: var(--cyan-glow);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+  }
+  .back-to-top.show { opacity: 1; pointer-events: auto; }
+  .back-to-top:hover { background: var(--cyan-faint); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2); }
+  .back-to-top svg { width: 20px; height: 20px; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 60px 24px 30px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto 40px;
+  }
+  .footer-col h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyan-glow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .footer-col p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a { color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--cyan-glow); }
+  .footer-bottom {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ===== SUBMISSION FORM ===== */
+  .form-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(3, 7, 18, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 110;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  .form-overlay.active { display: flex; }
+  .form-container {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 960px;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 0 80px rgba(0, 229, 255, 0.06);
+  }
+  .form-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .form-close:hover { border-color: var(--cyan-glow); color: var(--cyan-glow); }
+  .form-header { margin-bottom: 32px; }
+  .form-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .form-header p { font-size: 14px; color: var(--text-secondary); }
+  .form-progress { margin-bottom: 32px; }
+  .progress-bar {
+    height: 3px;
+    background: var(--bg-card);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan-glow), var(--blue-glow));
+    transition: width 0.4s ease;
+    border-radius: 2px;
+  }
+  .progress-steps {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .progress-step {
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .progress-step.active { background: var(--cyan-faint); border-color: var(--border-active); color: var(--cyan-glow); }
+  .progress-step.completed { color: var(--text-secondary); border-color: rgba(0,229,255,0.2); }
+  .form-body { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .form-fields { min-width: 0; }
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+  .form-step h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .form-step .step-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .field-group { margin-bottom: 16px; }
+  .field-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+  }
+  .field-group label .required { color: var(--cyan-glow); }
+  .field-group input, .field-group textarea, .field-group select {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus, .field-group textarea:focus, .field-group select:focus {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.08);
+  }
+  .field-group select { cursor: pointer; }
+  .field-group textarea { resize: vertical; min-height: 60px; }
+  .field-group input::placeholder, .field-group textarea::placeholder { color: var(--text-muted); }
+  .repeating-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .repeating-item .remove-item {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: rgba(244,67,54,0.1);
+    border: 1px solid rgba(244,67,54,0.2);
+    color: #ef5350;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .repeating-item .remove-item:hover { background: rgba(244,67,54,0.2); }
+  .add-item-btn {
+    padding: 7px 14px;
+    background: var(--cyan-faint);
+    border: 1px solid var(--border-active);
+    color: var(--cyan-glow);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .add-item-btn:hover { background: rgba(0,229,255,0.12); }
+  .yaml-panel {
+    position: sticky;
+    top: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    max-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+  }
+  .yaml-panel h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyan-glow);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .yaml-panel pre {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    overflow: auto;
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .yaml-panel-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .yaml-panel-actions button {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .yaml-panel-actions .btn-copy {
+    background: var(--cyan-faint);
+    border: 1px solid var(--border-active);
+    color: var(--cyan-glow);
+  }
+  .yaml-panel-actions .btn-download {
+    background: var(--cyan-glow);
+    border: 1px solid var(--cyan-glow);
+    color: var(--bg-deep);
+  }
+  .yaml-panel-actions button:hover { transform: translateY(-1px); }
+  .form-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    grid-column: 1 / -1;
+  }
+  .form-nav button {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-prev {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .btn-prev:hover { border-color: var(--border-active); color: var(--text-primary); }
+  .btn-next {
+    background: var(--cyan-glow);
+    border: 1px solid var(--cyan-glow);
+    color: var(--bg-deep);
+  }
+  .btn-next:hover { box-shadow: 0 0 20px rgba(0,229,255,0.3); transform: translateY(-1px); }
+
+  @media (max-width: 768px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-body { grid-template-columns: 1fr; }
+    .yaml-panel { position: static; max-height: 300px; }
+  }
   @media (max-width: 640px) {
-    .hero { padding: 60px 16px 40px; }
+    .main-nav .nav-links { display: none; }
+    .main-nav .nav-links.open { display: flex; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; background: rgba(3,7,18,0.98); backdrop-filter: blur(20px); padding: 16px 24px; gap: 16px; border-bottom: 1px solid var(--border); }
+    .hamburger { display: flex; }
+    .hero { padding: 100px 16px 40px; }
     .hero-stats { gap: 24px; }
     .stat-number { font-size: 28px; }
+    .features-grid { grid-template-columns: 1fr; }
     .cards-grid { grid-template-columns: 1fr; }
     .modal { padding: 24px; }
     .modal h2 { font-size: 22px; }
     .modal-fork-flow { flex-direction: column; gap: 4px; }
+    .filters { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 12px; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter-btn { white-space: nowrap; flex-shrink: 0; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .progress-steps { gap: 4px; }
+    .progress-step { padding: 4px 8px; font-size: 10px; }
+    .form-container { padding: 20px; }
+    .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; }
   }
 </style>
 </head>
 <body>
+
+<!-- NAVIGATION -->
+<nav class="main-nav" id="main-nav">
+  <a href="#" class="nav-logo">ABC <span>Registry</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#cards-section">Cards</a></li>
+    <li><a href="#" onclick="openSubmitForm(); return false;">Submit</a></li>
+    <li><a href="https://github.com/Sim-Maker2007/behavior" target="_blank">GitHub</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="document.getElementById('nav-links').classList.toggle('open')">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+</nav>
 
 <canvas id="bg-canvas"></canvas>
 
@@ -756,6 +1220,42 @@
     <div class="stat">
       <div class="stat-number">25</div>
       <div class="stat-label">Domain Bridges</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how-it-works">
+  <h2>How It Works</h2>
+  <p class="section-subtitle">ABC cards are portable behavior descriptions that travel across domains, frameworks, and teams.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <h3>Cross-Domain Discovery</h3>
+      <p>Search by abstract problem pattern, not industry label. Find how a retail optimizer became a humanitarian aid allocator.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v18m-7-7l7 7 7-7"/></svg>
+      </div>
+      <h3>Adaptation Points</h3>
+      <p>Every card documents exactly where and how to modify it — swap components, tune parameters, or extend interfaces.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg>
+      </div>
+      <h3>Fork Stories</h3>
+      <p>Each behavior includes a real adaptation narrative — how it traveled from one domain to another, and what changed along the way.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </div>
+      <h3>Composability</h3>
+      <p>Cards declare what they emit, listen to, and delegate — making it possible to wire behaviors together into multi-agent systems.</p>
     </div>
   </div>
 </section>
@@ -782,7 +1282,8 @@
 </section>
 
 <!-- CARDS -->
-<section class="cards-section">
+<section class="cards-section" id="cards-section">
+  <div class="cards-count">Showing <span id="cards-shown">25</span> of <span id="cards-total">25</span> cards</div>
   <div class="cards-grid" id="cards-grid"></div>
   <div class="no-results" id="no-results" style="display:none;">
     No behavior cards match your search. <br>
@@ -795,9 +1296,256 @@
   <div class="modal" id="modal-content"></div>
 </div>
 
+<!-- SUBMISSION FORM -->
+<div class="form-overlay" id="form-overlay">
+  <div class="form-container">
+    <button class="form-close" onclick="closeSubmitForm()">&times;</button>
+    <div class="form-header">
+      <h2>Submit a Behavior Card</h2>
+      <p>Describe your agent behavior using the ABC standard. Fill in the form and download the YAML file.</p>
+    </div>
+    <div class="form-progress">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:14.28%"></div></div>
+      <div class="progress-steps" id="progress-steps">
+        <div class="progress-step active" data-step="1">Identity</div>
+        <div class="progress-step" data-step="2">Pattern</div>
+        <div class="progress-step" data-step="3">Behavior</div>
+        <div class="progress-step" data-step="4">Assumptions</div>
+        <div class="progress-step" data-step="5">Adaptation</div>
+        <div class="progress-step" data-step="6">Trust</div>
+        <div class="progress-step" data-step="7">Provenance</div>
+      </div>
+    </div>
+    <div class="form-body">
+      <div class="form-fields">
+        <!-- Step 1: Identity -->
+        <div class="form-step active" data-step="1">
+          <h3>Identity</h3>
+          <p class="step-desc">Basic information about your behavior card.</p>
+          <div class="field-group">
+            <label>Display Name <span class="required">*</span></label>
+            <input type="text" id="f-display-name" placeholder="e.g., Inventory Rebalance Optimizer" required>
+          </div>
+          <div class="field-group">
+            <label>Slug (auto-generated)</label>
+            <input type="text" id="f-slug" placeholder="auto-generated-from-name" readonly>
+          </div>
+          <div class="field-group">
+            <label>Version <span class="required">*</span></label>
+            <input type="text" id="f-version" placeholder="1.0.0" value="1.0.0">
+          </div>
+          <div class="field-group">
+            <label>Author Name <span class="required">*</span></label>
+            <input type="text" id="f-author" placeholder="Your name">
+          </div>
+          <div class="field-group">
+            <label>Organization</label>
+            <input type="text" id="f-org" placeholder="Your organization">
+          </div>
+          <div class="field-group">
+            <label>Tags (comma-separated)</label>
+            <input type="text" id="f-tags" placeholder="optimization, logistics, resource-allocation">
+          </div>
+        </div>
+
+        <!-- Step 2: Problem Pattern -->
+        <div class="form-step" data-step="2">
+          <h3>Problem Pattern</h3>
+          <p class="step-desc">What abstract problem does this behavior solve?</p>
+          <div class="field-group">
+            <label>Pattern Category <span class="required">*</span></label>
+            <select id="f-category">
+              <option value="">Select a pattern...</option>
+              <option value="constrained-resource-allocation">Constrained Resource Allocation</option>
+              <option value="anomaly-detection-and-response">Anomaly Detection &amp; Response</option>
+              <option value="multi-stakeholder-negotiation">Multi-Stakeholder Negotiation</option>
+              <option value="information-synthesis-and-routing">Information Synthesis &amp; Routing</option>
+              <option value="sequential-decision-under-uncertainty">Sequential Decision Under Uncertainty</option>
+              <option value="compliance-and-constraint-checking">Compliance &amp; Constraint Checking</option>
+              <option value="adaptive-communication">Adaptive Communication</option>
+              <option value="pattern-matching-and-classification">Pattern Matching &amp; Classification</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Description <span class="required">*</span></label>
+            <textarea id="f-description" rows="4" placeholder="Plain-language description of what this behavior does and what problem it solves."></textarea>
+          </div>
+        </div>
+
+        <!-- Step 3: Behavior -->
+        <div class="form-step" data-step="3">
+          <h3>Behavior</h3>
+          <p class="step-desc">Define the trigger, inputs, and outputs.</p>
+          <div class="field-group">
+            <label>Trigger Type <span class="required">*</span></label>
+            <select id="f-trigger">
+              <option value="">Select trigger...</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="event-driven">Event-Driven</option>
+              <option value="continuous">Continuous</option>
+              <option value="on-demand">On-Demand</option>
+            </select>
+          </div>
+          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block;">Inputs</label>
+          <div id="inputs-list">
+            <div class="repeating-item">
+              <button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>
+              <div class="field-group"><label>Name</label><input type="text" class="fi-name" placeholder="e.g., inventory_data"></div>
+              <div class="field-group"><label>Type</label><input type="text" class="fi-type" placeholder="e.g., map&lt;location_id, quantity&gt;"></div>
+              <div class="field-group"><label>Description</label><input type="text" class="fi-desc" placeholder="What this input is"></div>
+            </div>
+          </div>
+          <button type="button" class="add-item-btn" onclick="addInput()">+ Add Input</button>
+          <label style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;display:block;">Outputs</label>
+          <div id="outputs-list">
+            <div class="repeating-item">
+              <button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>
+              <div class="field-group"><label>Name</label><input type="text" class="fo-name" placeholder="e.g., transfer_plan"></div>
+              <div class="field-group"><label>Type</label><input type="text" class="fo-type" placeholder="e.g., list&lt;transfer_order&gt;"></div>
+              <div class="field-group"><label>Description</label><input type="text" class="fo-desc" placeholder="What this output is"></div>
+            </div>
+          </div>
+          <button type="button" class="add-item-btn" onclick="addOutput()">+ Add Output</button>
+        </div>
+
+        <!-- Step 4: Domain Assumptions -->
+        <div class="form-step" data-step="4">
+          <h3>Domain Assumptions</h3>
+          <p class="step-desc">What does this behavior assume about data, environment, and authority?</p>
+          <div id="assumptions-list">
+            <div class="repeating-item">
+              <button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>
+              <div class="field-group">
+                <label>Type</label>
+                <select class="fa-type"><option value="data">Data</option><option value="environment">Environment</option><option value="authority">Authority</option></select>
+              </div>
+              <div class="field-group"><label>Assumption</label><input type="text" class="fa-assumption" placeholder="e.g., Real-time inventory data available within 4 hours"></div>
+              <div class="field-group">
+                <label>Strength</label>
+                <select class="fa-strength"><option value="hard">Hard (behavior breaks)</option><option value="soft">Soft (degrades gracefully)</option></select>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="add-item-btn" onclick="addAssumption()">+ Add Assumption</button>
+        </div>
+
+        <!-- Step 5: Adaptation Points -->
+        <div class="form-step" data-step="5">
+          <h3>Adaptation Points</h3>
+          <p class="step-desc">Where can this behavior be modified for new domains?</p>
+          <div id="adaptations-list">
+            <div class="repeating-item">
+              <button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>
+              <div class="field-group"><label>Name <span class="required">*</span></label><input type="text" class="fap-name" placeholder="e.g., demand_model"></div>
+              <div class="field-group">
+                <label>Type <span class="required">*</span></label>
+                <select class="fap-type"><option value="swappable_component">Swappable Component</option><option value="configurable">Configurable</option><option value="extensible">Extensible</option></select>
+              </div>
+              <div class="field-group"><label>Description</label><textarea class="fap-desc" rows="2" placeholder="How can this component be adapted?"></textarea></div>
+            </div>
+          </div>
+          <button type="button" class="add-item-btn" onclick="addAdaptation()">+ Add Adaptation Point</button>
+        </div>
+
+        <!-- Step 6: Trust & Failure Modes -->
+        <div class="form-step" data-step="6">
+          <h3>Trust &amp; Failure Modes</h3>
+          <p class="step-desc">Be honest about what can go wrong. This builds trust.</p>
+          <div id="failures-list">
+            <div class="repeating-item">
+              <button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>
+              <div class="field-group">
+                <label>Severity <span class="required">*</span></label>
+                <select class="ff-severity"><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+              </div>
+              <div class="field-group"><label>Scenario <span class="required">*</span></label><input type="text" class="ff-scenario" placeholder="What fails?"></div>
+              <div class="field-group"><label>Impact <span class="required">*</span></label><input type="text" class="ff-impact" placeholder="What happens?"></div>
+            </div>
+          </div>
+          <button type="button" class="add-item-btn" onclick="addFailure()">+ Add Failure Mode</button>
+        </div>
+
+        <!-- Step 7: Provenance -->
+        <div class="form-step" data-step="7">
+          <h3>Provenance</h3>
+          <p class="step-desc">Where did this behavior come from, and where has it been adapted?</p>
+          <div class="field-group">
+            <label>Origin Domain <span class="required">*</span></label>
+            <input type="text" id="f-origin" placeholder="e.g., Retail Supply Chain">
+          </div>
+          <div class="field-group">
+            <label>Original Use Case</label>
+            <textarea id="f-usecase" rows="2" placeholder="What was this behavior originally built for?"></textarea>
+          </div>
+          <div class="field-group">
+            <label>Fork Domain</label>
+            <input type="text" id="f-fork" placeholder="e.g., Humanitarian Aid Distribution">
+          </div>
+          <div class="field-group">
+            <label>Fork Notes</label>
+            <textarea id="f-fork-notes" rows="2" placeholder="What changed when adapting to the new domain?"></textarea>
+          </div>
+          <div class="field-group">
+            <label>Compatible Frameworks (comma-separated)</label>
+            <input type="text" id="f-frameworks" placeholder="CrewAI, LangGraph, AutoGen">
+          </div>
+        </div>
+      </div>
+
+      <!-- YAML Preview Panel -->
+      <div class="yaml-panel">
+        <h4>Live YAML Preview</h4>
+        <pre id="yaml-preview">abc_version: "0.1.0"
+
+# Fill in the form to see your card...</pre>
+        <div class="yaml-panel-actions">
+          <button type="button" class="btn-copy" onclick="copyFormYAML()">Copy YAML</button>
+          <button type="button" class="btn-download" onclick="downloadFormYAML()">Download .yaml</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn-prev" id="btn-prev" onclick="prevFormStep()" style="visibility:hidden;">&#8592; Previous</button>
+      <button type="button" class="btn-next" id="btn-next" onclick="nextFormStep()">Next &#8594;</button>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
-  <p>Built by <a href="https://github.com/abc-registry" target="_blank">ABC Registry Contributors</a> &middot; <a href="https://github.com/abc-registry/abc-registry" target="_blank">GitHub</a> &middot; Licensed under Apache 2.0 &amp; CC BY 4.0</p>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>About</h4>
+      <p>The Agent Behavior Card Registry is an open standard for describing, discovering, and adapting AI agent behaviors across domains. Think Docker for agent behaviors.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="https://github.com/Sim-Maker2007/behavior/blob/main/spec/agent-behavior-card-spec.md" target="_blank">Specification</a></li>
+        <li><a href="https://github.com/Sim-Maker2007/behavior/blob/main/schema/abc-schema-v0.1.0.json" target="_blank">JSON Schema</a></li>
+        <li><a href="https://github.com/Sim-Maker2007/behavior/blob/main/CONTRIBUTING.md" target="_blank">Contributing Guide</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://github.com/Sim-Maker2007/behavior" target="_blank">GitHub Repository</a></li>
+        <li><a href="https://github.com/Sim-Maker2007/behavior/issues" target="_blank">Report an Issue</a></li>
+        <li><a href="#" onclick="openSubmitForm(); return false;">Submit a Card</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 License</a></li>
+        <li><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0 (Spec)</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 ABC Registry Contributors &middot; Because one team's solution shouldn't die in a silo.</p>
+  </div>
 </footer>
 
 <script>
@@ -1587,6 +2335,21 @@ const cards = [
   }
 ];
 
+// ===== NAV SCROLL EFFECT =====
+window.addEventListener('scroll', function() {
+  var nav = document.getElementById('main-nav');
+  if (window.scrollY > 50) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+
+  var btt = document.getElementById('back-to-top');
+  if (window.scrollY > 400) btt.classList.add('show');
+  else btt.classList.remove('show');
+});
+
+document.getElementById('back-to-top').addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
 // ===== RENDER CARDS =====
 const grid = document.getElementById('cards-grid');
 const noResults = document.getElementById('no-results');
@@ -1602,9 +2365,10 @@ function renderCards(filtered) {
   }
   noResults.style.display = 'none';
 
-  filtered.forEach(card => {
+  filtered.forEach((card, index) => {
     const el = document.createElement('div');
     el.className = 'card';
+    el.style.animationDelay = (index * 0.04) + 's';
     el.onclick = () => openModal(card);
     el.innerHTML = `
       <div class="card-header">
@@ -1627,6 +2391,8 @@ function renderCards(filtered) {
     `;
     grid.appendChild(el);
   });
+  document.getElementById('cards-shown').textContent = filtered.length;
+  document.getElementById('cards-total').textContent = cards.length;
 }
 
 function filterCards() {
@@ -1869,6 +2635,286 @@ document.addEventListener('keydown', (e) => {
 // ===== INITIAL RENDER =====
 renderCards(cards);
 
+// ===== SUBMISSION FORM =====
+var formStep = 1;
+var formTotalSteps = 7;
+
+function openSubmitForm() {
+  document.getElementById('form-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSubmitForm() {
+  document.getElementById('form-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showFormStep(step) {
+  document.querySelectorAll('#form-overlay .form-step').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelector('#form-overlay .form-step[data-step="' + step + '"]').classList.add('active');
+  document.getElementById('progress-fill').style.width = ((step / formTotalSteps) * 100) + '%';
+  document.querySelectorAll('#progress-steps .progress-step').forEach(function(el, i) {
+    el.classList.remove('active', 'completed');
+    if (i + 1 === step) el.classList.add('active');
+    else if (i + 1 < step) el.classList.add('completed');
+  });
+  document.getElementById('btn-prev').style.visibility = step === 1 ? 'hidden' : 'visible';
+  var nextBtn = document.getElementById('btn-next');
+  if (step === formTotalSteps) { nextBtn.textContent = 'Finish'; }
+  else { nextBtn.innerHTML = 'Next &#8594;'; }
+  updateFormPreview();
+}
+
+function nextFormStep() {
+  if (formStep === formTotalSteps) {
+    downloadFormYAML();
+    return;
+  }
+  if (formStep < formTotalSteps) { formStep++; showFormStep(formStep); }
+}
+
+function prevFormStep() {
+  if (formStep > 1) { formStep--; showFormStep(formStep); }
+}
+
+// Auto-generate slug from display name
+document.getElementById('f-display-name').addEventListener('input', function() {
+  document.getElementById('f-slug').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  updateFormPreview();
+});
+
+// Update preview on any input change
+document.getElementById('form-overlay').addEventListener('input', function() { updateFormPreview(); });
+
+function addInput() {
+  var html = '<div class="repeating-item">';
+  html += '<button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>';
+  html += '<div class="field-group"><label>Name</label><input type="text" class="fi-name" placeholder="Input name"></div>';
+  html += '<div class="field-group"><label>Type</label><input type="text" class="fi-type" placeholder="Data type"></div>';
+  html += '<div class="field-group"><label>Description</label><input type="text" class="fi-desc" placeholder="Description"></div>';
+  html += '</div>';
+  document.getElementById('inputs-list').insertAdjacentHTML('beforeend', html);
+}
+
+function addOutput() {
+  var html = '<div class="repeating-item">';
+  html += '<button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>';
+  html += '<div class="field-group"><label>Name</label><input type="text" class="fo-name" placeholder="Output name"></div>';
+  html += '<div class="field-group"><label>Type</label><input type="text" class="fo-type" placeholder="Data type"></div>';
+  html += '<div class="field-group"><label>Description</label><input type="text" class="fo-desc" placeholder="Description"></div>';
+  html += '</div>';
+  document.getElementById('outputs-list').insertAdjacentHTML('beforeend', html);
+}
+
+function addAssumption() {
+  var html = '<div class="repeating-item">';
+  html += '<button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>';
+  html += '<div class="field-group"><label>Type</label><select class="fa-type"><option value="data">Data</option><option value="environment">Environment</option><option value="authority">Authority</option></select></div>';
+  html += '<div class="field-group"><label>Assumption</label><input type="text" class="fa-assumption" placeholder="What is assumed?"></div>';
+  html += '<div class="field-group"><label>Strength</label><select class="fa-strength"><option value="hard">Hard</option><option value="soft">Soft</option></select></div>';
+  html += '</div>';
+  document.getElementById('assumptions-list').insertAdjacentHTML('beforeend', html);
+}
+
+function addAdaptation() {
+  var html = '<div class="repeating-item">';
+  html += '<button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>';
+  html += '<div class="field-group"><label>Name</label><input type="text" class="fap-name" placeholder="e.g., demand_model"></div>';
+  html += '<div class="field-group"><label>Type</label><select class="fap-type"><option value="swappable_component">Swappable Component</option><option value="configurable">Configurable</option><option value="extensible">Extensible</option></select></div>';
+  html += '<div class="field-group"><label>Description</label><textarea class="fap-desc" rows="2" placeholder="How it adapts"></textarea></div>';
+  html += '</div>';
+  document.getElementById('adaptations-list').insertAdjacentHTML('beforeend', html);
+}
+
+function addFailure() {
+  var html = '<div class="repeating-item">';
+  html += '<button type="button" class="remove-item" onclick="this.parentElement.remove(); updateFormPreview();">&times;</button>';
+  html += '<div class="field-group"><label>Severity</label><select class="ff-severity"><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>';
+  html += '<div class="field-group"><label>Scenario</label><input type="text" class="ff-scenario" placeholder="What fails?"></div>';
+  html += '<div class="field-group"><label>Impact</label><input type="text" class="ff-impact" placeholder="What happens?"></div>';
+  html += '</div>';
+  document.getElementById('failures-list').insertAdjacentHTML('beforeend', html);
+}
+
+function collectFormData() {
+  var data = {};
+  data.slug = document.getElementById('f-slug').value || 'untitled';
+  data.displayName = document.getElementById('f-display-name').value || '';
+  data.version = document.getElementById('f-version').value || '1.0.0';
+  data.author = document.getElementById('f-author').value || '';
+  data.org = document.getElementById('f-org').value || '';
+  data.tags = document.getElementById('f-tags').value || '';
+  data.category = document.getElementById('f-category').value || '';
+  data.description = document.getElementById('f-description').value || '';
+  data.trigger = document.getElementById('f-trigger').value || '';
+  data.origin = document.getElementById('f-origin').value || '';
+  data.usecase = document.getElementById('f-usecase').value || '';
+  data.fork = document.getElementById('f-fork').value || '';
+  data.forkNotes = document.getElementById('f-fork-notes').value || '';
+  data.frameworks = document.getElementById('f-frameworks').value || '';
+
+  data.inputs = [];
+  document.querySelectorAll('#inputs-list .repeating-item').forEach(function(el) {
+    var n = el.querySelector('.fi-name'); var t = el.querySelector('.fi-type'); var d = el.querySelector('.fi-desc');
+    if (n && n.value) data.inputs.push({ name: n.value, type: t ? t.value : '', desc: d ? d.value : '' });
+  });
+  data.outputs = [];
+  document.querySelectorAll('#outputs-list .repeating-item').forEach(function(el) {
+    var n = el.querySelector('.fo-name'); var t = el.querySelector('.fo-type'); var d = el.querySelector('.fo-desc');
+    if (n && n.value) data.outputs.push({ name: n.value, type: t ? t.value : '', desc: d ? d.value : '' });
+  });
+  data.assumptions = [];
+  document.querySelectorAll('#assumptions-list .repeating-item').forEach(function(el) {
+    var tp = el.querySelector('.fa-type'); var a = el.querySelector('.fa-assumption'); var s = el.querySelector('.fa-strength');
+    if (a && a.value) data.assumptions.push({ type: tp ? tp.value : 'data', assumption: a.value, strength: s ? s.value : 'soft' });
+  });
+  data.adaptations = [];
+  document.querySelectorAll('#adaptations-list .repeating-item').forEach(function(el) {
+    var n = el.querySelector('.fap-name'); var t = el.querySelector('.fap-type'); var d = el.querySelector('.fap-desc');
+    if (n && n.value) data.adaptations.push({ name: n.value, type: t ? t.value : 'swappable_component', desc: d ? d.value : '' });
+  });
+  data.failures = [];
+  document.querySelectorAll('#failures-list .repeating-item').forEach(function(el) {
+    var sv = el.querySelector('.ff-severity'); var sc = el.querySelector('.ff-scenario'); var im = el.querySelector('.ff-impact');
+    if (sc && sc.value) data.failures.push({ severity: sv ? sv.value : 'medium', scenario: sc.value, impact: im ? im.value : '' });
+  });
+  return data;
+}
+
+function buildFormYAML(d) {
+  var y = 'abc_version: "0.1.0"\n\n';
+  y += 'identity:\n';
+  y += '  name: "' + d.slug + '"\n';
+  y += '  display_name: "' + d.displayName + '"\n';
+  y += '  version: "' + d.version + '"\n';
+  y += '  authors:\n';
+  y += '    - name: "' + d.author + '"\n';
+  if (d.org) y += '      org: "' + d.org + '"\n';
+  y += '  license: "Apache-2.0"\n';
+  y += '  created: "' + new Date().toISOString().split('T')[0] + '"\n';
+  if (d.tags) {
+    y += '  tags: [' + d.tags.split(',').map(function(t) { return '"' + t.trim() + '"'; }).join(', ') + ']\n';
+  }
+  y += '\nproblem_pattern:\n';
+  y += '  category: "' + d.category + '"\n';
+  y += '  description: >\n    ' + (d.description || '').replace(/\n/g, '\n    ') + '\n';
+  y += '\nbehavior:\n';
+  y += '  trigger:\n    type: "' + d.trigger + '"\n';
+  if (d.inputs.length > 0) {
+    y += '  inputs:\n';
+    d.inputs.forEach(function(inp) {
+      y += '    - name: "' + inp.name + '"\n';
+      y += '      type: "' + inp.type + '"\n';
+      y += '      description: "' + inp.desc + '"\n';
+    });
+  }
+  if (d.outputs.length > 0) {
+    y += '  outputs:\n';
+    d.outputs.forEach(function(out) {
+      y += '    - name: "' + out.name + '"\n';
+      y += '      type: "' + out.type + '"\n';
+      y += '      description: "' + out.desc + '"\n';
+    });
+  }
+  if (d.assumptions.length > 0) {
+    y += '\ndomain_assumptions:\n';
+    var dataA = d.assumptions.filter(function(a) { return a.type === 'data'; });
+    var envA = d.assumptions.filter(function(a) { return a.type === 'environment'; });
+    var authA = d.assumptions.filter(function(a) { return a.type === 'authority'; });
+    if (dataA.length > 0) {
+      y += '  data_assumptions:\n';
+      dataA.forEach(function(a, i) {
+        y += '    - id: "DA-' + String(i + 1).padStart(3, '0') + '"\n';
+        y += '      assumption: "' + a.assumption + '"\n';
+        y += '      strength: "' + a.strength + '"\n';
+      });
+    }
+    if (envA.length > 0) {
+      y += '  environment_assumptions:\n';
+      envA.forEach(function(a, i) {
+        y += '    - id: "EA-' + String(i + 1).padStart(3, '0') + '"\n';
+        y += '      assumption: "' + a.assumption + '"\n';
+        y += '      strength: "' + a.strength + '"\n';
+      });
+    }
+    if (authA.length > 0) {
+      y += '  authority_assumptions:\n';
+      authA.forEach(function(a, i) {
+        y += '    - id: "AA-' + String(i + 1).padStart(3, '0') + '"\n';
+        y += '      assumption: "' + a.assumption + '"\n';
+        y += '      strength: "' + a.strength + '"\n';
+      });
+    }
+  }
+  if (d.adaptations.length > 0) {
+    y += '\nadaptation_points:\n';
+    d.adaptations.forEach(function(ap, i) {
+      y += '  - id: "AP-' + String(i + 1).padStart(3, '0') + '"\n';
+      y += '    name: "' + ap.name + '"\n';
+      y += '    type: "' + ap.type + '"\n';
+      if (ap.desc) y += '    description: >\n      ' + ap.desc.replace(/\n/g, '\n      ') + '\n';
+    });
+  }
+  if (d.failures.length > 0) {
+    y += '\ntrust:\n  failure_modes:\n';
+    d.failures.forEach(function(fm, i) {
+      y += '    - id: "FM-' + String(i + 1).padStart(3, '0') + '"\n';
+      y += '      scenario: "' + fm.scenario + '"\n';
+      y += '      impact: "' + fm.impact + '"\n';
+      y += '      severity: "' + fm.severity + '"\n';
+    });
+  }
+  y += '\nprovenance:\n';
+  if (d.origin) {
+    y += '  origin:\n';
+    y += '    domain: "' + d.origin.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '"\n';
+    if (d.usecase) y += '    original_use_case: "' + d.usecase + '"\n';
+  }
+  if (d.fork) {
+    y += '  lineage:\n';
+    y += '    - version: "' + d.version + '"\n';
+    y += '      domain: "' + d.fork.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '"\n';
+    y += '      date: "' + new Date().toISOString().split('T')[0] + '"\n';
+    if (d.forkNotes) y += '      notes: "' + d.forkNotes + '"\n';
+  }
+  if (d.frameworks) {
+    y += '  compatibility:\n    frameworks:\n';
+    d.frameworks.split(',').forEach(function(f) {
+      y += '      - name: "' + f.trim() + '"\n';
+    });
+  }
+  return y;
+}
+
+function updateFormPreview() {
+  var d = collectFormData();
+  document.getElementById('yaml-preview').textContent = buildFormYAML(d);
+}
+
+function copyFormYAML() {
+  var yaml = document.getElementById('yaml-preview').textContent;
+  navigator.clipboard.writeText(yaml).then(function() {
+    var btn = document.querySelector('.yaml-panel-actions .btn-copy');
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 2000);
+  });
+}
+
+function downloadFormYAML() {
+  var d = collectFormData();
+  var yaml = buildFormYAML(d);
+  var blob = new Blob([yaml], { type: 'text/yaml' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = (d.slug || 'behavior-card') + '.yaml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 // ===== WIREFRAME CUBE BACKGROUND =====
 (function() {
   const canvas = document.getElementById('bg-canvas');
@@ -2022,5 +3068,9 @@ renderCards(cards);
   animate();
 })();
 </script>
+
+<button class="back-to-top" id="back-to-top">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
 </body>
 </html>
