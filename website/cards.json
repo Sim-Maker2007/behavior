@@ -1,0 +1,3198 @@
+{
+  "abc_version": "0.1.0",
+  "generated": "2026-02-14T18:20:15.971Z",
+  "endpoint": "https://abcstandard.org/cards.json",
+  "documentation": "https://abcstandard.org/how-it-works",
+  "total_cards": 35,
+  "certified_count": 15,
+  "compatible_count": 20,
+  "cards": [
+    {
+      "id": "01",
+      "name": "Inventory Rebalance Optimizer",
+      "slug": "inventory-rebalance-optimizer",
+      "version": "1.2.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Allocates finite resources across multiple locations to minimize stockouts while respecting budget constraints, lead times, and demand uncertainty.",
+      "origin": {
+        "domain": "Retail",
+        "detail": "Rebalancing seasonal consumer goods across multiple store locations"
+      },
+      "fork": {
+        "domain": "Humanitarian Aid Distribution",
+        "detail": "Medical supply allocation to field hospitals in crisis zones"
+      },
+      "adaptation_points": [
+        {
+          "name": "demand_model",
+          "type": "swappable_component",
+          "description": "Swap seasonal ARIMA forecast for crisis surge detector using news feeds and displacement data"
+        },
+        {
+          "name": "constraint_solver",
+          "type": "configurable",
+          "description": "Adjust optimization horizon (1hr–90 days) and objective weights (humanitarian: stockout weight 0.9+)"
+        },
+        {
+          "name": "explanation_language",
+          "type": "swappable_component",
+          "description": "Swap English business report for multilingual field reports via Tarjimly-style translation"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Humanitarian Aid Distribution",
+          "similarity": 0.82
+        },
+        {
+          "domain": "Energy Grid Balancing",
+          "similarity": 0.65
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Stale inventory data (>24h)",
+          "impact": "Transfer plan based on wrong stock levels"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Demand forecast completely wrong (black swan)",
+          "impact": "Suboptimal allocation, potential stockouts"
+        },
+        {
+          "severity": "high_in_humanitarian",
+          "scenario": "Optimization concentrates resources in few locations",
+          "impact": "Equity concerns — some locations get nothing"
+        }
+      ],
+      "tags": [
+        "optimization",
+        "resource-allocation",
+        "logistics",
+        "inventory",
+        "rebalancing"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph",
+        "AutoGen"
+      ],
+      "compliance": {
+        "overall": 93.2,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "workforce-shift-scheduler",
+        "budget-envelope-allocator",
+        "fleet-route-optimizer"
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Workforce Shift Scheduler",
+      "slug": "workforce-shift-scheduler",
+      "version": "2.0.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Assigns people with specific skills and availability windows to time-bound roles across multiple locations, while respecting labor rules, fairness constraints, and individual preferences.",
+      "origin": {
+        "domain": "Retail Employee Scheduling",
+        "detail": "Scheduling part-time and full-time employees across retail store locations"
+      },
+      "fork": {
+        "domain": "Disaster Volunteer Coordination",
+        "detail": "Coordinating disaster relief volunteers with dynamic availability and burnout monitoring"
+      },
+      "adaptation_points": [
+        {
+          "name": "constraint_engine",
+          "type": "configurable",
+          "description": "Adjust max hours (8→12), rest periods, and fairness windows for short-term volunteer deployments"
+        },
+        {
+          "name": "skill_matcher",
+          "type": "swappable_component",
+          "description": "Swap retail skills for humanitarian competency framework (languages, security training, first aid)"
+        },
+        {
+          "name": "wellbeing_monitor",
+          "type": "swappable_component",
+          "description": "Replace overtime tracker with responder burnout detector tracking cumulative stress indicators"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Disaster Volunteer Coordination",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Hospital Nurse Rostering",
+          "similarity": 0.82
+        },
+        {
+          "domain": "Military Duty Rotation",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Key skill gap unfilled — no qualified person available",
+          "impact": "Critical role empty during shift"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Optimizer prioritizes coverage over individual wellbeing",
+          "impact": "Burnout, injury, or psychological harm"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Unfair distribution goes undetected",
+          "impact": "Resentment, volunteer attrition"
+        }
+      ],
+      "tags": [
+        "scheduling",
+        "workforce",
+        "optimization",
+        "shift-planning",
+        "volunteer"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "inventory-rebalance-optimizer",
+        "travel-disruption-manager",
+        "fleet-route-optimizer"
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Budget Envelope Allocator",
+      "slug": "budget-envelope-allocator",
+      "version": "2.0.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Distributes a finite monetary budget across competing categories to maximize overall impact, respecting minimum commitments, maximum caps, and performance feedback from prior allocations.",
+      "origin": {
+        "domain": "Marketing Budget Optimization",
+        "detail": "Allocating monthly marketing budget across channels for RetailCo"
+      },
+      "fork": {
+        "domain": "Emergency Fund Distribution",
+        "detail": "Distributing donor funds across humanitarian response sectors (health, shelter, WASH)"
+      },
+      "adaptation_points": [
+        {
+          "name": "impact_model",
+          "type": "swappable_component",
+          "description": "Replace marketing ROI model with humanitarian impact estimator (DALYs averted, beneficiaries reached)"
+        },
+        {
+          "name": "constraint_handler",
+          "type": "configurable",
+          "description": "Handle donor earmarks, government co-funding requirements, and 15-20% flexibility reserves"
+        },
+        {
+          "name": "reporting_format",
+          "type": "swappable_component",
+          "description": "Swap marketing dashboard for donor compliance reporter matching IATI standards"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Emergency Fund Distribution",
+          "similarity": 0.79
+        },
+        {
+          "domain": "Government Departmental Budgeting",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Venture Capital Portfolio Allocation",
+          "similarity": 0.72
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Impact model overestimates returns in one category",
+          "impact": "Over-allocation to lower-impact area"
+        },
+        {
+          "severity": "high",
+          "scenario": "Donor earmarks consume most of the budget",
+          "impact": "Emerging needs can't be addressed"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Cross-sector dependencies cause cascading underfunding",
+          "impact": "Savings in one area create costs in another"
+        }
+      ],
+      "tags": [
+        "budget",
+        "allocation",
+        "optimization",
+        "financial-planning",
+        "resource-distribution"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "inventory-rebalance-optimizer",
+        "workforce-shift-scheduler",
+        "daily-intelligence-briefer"
+      ]
+    },
+    {
+      "id": "05",
+      "name": "Pattern Anomaly Detector",
+      "slug": "pattern-anomaly-detector",
+      "version": "2.1.0",
+      "pattern": "anomaly-detection-and-response",
+      "pattern_label": "Anomaly Detection",
+      "description": "Monitors streams of events over time, learns what 'normal' looks like, detects deviations from normal patterns, determines if those deviations are significant, and triggers appropriate alerts with context.",
+      "origin": {
+        "domain": "E-commerce Fraud Detection",
+        "detail": "Detecting fraudulent transactions in an retail e-commerce platform"
+      },
+      "fork": {
+        "domain": "Disease Outbreak Surveillance",
+        "detail": "Early disease outbreak detection in rural health networks via syndromic surveillance"
+      },
+      "adaptation_points": [
+        {
+          "name": "baseline_model",
+          "type": "swappable_component",
+          "description": "Swap transaction baseline for epidemiological baseline with seasonal disease incidence rates"
+        },
+        {
+          "name": "anomaly_dimensions",
+          "type": "configurable",
+          "description": "Replace transaction velocity with symptom clusters; extend correlation window from 1hr to 7-14 days"
+        },
+        {
+          "name": "alert_channel",
+          "type": "swappable_component",
+          "description": "Replace dashboard with SMS escalation chain for rural areas"
+        },
+        {
+          "name": "false_positive_filter",
+          "type": "swappable_component",
+          "description": "Account for vaccination campaigns, mass gatherings, and reporting artifacts"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Financial Fraud Detection",
+          "similarity": 0.92
+        },
+        {
+          "domain": "Disease Outbreak Surveillance",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Cybersecurity Intrusion Detection",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Equipment Predictive Maintenance",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Environmental Monitoring",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Real outbreak missed because it looked like a gradual trend",
+          "impact": "Delayed public health response; preventable deaths"
+        },
+        {
+          "severity": "high",
+          "scenario": "Alert fatigue causes responders to ignore real alerts",
+          "impact": "True positives missed due to too many false positives"
+        },
+        {
+          "severity": "high",
+          "scenario": "Reporting gap misinterpreted as 'no anomalies'",
+          "impact": "Silence mistaken for safety"
+        }
+      ],
+      "tags": [
+        "anomaly-detection",
+        "pattern-recognition",
+        "alerting",
+        "time-series",
+        "surveillance"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph",
+        "Apache Kafka"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "fraud-detection-prevention-engine",
+        "environmental-impact-monitor",
+        "supply-chain-disruption-detector"
+      ]
+    },
+    {
+      "id": "06",
+      "name": "Equipment Health Monitor",
+      "slug": "equipment-health-monitor",
+      "version": "2.0.0",
+      "pattern": "anomaly-detection-and-response",
+      "pattern_label": "Anomaly Detection",
+      "description": "Continuously monitors physical assets through sensor data or periodic inspections, detects degradation patterns, predicts failures before they occur, and recommends interventions prioritized by risk and cost.",
+      "origin": {
+        "domain": "Predictive Maintenance",
+        "detail": "Monitoring HVAC, refrigeration, and security systems across retail store locations"
+      },
+      "fork": {
+        "domain": "Post-Disaster Infrastructure Assessment",
+        "detail": "Assessing structural integrity of buildings and bridges after earthquakes using field reports and drone imagery"
+      },
+      "adaptation_points": [
+        {
+          "name": "assessment_model",
+          "type": "swappable_component",
+          "description": "Replace degradation curves with ATC-20 damage classification (green/yellow/red tagging)"
+        },
+        {
+          "name": "data_source",
+          "type": "swappable_component",
+          "description": "Accept drone photos, smartphone photos, OCR'd inspection forms, and community WhatsApp reports"
+        },
+        {
+          "name": "prioritization_logic",
+          "type": "configurable",
+          "description": "Replace cost-based factors with occupancy count, structural criticality, and aftershock vulnerability"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Post-Disaster Infrastructure Assessment",
+          "similarity": 0.74
+        },
+        {
+          "domain": "Fleet Vehicle Maintenance",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Utility Grid Monitoring",
+          "similarity": 0.78
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Unsafe building classified as safe",
+          "impact": "Occupants at risk of collapse"
+        },
+        {
+          "severity": "high",
+          "scenario": "Over-classification of damage causes unnecessary displacement",
+          "impact": "People kept from homes unnecessarily"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Aftershock changes damage level of previously assessed building",
+          "impact": "Stale assessment creates false sense of safety"
+        }
+      ],
+      "tags": [
+        "monitoring",
+        "predictive-maintenance",
+        "sensor-data",
+        "infrastructure",
+        "assessment"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "predictive-maintenance-scheduler",
+        "supply-chain-disruption-detector",
+        "pattern-anomaly-detector"
+      ]
+    },
+    {
+      "id": "07",
+      "name": "Supply Chain Disruption Detector",
+      "slug": "supply-chain-disruption-detector",
+      "version": "2.0.0",
+      "pattern": "anomaly-detection-and-response",
+      "pattern_label": "Anomaly Detection",
+      "description": "Monitors multiple signals across a supply chain to detect disruptions before they cause downstream shortages. Correlates supplier behavior, logistics data, market signals, and external events to produce early warnings.",
+      "origin": {
+        "domain": "Retail Supply Chain",
+        "detail": "Monitoring delivery reliability from consumer goods suppliers and detecting seasonal disruptions"
+      },
+      "fork": {
+        "domain": "Food Security Early Warning",
+        "detail": "Food security early warning using FEWS NET, WFP price monitoring, and satellite crop health data"
+      },
+      "adaptation_points": [
+        {
+          "name": "signal_sources",
+          "type": "swappable_component",
+          "description": "Replace ERP feeds with FEWS NET alerts, NDVI vegetation indices, conflict data (ACLED), and displacement tracking"
+        },
+        {
+          "name": "disruption_classifier",
+          "type": "swappable_component",
+          "description": "Use IPC food security phase classification: Minimal → Stressed → Crisis → Emergency → Famine"
+        },
+        {
+          "name": "propagation_model",
+          "type": "configurable",
+          "description": "Extend from 2-tier supply chain to 5-6 tier food system with cross-border trade flows"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Food Security Early Warning",
+          "similarity": 0.77
+        },
+        {
+          "domain": "Pharmaceutical Supply Monitoring",
+          "similarity": 0.83
+        },
+        {
+          "domain": "Energy Supply Security",
+          "similarity": 0.72
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Slow-onset crisis missed because each daily change is small",
+          "impact": "Famine conditions develop without early warning"
+        },
+        {
+          "severity": "high",
+          "scenario": "False alarm triggers premature food aid deployment",
+          "impact": "Wasted resources, market disruption from aid flooding"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Conflict zone data gaps create blind spots",
+          "impact": "Most vulnerable populations invisible to the system"
+        }
+      ],
+      "tags": [
+        "supply-chain",
+        "disruption",
+        "early-warning",
+        "food-security",
+        "monitoring"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "equipment-health-monitor",
+        "pattern-anomaly-detector",
+        "patient-risk-stratifier"
+      ]
+    },
+    {
+      "id": "08",
+      "name": "Communication Triage & Router",
+      "slug": "comms-triage-router",
+      "version": "2.0.0",
+      "pattern": "information-synthesis-and-routing",
+      "pattern_label": "Info Synthesis",
+      "description": "Ingests incoming messages from multiple channels, classifies them by urgency and topic, extracts key information, and routes them to the right responder — while handling language barriers automatically.",
+      "origin": {
+        "domain": "Customer Support Routing",
+        "detail": "Routing customer support messages to the right team member based on topic and urgency"
+      },
+      "fork": {
+        "domain": "Crisis Communication Triage",
+        "detail": "Multilingual crisis triage where distress messages are classified by life-or-death urgency"
+      },
+      "adaptation_points": [
+        {
+          "name": "urgency_classifier",
+          "type": "swappable_component",
+          "description": "Replace retail priority with humanitarian severity scale: life-threatening → urgent medical → basic needs"
+        },
+        {
+          "name": "entity_extractor",
+          "type": "swappable_component",
+          "description": "Extract GPS coordinates, affected people count, need types, and accessibility info"
+        },
+        {
+          "name": "translation_layer",
+          "type": "swappable_component",
+          "description": "Integrate Tarjimly hybrid translation with human-in-the-loop for critical messages"
+        },
+        {
+          "name": "routing_strategy",
+          "type": "configurable",
+          "description": "Reorder to language match → protection sensitivity → skill match → proximity"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Customer Support Ticketing",
+          "similarity": 0.88
+        },
+        {
+          "domain": "Emergency Dispatch 911",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Hospital ER Triage",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Content Moderation",
+          "similarity": 0.55
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Life-threatening message misclassified as low priority",
+          "impact": "Delayed response to someone in danger"
+        },
+        {
+          "severity": "high",
+          "scenario": "Translation error changes meaning of message",
+          "impact": "Wrong type of help sent, or wrong location"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Sensitive protection case routed to wrong responder",
+          "impact": "Breach of confidentiality, potential harm"
+        }
+      ],
+      "tags": [
+        "triage",
+        "communication",
+        "routing",
+        "multilingual",
+        "classification"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "daily-intelligence-briefer",
+        "sentiment-and-feedback-analyzer",
+        "travel-disruption-manager"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "Daily Intelligence Briefer",
+      "slug": "daily-intelligence-briefer",
+      "version": "2.0.0",
+      "pattern": "information-synthesis-and-routing",
+      "pattern_label": "Info Synthesis",
+      "description": "Collects information from multiple heterogeneous sources, identifies what's new or changed, synthesizes into a structured briefing calibrated to the audience, and highlights items requiring decisions.",
+      "origin": {
+        "domain": "Competitive Intelligence",
+        "detail": "Daily briefing for company leadership on competitor activity and market conditions"
+      },
+      "fork": {
+        "domain": "Humanitarian Sitrep Generation",
+        "detail": "Daily situation reports from multiple field sources for crisis coordination leaders"
+      },
+      "adaptation_points": [
+        {
+          "name": "priority_ranker",
+          "type": "swappable_component",
+          "description": "Rank by lives at risk, access deterioration, protection concerns, and displacement movements"
+        },
+        {
+          "name": "synthesizer",
+          "type": "swappable_component",
+          "description": "Follow standard OCHA sitrep format: situation overview, needs, response, gaps, funding"
+        },
+        {
+          "name": "delivery_channel",
+          "type": "swappable_component",
+          "description": "Email for HQ, WhatsApp for field, SMS summary for limited connectivity, voice briefing for hands-free"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Humanitarian Sitrep Generation",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Security Threat Briefing",
+          "similarity": 0.82
+        },
+        {
+          "domain": "Clinical Shift Handover",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Critical development buried in low-priority section",
+          "impact": "Decision-makers miss time-sensitive information"
+        },
+        {
+          "severity": "high",
+          "scenario": "Unverified information presented as confirmed",
+          "impact": "Decisions made on false information"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Information overload makes briefing too long",
+          "impact": "Audience stops reading; critical items missed"
+        }
+      ],
+      "tags": [
+        "intelligence",
+        "briefing",
+        "synthesis",
+        "sitrep",
+        "reporting"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "comms-triage-router",
+        "sentiment-and-feedback-analyzer",
+        "patient-risk-stratifier"
+      ]
+    },
+    {
+      "id": "11",
+      "name": "Multi-Party Resource Negotiator",
+      "slug": "multi-party-negotiator",
+      "version": "2.0.0",
+      "pattern": "multi-stakeholder-negotiation",
+      "pattern_label": "Negotiation",
+      "description": "Facilitates agreement between multiple parties with different goals, constraints, and information. Proposes solutions that satisfy as many parties as possible, identifies blockers, and suggests compromises.",
+      "origin": {
+        "domain": "Supplier Pricing Negotiation",
+        "detail": "Negotiating bulk purchase agreements with consumer goods suppliers"
+      },
+      "fork": {
+        "domain": "Humanitarian Cluster Coordination",
+        "detail": "Multi-org resource sharing in humanitarian cluster coordination with affected population advocacy"
+      },
+      "adaptation_points": [
+        {
+          "name": "fairness_metric",
+          "type": "swappable_component",
+          "description": "Replace price efficiency with needs-proportional fairness using vulnerability indices and Sphere Standards"
+        },
+        {
+          "name": "compromise_generator",
+          "type": "swappable_component",
+          "description": "Domain-specific patterns: temporal sharing, geographic splitting, capability-based division"
+        },
+        {
+          "name": "communication_style",
+          "type": "configurable",
+          "description": "Adapt formality, cultural sensitivity, and language for cross-cultural humanitarian coordination"
+        },
+        {
+          "name": "precedent_engine",
+          "type": "swappable_component",
+          "description": "Database of past humanitarian who-does-what matrices and cluster coordination patterns"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Humanitarian Cluster Coordination",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Labor Union Negotiation",
+          "similarity": 0.7
+        },
+        {
+          "domain": "International Treaty Negotiation",
+          "similarity": 0.6
+        },
+        {
+          "domain": "Co-Parenting Scheduling",
+          "similarity": 0.65
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Agent proposes 'optimal' solution ignoring power dynamics",
+          "impact": "Weaker parties feel railroaded; agreement doesn't hold"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Deadlock resolution pushes premature agreement",
+          "impact": "Bad agreement worse than no agreement"
+        },
+        {
+          "severity": "high_in_humanitarian",
+          "scenario": "Cultural communication norms cause misunderstanding",
+          "impact": "Offense, withdrawal, or false agreement"
+        }
+      ],
+      "tags": [
+        "negotiation",
+        "multi-stakeholder",
+        "coordination",
+        "resource-sharing",
+        "consensus"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph",
+        "AutoGen"
+      ],
+      "compliance": {
+        "overall": 92.1,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "workforce-shift-scheduler",
+        "travel-disruption-manager",
+        "daily-intelligence-briefer"
+      ]
+    },
+    {
+      "id": "15",
+      "name": "Project Risk Cascade Planner",
+      "slug": "project-risk-cascade-planner",
+      "version": "2.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Plans a sequence of interdependent activities where each step's outcome is uncertain and affects what's possible next. Identifies critical path risks, models cascade failures, and recommends contingency branches.",
+      "origin": {
+        "domain": "Construction Project Management",
+        "detail": "Managing construction project risks for retail store buildout"
+      },
+      "fork": {
+        "domain": "Disaster Recovery Planning",
+        "detail": "Disaster recovery sequencing: rescue → shelter → infrastructure → services → permanent housing"
+      },
+      "adaptation_points": [
+        {
+          "name": "risk_model",
+          "type": "swappable_component",
+          "description": "Incorporate seismological aftershock models, funding pipeline uncertainty, and inter-org coordination friction"
+        },
+        {
+          "name": "priority_framework",
+          "type": "configurable",
+          "description": "Life-saving infrastructure first: life → safety → essential services → economic activity → full recovery"
+        },
+        {
+          "name": "progress_tracker",
+          "type": "swappable_component",
+          "description": "Accept mobile forms, photo evidence, GPS-tagged reports, and satellite imagery verification"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Disaster Recovery Planning",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Software Release Planning",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Clinical Trial Sequencing",
+          "similarity": 0.68
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Hidden dependency causes unexpected cascade",
+          "impact": "Multiple activities blocked simultaneously"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Overly optimistic replanning after delays",
+          "impact": "Stakeholders given false hope"
+        },
+        {
+          "severity": "high",
+          "scenario": "Plan complexity exceeds coordination capacity",
+          "impact": "Organizations can't follow the plan"
+        }
+      ],
+      "tags": [
+        "risk-management",
+        "project-planning",
+        "dependency",
+        "sequencing",
+        "recovery"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 88.8,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "safety-incident-predictor",
+        "crisis-simulation-planner",
+        "daily-intelligence-briefer"
+      ]
+    },
+    {
+      "id": "04",
+      "name": "Fleet Route Optimizer",
+      "slug": "fleet-route-optimizer",
+      "version": "2.0.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Optimizes routes for a fleet of vehicles to minimize total cost while satisfying delivery windows, vehicle capacity limits, driver hours regulations, and real-time road conditions.",
+      "origin": {
+        "domain": "RetailCo",
+        "detail": "Routing delivery fleet for regional distribution of consumer goods to retail locations and direct-to-customer deliveries."
+      },
+      "fork": {
+        "domain": "Humanitarian Logistics",
+        "detail": "Forked for humanitarian convoy routing with security risk scoring, checkpoint negotiation, conflict-aware routing, and multi-org deconfliction."
+      },
+      "adaptation_points": [
+        {
+          "name": "routing_engine",
+          "type": "swappable_component",
+          "description": "Core routing algorithm with commercial or conflict-aware alternatives"
+        },
+        {
+          "name": "road_condition_source",
+          "type": "swappable_component",
+          "description": "Real-time road conditions from traffic APIs or field intelligence"
+        },
+        {
+          "name": "priority_logic",
+          "type": "configurable",
+          "description": "Priority tiers for delivery prioritization and reroute thresholds"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Delivery Logistics",
+          "similarity": 0.93
+        },
+        {
+          "domain": "Humanitarian Convoy Routing",
+          "similarity": 0.76
+        },
+        {
+          "domain": "Waste Collection Routing",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Mobile Health Clinic Routing",
+          "similarity": 0.78
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Route plan sends vehicle through newly dangerous area",
+          "impact": "Driver and cargo at risk"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Optimization over-packs routes leaving no buffer",
+          "impact": "Cascading delays when any delivery takes longer than planned"
+        },
+        {
+          "severity": "high",
+          "scenario": "Dynamic rerouting creates conflicting instructions",
+          "impact": "Driver confusion, missed deliveries"
+        }
+      ],
+      "tags": [
+        "routing",
+        "logistics",
+        "fleet",
+        "optimization",
+        "delivery"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 88.8,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "workforce-shift-scheduler",
+        "inventory-rebalance-optimizer",
+        "budget-envelope-allocator"
+      ]
+    },
+    {
+      "id": "09",
+      "name": "Regulatory Compliance Checker",
+      "slug": "regulatory-compliance-checker",
+      "version": "2.0.0",
+      "pattern": "compliance-and-constraint-checking",
+      "pattern_label": "Compliance",
+      "description": "Continuously monitors activities against a ruleset, flags violations or potential violations, generates audit trails, and recommends corrective actions while adapting to changing regulations.",
+      "origin": {
+        "domain": "FinTechCo",
+        "detail": "AML/KYC transaction monitoring for a financial services platform, screening against sanctions lists and suspicious activity patterns."
+      },
+      "fork": {
+        "domain": "Humanitarian Donor Compliance",
+        "detail": "Forked for humanitarian donor compliance with donor condition engine, multi-donor reporting, exemption tracking, and partner screening."
+      },
+      "adaptation_points": [
+        {
+          "name": "rule_engine",
+          "type": "swappable_component",
+          "description": "Rule matching logic for financial AML or donor condition checking"
+        },
+        {
+          "name": "screening_service",
+          "type": "swappable_component",
+          "description": "Entity screening against watchlists and sanctions lists"
+        },
+        {
+          "name": "reporting_format",
+          "type": "configurable",
+          "description": "Compliance report templates (SAR or donor-specific formats)"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Financial AML/KYC",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Humanitarian Donor Compliance",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Healthcare HIPAA Compliance",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Environmental Emissions Compliance",
+          "similarity": 0.72
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "True violation missed due to incomplete data",
+          "impact": "Regulatory penalties, reputational damage, potential aid diversion"
+        },
+        {
+          "severity": "high",
+          "scenario": "Overzealous screening blocks legitimate aid partner",
+          "impact": "Aid delivery delayed to vulnerable populations"
+        },
+        {
+          "severity": "high",
+          "scenario": "Rule interpretation error causes systematic miscategorization",
+          "impact": "Entire category of activities incorrectly flagged or cleared"
+        }
+      ],
+      "tags": [
+        "compliance",
+        "regulation",
+        "audit",
+        "verification",
+        "monitoring"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "equipment-health-monitor",
+        "daily-intelligence-briefer",
+        "patient-risk-stratifier"
+      ]
+    },
+    {
+      "id": "12",
+      "name": "Patient Risk Stratifier",
+      "slug": "patient-risk-stratifier",
+      "version": "2.0.0",
+      "pattern": "pattern-matching-and-classification",
+      "pattern_label": "Pattern Matching",
+      "description": "Scores individuals based on multiple risk factors to classify them into risk tiers, prioritize interventions, and predict which individuals are most likely to experience adverse outcomes without proactive intervention.",
+      "origin": {
+        "domain": "InsureTech",
+        "detail": "Scoring insurance policyholders on claims risk for underwriting decisions and proactive loss prevention outreach."
+      },
+      "fork": {
+        "domain": "Community Health",
+        "detail": "Forked for community health worker prioritization with clinical risk calculator, social determinants, mobile CHW interface, and bias auditing."
+      },
+      "adaptation_points": [
+        {
+          "name": "risk_factors",
+          "type": "configurable",
+          "description": "Factor weights and tier thresholds for risk scoring"
+        },
+        {
+          "name": "scoring_algorithm",
+          "type": "swappable_component",
+          "description": "Actuarial risk model or clinical risk calculator"
+        },
+        {
+          "name": "output_interface",
+          "type": "swappable_component",
+          "description": "Dashboard for underwriters or mobile priority list for CHWs"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Insurance Risk Scoring",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Community Health Prioritization",
+          "similarity": 0.79
+        },
+        {
+          "domain": "Credit Risk Assessment",
+          "similarity": 0.82
+        },
+        {
+          "domain": "Student Dropout Prediction",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "High-risk individual scored low due to missing data",
+          "impact": "Missed intervention; preventable adverse outcome"
+        },
+        {
+          "severity": "high",
+          "scenario": "Scoring model encodes demographic bias",
+          "impact": "Systematic under-prioritization of certain groups"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Risk scores used for denial of service rather than prioritization",
+          "impact": "Vulnerable individuals excluded from care"
+        }
+      ],
+      "tags": [
+        "risk-scoring",
+        "health",
+        "stratification",
+        "prioritization",
+        "triage"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 92.1,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "daily-intelligence-briefer",
+        "regulatory-compliance-checker",
+        "safety-incident-predictor"
+      ]
+    },
+    {
+      "id": "13",
+      "name": "Environmental Impact Monitor",
+      "slug": "environmental-impact-monitor",
+      "version": "2.0.0",
+      "pattern": "anomaly-detection-and-response",
+      "pattern_label": "Anomaly Detection",
+      "description": "Monitors environmental indicators against baseline conditions to detect significant deviations that signal emerging threats, distinguishes normal seasonal variation from meaningful anomalies, and triggers proportionate response protocols.",
+      "origin": {
+        "domain": "GreenCorp ESG",
+        "detail": "Continuous monitoring of corporate carbon emissions and environmental metrics for ESG reporting and sustainability tracking."
+      },
+      "fork": {
+        "domain": "Climate Adaptation Warning",
+        "detail": "Forked for climate adaptation early warning in vulnerable communities with satellite monitoring, climate vulnerability indices, and low-connectivity alerts."
+      },
+      "adaptation_points": [
+        {
+          "name": "data_sources",
+          "type": "swappable_component",
+          "description": "Corporate emissions sensors, satellite imagery, or community-based monitoring"
+        },
+        {
+          "name": "threshold_framework",
+          "type": "configurable",
+          "description": "Baseline definitions and anomaly tolerance levels"
+        },
+        {
+          "name": "alert_routing",
+          "type": "swappable_component",
+          "description": "Executive dashboards or community radio and SMS alerts"
+        },
+        {
+          "name": "impact_forecast_model",
+          "type": "swappable_component",
+          "description": "ESG reporting calculator or crop/water/health impact models"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Corporate ESG Compliance",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Climate Adaptation Warning",
+          "similarity": 0.77
+        },
+        {
+          "domain": "Agricultural Yield Monitoring",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Water Quality Surveillance",
+          "similarity": 0.8
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Slow-onset environmental change missed by anomaly detection",
+          "impact": "Communities miss critical adaptation window"
+        },
+        {
+          "severity": "high",
+          "scenario": "False reassurance from incomplete data",
+          "impact": "Communities believe conditions are normal until crisis manifests"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Impact forecast model fails to capture complex tipping points",
+          "impact": "Warning comes too late for adequate response"
+        }
+      ],
+      "tags": [
+        "anomaly-detection",
+        "climate",
+        "environmental-monitoring",
+        "early-warning",
+        "adaptation"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 92.1,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "pattern-anomaly-detector",
+        "safety-incident-predictor",
+        "equipment-health-monitor"
+      ]
+    },
+    {
+      "id": "14",
+      "name": "Safety Incident Predictor",
+      "slug": "safety-incident-predictor",
+      "version": "2.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Tracks leading indicators, identifies patterns indicating elevated incident risk, and recommends time-sensitive interventions to prevent escalation across distributed information streams.",
+      "origin": {
+        "domain": "SafetyTech Industries",
+        "detail": "Workplace incident prediction in manufacturing plants using leading indicators to predict worker injury incidents."
+      },
+      "fork": {
+        "domain": "Conflict Early Warning",
+        "detail": "Forked for conflict escalation early warning in peacekeeping contexts with conflict indicators, diplomatic interventions, and humanitarian assistance."
+      },
+      "adaptation_points": [
+        {
+          "name": "indicator_model",
+          "type": "swappable_component",
+          "description": "Manufacturing KPIs or conflict escalation indicators"
+        },
+        {
+          "name": "cascade_model",
+          "type": "configurable",
+          "description": "Escalation pathways and cascade-breaking interventions"
+        },
+        {
+          "name": "intervention_recommender",
+          "type": "swappable_component",
+          "description": "Manufacturing safety protocols or diplomatic and humanitarian responses"
+        },
+        {
+          "name": "decision_support_interface",
+          "type": "swappable_component",
+          "description": "Safety officer dashboard or peacekeeping operations briefing"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Manufacturing Workplace Safety",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Conflict Early Warning",
+          "similarity": 0.74
+        },
+        {
+          "domain": "Aviation Safety",
+          "similarity": 0.83
+        },
+        {
+          "domain": "Cybersecurity Threat Prediction",
+          "similarity": 0.76
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Sudden escalation without warning indicators",
+          "impact": "Event occurs with no detectable precursor signals"
+        },
+        {
+          "severity": "high",
+          "scenario": "Model trained on past incidents missing novel patterns",
+          "impact": "Learned patterns obsolete but not recognized as such"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Model bias creates systematic over-prediction for specific groups",
+          "impact": "Groups disproportionately subject to intervention and scrutiny"
+        }
+      ],
+      "tags": [
+        "sequential-decision",
+        "prediction",
+        "incident-prevention",
+        "early-warning",
+        "safety"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 93.2,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "environmental-impact-monitor",
+        "project-risk-cascade-planner",
+        "customer-journey-orchestrator"
+      ]
+    },
+    {
+      "id": "16",
+      "name": "Customer Journey Orchestrator",
+      "slug": "customer-journey-orchestrator",
+      "version": "2.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Guides individuals through a multi-stage process by predicting dropout risk at each stage, identifying barriers, and delivering personalized nudges to maintain momentum and support progression.",
+      "origin": {
+        "domain": "RetailTech",
+        "detail": "Guiding online shoppers through purchase funnel, predicting cart abandonment, and delivering personalized discounts and reminders."
+      },
+      "fork": {
+        "domain": "Refugee Resettlement Pathway",
+        "detail": "Forked for refugee resettlement case management with trauma-informed communication, structural barrier detection, and autonomy safeguards."
+      },
+      "adaptation_points": [
+        {
+          "name": "journey_stages",
+          "type": "configurable",
+          "description": "Stage definitions, success criteria, and typical duration per stage"
+        },
+        {
+          "name": "barrier_detector",
+          "type": "swappable_component",
+          "description": "E-commerce abandonment predictor or humanitarian barrier detector"
+        },
+        {
+          "name": "communication_engine",
+          "type": "swappable_component",
+          "description": "Marketing email nudger or humanitarian case worker notification"
+        },
+        {
+          "name": "dropout_predictor",
+          "type": "swappable_component",
+          "description": "Cart abandonment model or case abandonment model"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "E-commerce Conversion",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Refugee Resettlement Pathway",
+          "similarity": 0.73
+        },
+        {
+          "domain": "Patient Treatment Adherence",
+          "similarity": 0.78
+        },
+        {
+          "domain": "University Enrollment Journey",
+          "similarity": 0.8
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Barriers are missed; dropout happens without warning",
+          "impact": "Participant lost to follow-up; case abandoned"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Algorithm nudges participant toward unsuitable path",
+          "impact": "Refugee trapped in inappropriate situation due to pressure"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Trauma-informed communication principles violated",
+          "impact": "Algorithmic messages re-traumatize or manipulate vulnerable individual"
+        }
+      ],
+      "tags": [
+        "journey-orchestration",
+        "sequential-decision",
+        "personalization",
+        "dropout-prediction",
+        "barriers"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "safety-incident-predictor",
+        "daily-intelligence-briefer",
+        "dynamic-pricing-engine"
+      ]
+    },
+    {
+      "id": "17",
+      "name": "Dynamic Pricing Engine",
+      "slug": "dynamic-pricing-engine",
+      "version": "2.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Adjusts prices or transfer values based on demand signals, competitive or market conditions, and fairness constraints to optimize revenue or purchasing power in real time.",
+      "origin": {
+        "domain": "DynamicCorp",
+        "detail": "Real-time pricing optimization for online retailer adjusting prices based on demand, inventory, and competitor prices."
+      },
+      "fork": {
+        "domain": "Humanitarian Cash Transfers",
+        "detail": "Forked for humanitarian cash transfer programs — inverted objective from revenue maximization to purchasing power preservation with market basket monitoring."
+      },
+      "adaptation_points": [
+        {
+          "name": "pricing_model",
+          "type": "swappable_component",
+          "description": "Revenue maximization or purchasing power preservation objective"
+        },
+        {
+          "name": "market_signal_source",
+          "type": "swappable_component",
+          "description": "Competitor pricing APIs or local market basket monitoring"
+        },
+        {
+          "name": "fairness_constraints",
+          "type": "configurable",
+          "description": "Price variance ceiling, affordability floor, and price change frequency"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "E-commerce Dynamic Pricing",
+          "similarity": 0.92
+        },
+        {
+          "domain": "Humanitarian Cash Transfers",
+          "similarity": 0.68
+        },
+        {
+          "domain": "Airline Yield Management",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Energy Market Pricing",
+          "similarity": 0.77
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Algorithm raises prices during demand surge",
+          "impact": "Price-sensitive customers priced out; perceived unfairness"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Transfer value insufficient to meet basic needs due to model error",
+          "impact": "Beneficiaries cannot afford food or shelter; humanitarian harm"
+        },
+        {
+          "severity": "high",
+          "scenario": "Model exploits conflict-driven price spikes",
+          "impact": "Algorithm indirectly incentivizes market disruption or hoarding"
+        }
+      ],
+      "tags": [
+        "pricing",
+        "revenue-optimization",
+        "market-dynamics",
+        "fairness-constraints",
+        "humanitarian"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 89.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "infrastructure-capacity-planner",
+        "customer-journey-orchestrator",
+        "travel-disruption-manager"
+      ]
+    },
+    {
+      "id": "18",
+      "name": "Travel Disruption Manager",
+      "slug": "travel-disruption-manager",
+      "version": "2.0.0",
+      "pattern": "information-synthesis-and-routing",
+      "pattern_label": "Info Synthesis",
+      "description": "Detects disruption events, generates alternative routing or accommodation options, matches people to resources respecting constraints, and assesses cascading impacts on broader operations or populations.",
+      "origin": {
+        "domain": "TravelTech Corp",
+        "detail": "Managing disruptions in corporate travel programs by automatically rebooking travelers on alternative flights and accommodations."
+      },
+      "fork": {
+        "domain": "Mass Displacement Response",
+        "detail": "Forked for humanitarian mass displacement response at scale with security constraints, family unity preservation, and cascade impact assessment."
+      },
+      "adaptation_points": [
+        {
+          "name": "disruption_detector",
+          "type": "swappable_component",
+          "description": "Flight status monitor or conflict and disaster detector"
+        },
+        {
+          "name": "option_generator",
+          "type": "swappable_component",
+          "description": "Rebooking engine or shelter availability and safe route matcher"
+        },
+        {
+          "name": "communication_channel",
+          "type": "swappable_component",
+          "description": "Corporate travel app or UNHCR registration and community broadcasting"
+        },
+        {
+          "name": "cascade_impact_model",
+          "type": "swappable_component",
+          "description": "Hotel occupancy impact or humanitarian infrastructure strain model"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Corporate Travel Management",
+          "similarity": 0.88
+        },
+        {
+          "domain": "Mass Displacement Routing",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Event Crowd Management",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Hospital Patient Flow",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Routing algorithm separates family members",
+          "impact": "Family trauma, children at risk, humanitarian harm"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Routes people through insecure areas or unsafe shelters",
+          "impact": "Risk of injury, violence, or re-displacement"
+        },
+        {
+          "severity": "high",
+          "scenario": "Receiving shelter overwhelmed by arrivals",
+          "impact": "Water shortage, disease outbreak, secondary displacement"
+        }
+      ],
+      "tags": [
+        "disruption-management",
+        "routing",
+        "shelter-matching",
+        "displacement",
+        "information-synthesis"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 88.8,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "workforce-shift-scheduler",
+        "daily-intelligence-briefer",
+        "multi-party-negotiator"
+      ]
+    },
+    {
+      "id": "19",
+      "name": "Adaptive Content Personalizer",
+      "slug": "adaptive-content-personalizer",
+      "version": "2.0.0",
+      "pattern": "adaptive-communication",
+      "pattern_label": "Adaptive Comms",
+      "description": "Segments audiences, generates tailored message variants, selects appropriate delivery channels, and incorporates cultural adaptation with feedback loops to continuously improve relevance and comprehension.",
+      "origin": {
+        "domain": "MarketingTech Corp",
+        "detail": "Personalizing marketing content for customer segments to maximize engagement and conversion."
+      },
+      "fork": {
+        "domain": "Public Health Messaging",
+        "detail": "Forked for public health messaging with health literacy segmentation, plain-language generation, cultural adaptation, and outcome-based feedback loops."
+      },
+      "adaptation_points": [
+        {
+          "name": "segmentation_model",
+          "type": "swappable_component",
+          "description": "Customer persona segmentation or health literacy and cultural segmentation"
+        },
+        {
+          "name": "content_generator",
+          "type": "swappable_component",
+          "description": "Marketing copy engine or health literate plain language generator"
+        },
+        {
+          "name": "channel_selector",
+          "type": "swappable_component",
+          "description": "Email/social/push router or low-resource channel selector"
+        },
+        {
+          "name": "feedback_loop",
+          "type": "configurable",
+          "description": "Feedback sources, iteration frequency, and minimum feedback sample"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Marketing Personalization",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Public Health Messaging",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Educational Content Adaptation",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Government Services Communication",
+          "similarity": 0.72
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Oversimplification loses medical accuracy",
+          "impact": "People follow incorrect health guidance"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Low-literacy population excluded by inaccessible variants",
+          "impact": "Most vulnerable population receives no useful information"
+        },
+        {
+          "severity": "high",
+          "scenario": "Cultural adaptation encodes bias or misrepresentation",
+          "impact": "Message offensive or misaligned with community values"
+        }
+      ],
+      "tags": [
+        "personalization",
+        "content-generation",
+        "audience-segmentation",
+        "multilingual",
+        "public-health"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 91,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "recommendation-matching-engine",
+        "onboarding-training-sequencer",
+        "comms-triage-router"
+      ]
+    },
+    {
+      "id": "20",
+      "name": "Data Privacy Guardian",
+      "slug": "data-privacy-guardian",
+      "version": "2.0.0",
+      "pattern": "compliance-and-constraint-checking",
+      "pattern_label": "Compliance",
+      "description": "Maps data flows, enforces consent-based access control, monitors data access, minimizes collection to necessary data, and detects breaches or policy violations across tech and humanitarian contexts.",
+      "origin": {
+        "domain": "TechCorp",
+        "detail": "GDPR/CCPA compliance for consumer tech platform — managing consent, restricting data access, and enabling data subject rights."
+      },
+      "fork": {
+        "domain": "Humanitarian Data Protection",
+        "detail": "Forked for humanitarian beneficiary data protection with witnessed consent, threat-aware classification, ICRC standards, and hostile actor breach detection."
+      },
+      "adaptation_points": [
+        {
+          "name": "regulatory_framework",
+          "type": "swappable_component",
+          "description": "GDPR/CCPA compliance or ICRC humanitarian data protection"
+        },
+        {
+          "name": "consent_model",
+          "type": "swappable_component",
+          "description": "Click-through consent or humanitarian witnessed consent"
+        },
+        {
+          "name": "data_classification",
+          "type": "configurable",
+          "description": "Sensitivity categories and threat-aware dynamic reclassification"
+        },
+        {
+          "name": "breach_detection",
+          "type": "configurable",
+          "description": "Anomaly signals and alert escalation protocols"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "GDPR Compliance",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Humanitarian Data Protection",
+          "similarity": 0.8
+        },
+        {
+          "domain": "HIPAA Patient Data",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Children Online Privacy (COPPA)",
+          "similarity": 0.78
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Breach undetected; beneficiary data exposed to hostile actors",
+          "impact": "Vulnerable populations targeted for persecution or violence"
+        },
+        {
+          "severity": "high",
+          "scenario": "Consent formally valid but actually coerced",
+          "impact": "Data collected unethically despite passing compliance checks"
+        },
+        {
+          "severity": "high",
+          "scenario": "Data classification outdated; threat changes but classification doesn't",
+          "impact": "Previously safe data becomes dangerous to expose"
+        }
+      ],
+      "tags": [
+        "data-protection",
+        "compliance",
+        "consent",
+        "privacy",
+        "humanitarian",
+        "security"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 91,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "regulatory-compliance-checker",
+        "visual-damage-assessor",
+        "infrastructure-capacity-planner"
+      ]
+    },
+    {
+      "id": "21",
+      "name": "Visual Damage Assessor",
+      "slug": "visual-damage-assessor",
+      "version": "2.0.0",
+      "pattern": "pattern-matching-and-classification",
+      "pattern_label": "Pattern Matching",
+      "description": "Analyzes visual imagery (photos, satellite, drone) to detect and classify damage, grades severity level, compares before/after states, fuses multi-source data, and maps geographic damage distribution.",
+      "origin": {
+        "domain": "InsuranceInnovations",
+        "detail": "Processing insurance claims for vehicle and property damage — photos submitted by policyholders classified by severity for payout."
+      },
+      "fork": {
+        "domain": "Post-Disaster Assessment",
+        "detail": "Forked for post-disaster damage assessment with satellite/drone/field imagery fusion, humanitarian need grades, and geographic damage mapping."
+      },
+      "adaptation_points": [
+        {
+          "name": "image_classifier",
+          "type": "swappable_component",
+          "description": "Insurance vehicle/property classifier or xBD building damage classifier"
+        },
+        {
+          "name": "damage_scale",
+          "type": "configurable",
+          "description": "Grade definitions and secondary indicators for humanitarian context"
+        },
+        {
+          "name": "data_source",
+          "type": "swappable_component",
+          "description": "Customer smartphone photos or multimodal satellite/drone/field fusion"
+        },
+        {
+          "name": "change_detection",
+          "type": "configurable",
+          "description": "Temporal resolution and image registration method"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Insurance Photo Assessment",
+          "similarity": 0.88
+        },
+        {
+          "domain": "Post-Disaster Satellite Assessment",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Agricultural Crop Damage",
+          "similarity": 0.77
+        },
+        {
+          "domain": "Infrastructure Inspection",
+          "similarity": 0.82
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Automated classification determines which communities get aid first",
+          "impact": "Underestimated damage means delayed life-saving aid"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Systematic bias in training data misclassifies certain building types",
+          "impact": "Aid systematically misdirected; wealthy vs poor neighborhoods treated unequally"
+        },
+        {
+          "severity": "high",
+          "scenario": "Cloud cover or poor resolution make assessment unreliable",
+          "impact": "Assessment appears confident but is actually guessing"
+        }
+      ],
+      "tags": [
+        "damage-assessment",
+        "image-classification",
+        "post-disaster",
+        "satellite-imagery",
+        "humanitarian"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph"
+      ],
+      "compliance": {
+        "overall": 92.1,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "daily-intelligence-briefer",
+        "data-privacy-guardian",
+        "patient-risk-stratifier"
+      ]
+    },
+    {
+      "id": "22",
+      "name": "Document Intelligence Extractor",
+      "slug": "document-intelligence-extractor",
+      "version": "1.0.0",
+      "pattern": "pattern-matching-and-classification",
+      "pattern_label": "Pattern Matching",
+      "description": "Ingests images or PDFs of documents, classifies document type, extracts structured data fields, validates against rules and reference databases, and returns machine-readable records with confidence scores.",
+      "origin": {
+        "domain": "Enterprise Systems",
+        "detail": "Digitizing invoices and receipts for expense processing and accounts payable automation."
+      },
+      "fork": {
+        "domain": "Refugee Document Processing",
+        "detail": "Forked for refugee document processing with multi-format classification, handwriting recognition, multilingual OCR, and incomplete reference database handling."
+      },
+      "adaptation_points": [
+        {
+          "name": "document_models",
+          "type": "swappable_component",
+          "description": "Invoice/receipt templates or 200+ ID format library"
+        },
+        {
+          "name": "extraction_rules",
+          "type": "configurable",
+          "description": "Field definitions, formats, and mandatory vs optional requirements"
+        },
+        {
+          "name": "validation_engine",
+          "type": "swappable_component",
+          "description": "Accounting validation or identity verification"
+        },
+        {
+          "name": "ocr_pipeline",
+          "type": "configurable",
+          "description": "Text recognition model, preprocessing, and language handling"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Invoice Processing",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Humanitarian Document Processing",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Medical Records Digitization",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Legal Document Review",
+          "similarity": 0.82
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Misclassified document type leads to wrong extraction schema",
+          "impact": "Critical fields missed or misinterpreted; record is useless"
+        },
+        {
+          "severity": "critical",
+          "scenario": "OCR errors in critical fields (ID number, name, DOB)",
+          "impact": "Person cannot be identified; records don't match"
+        },
+        {
+          "severity": "high",
+          "scenario": "Handwriting misrecognized, producing plausible but wrong data",
+          "impact": "Silent corruption: extracted data looks valid but is incorrect"
+        }
+      ],
+      "tags": [
+        "document-processing",
+        "ocr",
+        "field-extraction",
+        "pattern-matching",
+        "classification"
+      ],
+      "frameworks": [
+        "LangChain",
+        "Hugging Face",
+        "Tesseract"
+      ],
+      "compliance": {
+        "overall": 91,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "contract-legal-clause-analyzer",
+        "meeting-summarizer-action-tracker",
+        "comms-triage-router"
+      ]
+    },
+    {
+      "id": "23",
+      "name": "Infrastructure Capacity Planner",
+      "slug": "infrastructure-capacity-planner",
+      "version": "1.0.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Predicts future demand, monitors current capacity utilization, identifies bottlenecks and threshold breaches, and recommends scaling decisions to balance coverage, cost, and human welfare.",
+      "origin": {
+        "domain": "Cloud Platform",
+        "detail": "Auto-scaling compute and storage resources for cloud platform based on API traffic forecasts and cost optimization."
+      },
+      "fork": {
+        "domain": "Refugee Camp Planning",
+        "detail": "Forked for refugee camp infrastructure planning with population-driven demand models, physical resource units, logistics lead times, and Sphere Standards."
+      },
+      "adaptation_points": [
+        {
+          "name": "demand_predictor",
+          "type": "swappable_component",
+          "description": "API traffic forecaster or population influx model"
+        },
+        {
+          "name": "capacity_model",
+          "type": "configurable",
+          "description": "Unit definitions, allocation standards, and utilization thresholds"
+        },
+        {
+          "name": "scaling_mechanism",
+          "type": "swappable_component",
+          "description": "Cloud API provisioning or logistics procurement pipeline"
+        },
+        {
+          "name": "cost_optimizer",
+          "type": "configurable",
+          "description": "Cost model, optimization objective, and priority hierarchy"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Cloud Auto-Scaling",
+          "similarity": 0.88
+        },
+        {
+          "domain": "Refugee Camp Infrastructure",
+          "similarity": 0.74
+        },
+        {
+          "domain": "Hospital Capacity Management",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Urban Infrastructure Planning",
+          "similarity": 0.76
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Underestimate demand; capacity exhausted before scaling completes",
+          "impact": "People without water/sanitation/shelter during procurement delay"
+        },
+        {
+          "severity": "high",
+          "scenario": "Over-provision capacity; waste limited funds",
+          "impact": "Other populations served by same budget get less aid"
+        },
+        {
+          "severity": "high",
+          "scenario": "Plan for average consumption; peak demand causes failure",
+          "impact": "Inadequate water/sanitation during disease outbreaks or extreme weather"
+        }
+      ],
+      "tags": [
+        "capacity-planning",
+        "resource-allocation",
+        "forecasting",
+        "infrastructure",
+        "optimization"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "OR-Tools",
+        "Apache Airflow"
+      ],
+      "compliance": {
+        "overall": 86.4,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "crisis-simulation-planner",
+        "environmental-impact-monitor",
+        "inventory-rebalance-optimizer"
+      ]
+    },
+    {
+      "id": "24",
+      "name": "Sentiment & Feedback Analyzer",
+      "slug": "sentiment-and-feedback-analyzer",
+      "version": "1.0.0",
+      "pattern": "information-synthesis-and-routing",
+      "pattern_label": "Info Synthesis",
+      "description": "Aggregates feedback from multiple sources, classifies sentiment and themes, identifies emerging issues, prioritizes responses, and feeds community feedback back to decision-makers.",
+      "origin": {
+        "domain": "Brand Analytics",
+        "detail": "Aggregating product reviews from multiple platforms to understand customer sentiment and identify product quality issues."
+      },
+      "fork": {
+        "domain": "Humanitarian Community Feedback",
+        "detail": "Forked for community feedback analysis in humanitarian programs with multi-channel sources, humanitarian sentiment model, and feedback-to-action tracking."
+      },
+      "adaptation_points": [
+        {
+          "name": "sentiment_model",
+          "type": "swappable_component",
+          "description": "Product/brand sentiment or humanitarian community sentiment classifier"
+        },
+        {
+          "name": "source_aggregator",
+          "type": "swappable_component",
+          "description": "Social media aggregator or humanitarian feedback aggregator"
+        },
+        {
+          "name": "theme_taxonomy",
+          "type": "configurable",
+          "description": "Top-level categories, sentiment mapping, and demographic stratification"
+        },
+        {
+          "name": "accountability_framework",
+          "type": "configurable",
+          "description": "Feedback-to-action loop, response timelines, and community communication"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Brand Sentiment Analysis",
+          "similarity": 0.9
+        },
+        {
+          "domain": "Humanitarian Community Feedback",
+          "similarity": 0.76
+        },
+        {
+          "domain": "Political Opinion Monitoring",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Employee Engagement Analysis",
+          "similarity": 0.8
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Negative sentiment detected but no action taken",
+          "impact": "Community stops providing feedback; trust eroded"
+        },
+        {
+          "severity": "high",
+          "scenario": "Feedback from marginalized groups not collected",
+          "impact": "Concerns of most vulnerable remain invisible"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Feedback system becomes surveillance tool",
+          "impact": "Community fears retaliation for negative feedback"
+        }
+      ],
+      "tags": [
+        "sentiment-analysis",
+        "feedback-aggregation",
+        "community-engagement",
+        "accountability",
+        "nlp"
+      ],
+      "frameworks": [
+        "Hugging Face",
+        "spaCy",
+        "Twilio"
+      ],
+      "compliance": {
+        "overall": 88.8,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "comms-triage-router",
+        "daily-intelligence-briefer",
+        "environmental-impact-monitor"
+      ]
+    },
+    {
+      "id": "25",
+      "name": "Crisis Simulation & Scenario Planner",
+      "slug": "crisis-simulation-planner",
+      "version": "1.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Generates plausible crisis scenarios with probability estimates, simulates cascading impacts, estimates resource requirements and timelines, and produces contingency plans for organizational preparedness.",
+      "origin": {
+        "domain": "Financial Services",
+        "detail": "Stress testing investment portfolios and estimating capital requirements under financial crisis scenarios using Monte Carlo simulation."
+      },
+      "fork": {
+        "domain": "Humanitarian Contingency Planning",
+        "detail": "Forked for humanitarian crisis scenario planning with population impact modeling, humanitarian supply calculations, and Sphere Standards integration."
+      },
+      "adaptation_points": [
+        {
+          "name": "scenario_generator",
+          "type": "swappable_component",
+          "description": "Financial shock scenarios or humanitarian crisis scenarios (disaster, conflict, disease)"
+        },
+        {
+          "name": "impact_model",
+          "type": "swappable_component",
+          "description": "Portfolio VaR or displacement/disease/infrastructure damage impact models"
+        },
+        {
+          "name": "resource_calculator",
+          "type": "swappable_component",
+          "description": "Capital requirement calculator or humanitarian supply calculator"
+        },
+        {
+          "name": "decision_model",
+          "type": "configurable",
+          "description": "Decision points, option values, and authority chains"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Financial Stress Testing",
+          "similarity": 0.85
+        },
+        {
+          "domain": "Humanitarian Contingency Planning",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Military Wargaming",
+          "similarity": 0.75
+        },
+        {
+          "domain": "Pandemic Preparedness Modeling",
+          "similarity": 0.8
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Scenario planning info leaked to combatants",
+          "impact": "Prediction becomes weapon; neutrality compromised"
+        },
+        {
+          "severity": "high",
+          "scenario": "Worst-case overestimated; resources wasted on unlikely scenarios",
+          "impact": "Under-preparation for likely scenarios"
+        },
+        {
+          "severity": "high",
+          "scenario": "Crisis trajectory differs from all scenarios",
+          "impact": "Contingency plans don't match reality; poor improvisation"
+        }
+      ],
+      "tags": [
+        "scenario-planning",
+        "risk-modeling",
+        "contingency-planning",
+        "crisis-simulation",
+        "preparedness"
+      ],
+      "frameworks": [
+        "SimPy",
+        "NumPy/SciPy",
+        "MESA",
+        "Plotly"
+      ],
+      "compliance": {
+        "overall": 88.7,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "infrastructure-capacity-planner",
+        "project-risk-cascade-planner",
+        "travel-disruption-manager"
+      ]
+    },
+    {
+      "id": "26",
+      "name": "Fraud Detection & Prevention Engine",
+      "slug": "fraud-detection-prevention-engine",
+      "version": "1.0.0",
+      "pattern": "anomaly-classification-response",
+      "pattern_label": "Anomaly Detection",
+      "description": "Identifies adversarial patterns in transactional data — account takeover, identity spoofing, synthetic fraud — by combining behavioral baselines with real-time signal analysis and adaptive thresholds.",
+      "origin": {
+        "domain": "Financial Services",
+        "detail": "Detecting fraudulent credit card transactions and account takeover attempts in real-time banking systems"
+      },
+      "fork": {
+        "domain": "Insurance Claims Fraud",
+        "detail": "Identifying staged accidents, inflated claims, and provider collusion in insurance claim submissions"
+      },
+      "adaptation_points": [
+        {
+          "name": "risk_scorer",
+          "type": "swappable_component",
+          "description": "Swap transaction velocity model for claims pattern analyzer with provider network graph analysis"
+        },
+        {
+          "name": "identity_verifier",
+          "type": "swappable_component",
+          "description": "Replace KYC document checker with claimant history cross-referencer and witness consistency analyzer"
+        },
+        {
+          "name": "threshold_tuner",
+          "type": "configurable",
+          "description": "Adjust false-positive tolerance (finance: 1-2%, insurance: 5-8%) and escalation sensitivity per fraud category"
+        },
+        {
+          "name": "alert_dispatcher",
+          "type": "swappable_component",
+          "description": "Swap real-time block/allow for SIU case queue with evidence packaging and regulatory filing"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Insurance Claims Fraud",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Academic Integrity Monitoring",
+          "similarity": 0.68
+        },
+        {
+          "domain": "Benefits & Welfare Fraud",
+          "similarity": 0.75
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "False positive blocks legitimate high-value transaction",
+          "impact": "Customer churn, reputational damage, potential legal liability"
+        },
+        {
+          "severity": "high",
+          "scenario": "Adversary reverse-engineers detection thresholds",
+          "impact": "Fraud bypasses all automated controls"
+        },
+        {
+          "severity": "high",
+          "scenario": "Model drift as fraud patterns evolve",
+          "impact": "Declining catch rate, increasing losses over time"
+        }
+      ],
+      "tags": [
+        "fraud",
+        "security",
+        "anomaly-detection",
+        "risk-scoring",
+        "adversarial"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI",
+        "AutoGen"
+      ],
+      "compliance": {
+        "overall": 91.5,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "pattern-anomaly-detector",
+        "data-privacy-guardian",
+        "regulatory-compliance-checker"
+      ]
+    },
+    {
+      "id": "27",
+      "name": "Recommendation & Matching Engine",
+      "slug": "recommendation-matching-engine",
+      "version": "1.0.0",
+      "pattern": "similarity-ranking-selection",
+      "pattern_label": "Matching & Ranking",
+      "description": "Computes multi-dimensional compatibility scores between entities (people, products, opportunities) using collaborative filtering, content-based features, and contextual signals to surface the best matches.",
+      "origin": {
+        "domain": "E-Commerce Product Recommendations",
+        "detail": "Recommending products based on purchase history, browsing behavior, and similar customer profiles"
+      },
+      "fork": {
+        "domain": "Job-Candidate Matching",
+        "detail": "Matching job seekers to openings using skills, experience, culture fit, and career trajectory analysis"
+      },
+      "adaptation_points": [
+        {
+          "name": "similarity_model",
+          "type": "swappable_component",
+          "description": "Swap collaborative filtering for skills-gap analysis with weighted competency scoring and growth potential"
+        },
+        {
+          "name": "feature_extractor",
+          "type": "swappable_component",
+          "description": "Replace purchase/browse signals with resume parsing, assessment scores, and behavioral interview signals"
+        },
+        {
+          "name": "ranking_weights",
+          "type": "configurable",
+          "description": "Adjust dimension weights: skills match (0.3), culture fit (0.2), growth potential (0.2), location (0.15), compensation (0.15)"
+        },
+        {
+          "name": "feedback_loop",
+          "type": "extensible",
+          "description": "Add interview outcome tracking, 90-day retention signal, and hiring manager satisfaction for model retraining"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Job-Candidate Matching",
+          "similarity": 0.76
+        },
+        {
+          "domain": "Donor-Project Matching",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Patient-Clinical Trial Matching",
+          "similarity": 0.7
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Filter bubble — recommendations reinforce narrow preferences",
+          "impact": "Reduced discovery, user fatigue, declining engagement"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Bias in training data produces discriminatory matches",
+          "impact": "Legal liability, fairness violations, reputational harm"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Cold start — insufficient data for new entities",
+          "impact": "Poor initial recommendations, high early churn"
+        }
+      ],
+      "tags": [
+        "recommendation",
+        "matching",
+        "ranking",
+        "collaborative-filtering",
+        "personalization"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI",
+        "AutoGen"
+      ],
+      "compliance": {
+        "overall": 88.3,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "adaptive-content-personalizer",
+        "customer-journey-orchestrator",
+        "sentiment-and-feedback-analyzer"
+      ]
+    },
+    {
+      "id": "28",
+      "name": "Knowledge Base Q&A Agent",
+      "slug": "knowledge-base-qa-agent",
+      "version": "1.0.0",
+      "pattern": "retrieval-augmented-generation",
+      "pattern_label": "RAG & Search",
+      "description": "Retrieves relevant passages from organizational knowledge bases using semantic search, then generates accurate, cited answers with confidence scores and source attribution for verifiability.",
+      "origin": {
+        "domain": "Enterprise IT Helpdesk",
+        "detail": "Answering employee IT questions using internal wikis, runbooks, and ticket history with auto-escalation"
+      },
+      "fork": {
+        "domain": "Legal Case Research",
+        "detail": "Searching legal precedents, statutes, and case law to answer attorney queries with citation-ready references"
+      },
+      "adaptation_points": [
+        {
+          "name": "retriever",
+          "type": "swappable_component",
+          "description": "Swap wiki/Confluence connector for legal database connector (Westlaw, LexisNexis) with citation-aware chunking"
+        },
+        {
+          "name": "answer_generator",
+          "type": "swappable_component",
+          "description": "Replace conversational IT tone with formal legal analysis structure (IRAC: Issue, Rule, Application, Conclusion)"
+        },
+        {
+          "name": "confidence_threshold",
+          "type": "configurable",
+          "description": "IT: 0.7 confidence ok; Legal: 0.9+ required with mandatory 'not legal advice' disclaimers below threshold"
+        },
+        {
+          "name": "source_ranker",
+          "type": "extensible",
+          "description": "Add jurisdiction filtering, recency weighting, and court hierarchy prioritization for legal sources"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Legal Case Research",
+          "similarity": 0.74
+        },
+        {
+          "domain": "Medical Protocol Search",
+          "similarity": 0.78
+        },
+        {
+          "domain": "Regulatory Guidance Lookup",
+          "similarity": 0.72
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Hallucinated answer presented with high confidence",
+          "impact": "User acts on fabricated information; legal/medical risk"
+        },
+        {
+          "severity": "high",
+          "scenario": "Stale knowledge base — answer was correct 6 months ago",
+          "impact": "Outdated guidance applied to current situation"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Retrieved passages are relevant but answer synthesis is wrong",
+          "impact": "Correct sources, incorrect conclusion — harder to catch"
+        }
+      ],
+      "tags": [
+        "rag",
+        "knowledge-management",
+        "search",
+        "question-answering",
+        "retrieval"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "LlamaIndex",
+        "CrewAI"
+      ],
+      "compliance": {
+        "overall": 90.2,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "document-intelligence-extractor",
+        "adaptive-content-personalizer",
+        "regulatory-compliance-checker"
+      ]
+    },
+    {
+      "id": "29",
+      "name": "Approval Workflow Orchestrator",
+      "slug": "approval-workflow-orchestrator",
+      "version": "1.0.0",
+      "pattern": "sequential-decision-under-uncertainty",
+      "pattern_label": "Sequential Decisions",
+      "description": "Manages multi-step, multi-role approval chains with conditional routing, parallel approvals, escalation on timeout, delegation rules, and full audit trail for compliance-sensitive processes.",
+      "origin": {
+        "domain": "Corporate Expense Approvals",
+        "detail": "Routing expense reports through manager → finance → VP chains with auto-approval below thresholds"
+      },
+      "fork": {
+        "domain": "Clinical Trial Protocol Approval",
+        "detail": "Orchestrating IRB review, sponsor approval, and regulatory submission with 21 CFR Part 11 compliance"
+      },
+      "adaptation_points": [
+        {
+          "name": "routing_engine",
+          "type": "swappable_component",
+          "description": "Swap org-chart hierarchy routing for regulatory body routing (IRB → sponsor → FDA) with parallel review paths"
+        },
+        {
+          "name": "approval_rules",
+          "type": "configurable",
+          "description": "Adjust thresholds, timeout periods (corporate: 48h, clinical: 30 days), quorum requirements, and veto rules"
+        },
+        {
+          "name": "compliance_logger",
+          "type": "swappable_component",
+          "description": "Replace SOX audit trail with 21 CFR Part 11 electronic signatures and timestamped amendment tracking"
+        },
+        {
+          "name": "escalation_handler",
+          "type": "extensible",
+          "description": "Add regulatory deadline tracking, patient safety escalation, and DSMB emergency review triggers"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Clinical Trial Approval",
+          "similarity": 0.73
+        },
+        {
+          "domain": "Building Permit Workflow",
+          "similarity": 0.71
+        },
+        {
+          "domain": "Grant Disbursement Processing",
+          "similarity": 0.76
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Approval bypassed due to routing logic error",
+          "impact": "Unauthorized action taken; compliance violation; regulatory penalty"
+        },
+        {
+          "severity": "high",
+          "scenario": "Escalation timeout missed — request stuck indefinitely",
+          "impact": "Process blockage; missed deadlines; patient enrollment delayed"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Delegation chain creates circular dependency",
+          "impact": "Infinite loop; no one can approve; manual intervention required"
+        }
+      ],
+      "tags": [
+        "workflow",
+        "approval",
+        "orchestration",
+        "compliance",
+        "governance"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI",
+        "Temporal"
+      ],
+      "compliance": {
+        "overall": 89.1,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "multi-agent-task-delegator",
+        "regulatory-compliance-checker",
+        "project-risk-cascade-planner"
+      ]
+    },
+    {
+      "id": "30",
+      "name": "Onboarding & Training Sequencer",
+      "slug": "onboarding-training-sequencer",
+      "version": "1.0.0",
+      "pattern": "adaptive-sequencing",
+      "pattern_label": "Adaptive Sequencing",
+      "description": "Designs and delivers personalized learning paths based on role requirements, skill assessments, and real-time progress signals — adapting sequence, pace, and content difficulty dynamically.",
+      "origin": {
+        "domain": "Corporate Employee Onboarding",
+        "detail": "Sequencing compliance training, tool setup, team introductions, and role-specific skill modules for new hires"
+      },
+      "fork": {
+        "domain": "Patient Rehabilitation Planning",
+        "detail": "Adapting rehabilitation exercise sequences based on recovery progress, pain tolerance, and mobility assessments"
+      },
+      "adaptation_points": [
+        {
+          "name": "assessment_engine",
+          "type": "swappable_component",
+          "description": "Swap multiple-choice skill quizzes for physical therapy assessments (ROM measurements, pain scales, functional tests)"
+        },
+        {
+          "name": "content_library",
+          "type": "swappable_component",
+          "description": "Replace training modules with exercise protocols, instructional videos, and progressive loading schedules"
+        },
+        {
+          "name": "pacing_algorithm",
+          "type": "configurable",
+          "description": "Corporate: competency gates; Rehab: pain-gated progression with therapist override and plateau detection"
+        },
+        {
+          "name": "progress_tracker",
+          "type": "extensible",
+          "description": "Add clinical outcome measures (FIM scores), insurance milestone reporting, and discharge readiness prediction"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Patient Rehabilitation Planning",
+          "similarity": 0.71
+        },
+        {
+          "domain": "Refugee Resettlement Guidance",
+          "similarity": 0.68
+        },
+        {
+          "domain": "Software Adoption Journeys",
+          "similarity": 0.74
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Assessment misclassifies skill level — wrong starting point",
+          "impact": "Boredom (too easy) or overwhelm (too hard); disengagement"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Rehab: progresses patient too fast past pain threshold",
+          "impact": "Reinjury; setback in recovery; potential harm"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Content gaps — no module exists for identified skill gap",
+          "impact": "Incomplete learning path; false completion signal"
+        }
+      ],
+      "tags": [
+        "onboarding",
+        "training",
+        "adaptive-learning",
+        "sequencing",
+        "personalization"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI"
+      ],
+      "compliance": {
+        "overall": 87.6,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "adaptive-content-personalizer",
+        "recommendation-matching-engine",
+        "customer-journey-orchestrator"
+      ]
+    },
+    {
+      "id": "31",
+      "name": "Contract & Legal Clause Analyzer",
+      "slug": "contract-legal-clause-analyzer",
+      "version": "1.0.0",
+      "pattern": "document-structure-extraction",
+      "pattern_label": "Document Intelligence",
+      "description": "Extracts obligations, deadlines, risk clauses, and compliance gaps from legal documents using NLP-powered clause identification, cross-reference resolution, and configurable risk taxonomies.",
+      "origin": {
+        "domain": "Corporate Contract Review",
+        "detail": "Reviewing vendor contracts for unfavorable terms, auto-renewal traps, liability exposure, and SLA gaps"
+      },
+      "fork": {
+        "domain": "Donor Agreement Analysis",
+        "detail": "Parsing humanitarian donor agreements for earmarking restrictions, reporting deadlines, and co-funding obligations"
+      },
+      "adaptation_points": [
+        {
+          "name": "clause_classifier",
+          "type": "swappable_component",
+          "description": "Swap commercial clause taxonomy (indemnity, IP, SLA) for donor clause taxonomy (earmarks, conditions, reporting)"
+        },
+        {
+          "name": "risk_scorer",
+          "type": "swappable_component",
+          "description": "Replace financial risk model with compliance risk model (donor audit probability, reputational risk, beneficiary impact)"
+        },
+        {
+          "name": "deadline_extractor",
+          "type": "configurable",
+          "description": "Adjust date parsing for fiscal year formats, humanitarian reporting cycles, and multi-timezone coordination"
+        },
+        {
+          "name": "output_formatter",
+          "type": "swappable_component",
+          "description": "Swap legal memo format for donor compliance matrix with RAG status indicators and action items"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Donor Agreement Analysis",
+          "similarity": 0.77
+        },
+        {
+          "domain": "Lease Agreement Review",
+          "similarity": 0.8
+        },
+        {
+          "domain": "Regulatory Filing Analysis",
+          "similarity": 0.73
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Missed obligation clause — deadline passes without action",
+          "impact": "Contract breach; financial penalty; relationship damage"
+        },
+        {
+          "severity": "high",
+          "scenario": "Misclassified clause severity — critical risk marked as low",
+          "impact": "Unmitigated exposure; surprise liability"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Cross-reference resolution fails in complex multi-party agreements",
+          "impact": "Obligations attributed to wrong party; incomplete risk picture"
+        }
+      ],
+      "tags": [
+        "legal",
+        "contract-analysis",
+        "nlp",
+        "compliance",
+        "document-intelligence"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "LlamaIndex",
+        "CrewAI"
+      ],
+      "compliance": {
+        "overall": 90.8,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "document-intelligence-extractor",
+        "regulatory-compliance-checker",
+        "data-privacy-guardian"
+      ]
+    },
+    {
+      "id": "32",
+      "name": "Meeting Summarizer & Action Tracker",
+      "slug": "meeting-summarizer-action-tracker",
+      "version": "1.0.0",
+      "pattern": "temporal-signal-extraction",
+      "pattern_label": "Signal Extraction",
+      "description": "Processes meeting transcripts to extract key decisions, action items with assignees and deadlines, open questions, and sentiment shifts — then tracks follow-through across subsequent meetings.",
+      "origin": {
+        "domain": "Corporate Standups & All-Hands",
+        "detail": "Summarizing daily standups, sprint retrospectives, and quarterly all-hands with Jira/Slack integration"
+      },
+      "fork": {
+        "domain": "Humanitarian Coordination Meetings",
+        "detail": "Processing inter-agency coordination meetings (OCHA clusters) with multi-language support and crisis-priority action tracking"
+      },
+      "adaptation_points": [
+        {
+          "name": "transcription_source",
+          "type": "swappable_component",
+          "description": "Swap Zoom/Teams API for field radio transcription, WhatsApp voice notes, and satellite phone call logs"
+        },
+        {
+          "name": "action_classifier",
+          "type": "swappable_component",
+          "description": "Replace Jira ticket creation with humanitarian action tracking (3W: Who does What Where) and OCHA reporting"
+        },
+        {
+          "name": "language_handler",
+          "type": "swappable_component",
+          "description": "Add multi-language transcript processing with code-switching detection and terminology standardization"
+        },
+        {
+          "name": "priority_schema",
+          "type": "configurable",
+          "description": "Swap sprint priority for humanitarian urgency (life-saving → time-critical → important → routine)"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Humanitarian Coordination Meetings",
+          "similarity": 0.74
+        },
+        {
+          "domain": "Clinical Case Conferences",
+          "similarity": 0.71
+        },
+        {
+          "domain": "Legislative Committee Sessions",
+          "similarity": 0.69
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Action item attributed to wrong person",
+          "impact": "Task falls through cracks; no one takes ownership"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Transcription errors in technical terms or proper nouns",
+          "impact": "Garbled action items; confusion about specifics"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Sensitive information in summary shared to wrong audience",
+          "impact": "Security breach; protection concerns in humanitarian contexts"
+        }
+      ],
+      "tags": [
+        "meetings",
+        "summarization",
+        "action-tracking",
+        "nlp",
+        "collaboration"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI",
+        "AutoGen"
+      ],
+      "compliance": {
+        "overall": 88.9,
+        "level": "Compatible"
+      },
+      "similar_cards": [
+        "document-intelligence-extractor",
+        "sentiment-and-feedback-analyzer",
+        "comms-triage-router"
+      ]
+    },
+    {
+      "id": "33",
+      "name": "Energy & Sustainability Optimizer",
+      "slug": "energy-sustainability-optimizer",
+      "version": "1.0.0",
+      "pattern": "constrained-resource-allocation",
+      "pattern_label": "Resource Allocation",
+      "description": "Optimizes energy consumption, carbon emissions, and resource waste across operations by modeling usage patterns, forecasting demand, and recommending operational changes within sustainability targets.",
+      "origin": {
+        "domain": "Commercial Building HVAC",
+        "detail": "Optimizing heating, cooling, and lighting schedules across commercial buildings to minimize energy costs and carbon footprint"
+      },
+      "fork": {
+        "domain": "Agricultural Water Management",
+        "detail": "Managing irrigation schedules, water allocation, and drought response across agricultural operations with groundwater preservation"
+      },
+      "adaptation_points": [
+        {
+          "name": "consumption_model",
+          "type": "swappable_component",
+          "description": "Swap HVAC thermal model for crop evapotranspiration model with soil moisture sensors and weather forecast integration"
+        },
+        {
+          "name": "optimization_objective",
+          "type": "configurable",
+          "description": "Adjust weights: cost (0.3), carbon (0.3), comfort/yield (0.25), resilience (0.15) — agriculture adds aquifer sustainability"
+        },
+        {
+          "name": "sensor_interface",
+          "type": "swappable_component",
+          "description": "Replace BMS/IoT building sensors with agricultural sensors (soil moisture, NDVI satellite, flow meters, rain gauges)"
+        },
+        {
+          "name": "reporting_engine",
+          "type": "extensible",
+          "description": "Add ESG reporting, carbon credit calculations, and regulatory compliance (EU Taxonomy, TCFD, water rights)"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Agricultural Water Management",
+          "similarity": 0.73
+        },
+        {
+          "domain": "Fleet Emissions Planning",
+          "similarity": 0.7
+        },
+        {
+          "domain": "Manufacturing Waste Reduction",
+          "similarity": 0.68
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "high",
+          "scenario": "Optimization sacrifices comfort/yield for efficiency targets",
+          "impact": "Building occupant complaints; crop failure; economic loss"
+        },
+        {
+          "severity": "critical",
+          "scenario": "Sensor failure provides false low-consumption readings",
+          "impact": "Overuse goes undetected; aquifer depletion; equipment damage"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Weather forecast error compounds optimization decisions",
+          "impact": "Sub-optimal resource allocation for 24-48h; recovery lag"
+        }
+      ],
+      "tags": [
+        "sustainability",
+        "energy",
+        "optimization",
+        "carbon",
+        "resource-management"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph",
+        "NumPy/SciPy"
+      ],
+      "compliance": {
+        "overall": 91.3,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "infrastructure-capacity-planner",
+        "environmental-impact-monitor",
+        "fleet-route-optimizer"
+      ]
+    },
+    {
+      "id": "34",
+      "name": "Multi-Agent Task Delegator",
+      "slug": "multi-agent-task-delegator",
+      "version": "1.0.0",
+      "pattern": "hierarchical-task-decomposition",
+      "pattern_label": "Orchestration",
+      "description": "Decomposes complex goals into subtasks, assigns them to specialized agents based on capability matching, manages dependencies and parallel execution, handles failures with retry and fallback strategies.",
+      "origin": {
+        "domain": "Software Development Pipeline",
+        "detail": "Orchestrating code generation, review, testing, and deployment agents in an automated CI/CD pipeline"
+      },
+      "fork": {
+        "domain": "Humanitarian Response Coordination",
+        "detail": "Coordinating assessment, logistics, medical, shelter, and WASH agents in multi-sector emergency response"
+      },
+      "adaptation_points": [
+        {
+          "name": "task_decomposer",
+          "type": "swappable_component",
+          "description": "Swap code-task DAG builder for humanitarian response plan decomposer with sector dependencies and access constraints"
+        },
+        {
+          "name": "agent_registry",
+          "type": "swappable_component",
+          "description": "Replace developer tool agents with humanitarian sector agents (health, shelter, WASH, protection, logistics)"
+        },
+        {
+          "name": "failure_strategy",
+          "type": "configurable",
+          "description": "Software: retry 3x then fail; Humanitarian: degrade gracefully, never fully fail, always produce partial result"
+        },
+        {
+          "name": "priority_resolver",
+          "type": "swappable_component",
+          "description": "Swap sprint priority for life-saving priority with resource contention resolution and ethical triage logic"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Humanitarian Response Coordination",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Manufacturing Assembly Orchestration",
+          "similarity": 0.69
+        },
+        {
+          "domain": "Research Paper Writing Pipeline",
+          "similarity": 0.74
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Circular dependency in task graph — deadlock",
+          "impact": "Entire pipeline halts; no output produced; timeout waste"
+        },
+        {
+          "severity": "high",
+          "scenario": "Agent capability mismatch — task assigned to wrong specialist",
+          "impact": "Low-quality output cascades to dependent tasks"
+        },
+        {
+          "severity": "high",
+          "scenario": "Parallel execution race condition corrupts shared state",
+          "impact": "Inconsistent results; non-deterministic failures"
+        }
+      ],
+      "tags": [
+        "orchestration",
+        "multi-agent",
+        "task-decomposition",
+        "delegation",
+        "pipeline"
+      ],
+      "frameworks": [
+        "LangGraph",
+        "CrewAI",
+        "AutoGen",
+        "Temporal"
+      ],
+      "compliance": {
+        "overall": 92.5,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "approval-workflow-orchestrator",
+        "project-risk-cascade-planner",
+        "crisis-simulation-planner"
+      ]
+    },
+    {
+      "id": "35",
+      "name": "Predictive Maintenance Scheduler",
+      "slug": "predictive-maintenance-scheduler",
+      "version": "1.0.0",
+      "pattern": "temporal-prediction-scheduling",
+      "pattern_label": "Predictive Analytics",
+      "description": "Predicts when equipment or infrastructure will fail using sensor data, usage patterns, and degradation models — then optimally schedules maintenance windows to minimize downtime and cost.",
+      "origin": {
+        "domain": "Manufacturing Equipment",
+        "detail": "Predicting CNC machine, conveyor, and robotic arm failures using vibration, temperature, and cycle count data"
+      },
+      "fork": {
+        "domain": "Medical Device Maintenance",
+        "detail": "Scheduling maintenance for MRI machines, ventilators, and infusion pumps with patient-safety-first prioritization"
+      },
+      "adaptation_points": [
+        {
+          "name": "degradation_model",
+          "type": "swappable_component",
+          "description": "Swap mechanical wear curves for medical device calibration drift models with regulatory compliance windows (FDA/IEC)"
+        },
+        {
+          "name": "sensor_pipeline",
+          "type": "swappable_component",
+          "description": "Replace industrial IoT (vibration, thermal) with medical device telemetry (error logs, calibration drift, usage hours)"
+        },
+        {
+          "name": "scheduling_optimizer",
+          "type": "configurable",
+          "description": "Manufacturing: minimize production downtime; Medical: patient safety first, then minimize procedure cancellations"
+        },
+        {
+          "name": "compliance_tracker",
+          "type": "extensible",
+          "description": "Add FDA 21 CFR 820 maintenance records, Joint Commission readiness, and manufacturer service agreement tracking"
+        }
+      ],
+      "analogous_domains": [
+        {
+          "domain": "Medical Device Maintenance",
+          "similarity": 0.76
+        },
+        {
+          "domain": "Bridge & Infrastructure Inspection",
+          "similarity": 0.72
+        },
+        {
+          "domain": "Fleet Vehicle Servicing",
+          "similarity": 0.78
+        }
+      ],
+      "failure_modes": [
+        {
+          "severity": "critical",
+          "scenario": "Predicted 30 days remaining but fails in 2 days",
+          "impact": "Unplanned downtime; production halt; patient safety risk in medical"
+        },
+        {
+          "severity": "high",
+          "scenario": "Over-maintenance — too many false predictions of imminent failure",
+          "impact": "Unnecessary downtime; wasted parts and labor; reduced trust in system"
+        },
+        {
+          "severity": "medium",
+          "scenario": "Sensor data gap — missing telemetry during critical period",
+          "impact": "Model operates blind; predictions revert to time-based fallback"
+        }
+      ],
+      "tags": [
+        "predictive-maintenance",
+        "scheduling",
+        "iot",
+        "degradation-modeling",
+        "reliability"
+      ],
+      "frameworks": [
+        "CrewAI",
+        "LangGraph",
+        "NumPy/SciPy",
+        "TensorFlow"
+      ],
+      "compliance": {
+        "overall": 90,
+        "level": "Certified"
+      },
+      "similar_cards": [
+        "equipment-health-monitor",
+        "safety-incident-predictor",
+        "infrastructure-capacity-planner"
+      ]
+    }
+  ]
+}
