@@ -1,0 +1,642 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Infrastructure Capacity Planner
+# =============================================================================
+# Originally built for: Cloud infrastructure auto-scaling and capacity planning
+# Forked for: Refugee camp infrastructure planning (water, sanitation, shelter capacity)
+# =============================================================================
+
+identity:
+  name: "infrastructure-capacity-planner"
+  display_name: "Infrastructure Capacity Planner"
+  version: "1.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["capacity-planning", "resource-allocation", "forecasting", "infrastructure", "optimization"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "constrained-resource-allocation"
+  description: >
+    Predicts future demand based on historical trends and displacement
+    data, monitors current capacity utilization, identifies bottlenecks
+    and threshold breaches, and recommends scaling decisions (add capacity,
+    optimize distribution, or reduce scope) to balance coverage, cost,
+    and human welfare.
+
+  sub_patterns:
+    - "demand-forecasting"
+    - "capacity-threshold-monitoring"
+    - "scaling-decision-logic"
+    - "cost-optimization"
+    - "bottleneck-identification"
+
+  analogous_domains:
+    - domain: "cloud-infrastructure-auto-scaling"
+      similarity: 0.88
+      notes: >
+        Original domain. API traffic forecasting, capacity monitoring,
+        and elastic scaling decisions map directly. Key difference:
+        cloud scaling is seconds/minutes; humanitarian is days/weeks.
+
+    - domain: "refugee-camp-infrastructure"
+      similarity: 0.74
+      notes: >
+        Planning water, sanitation, shelter, and food distribution for
+        influx of displaced persons. Same forecasting + capacity +
+        scaling pattern but constrained by physical procurement and
+        logistics timelines.
+
+    - domain: "hospital-capacity-management"
+      similarity: 0.80
+      notes: >
+        Bed capacity, staffing, equipment (ventilators, dialysis
+        machines) must match patient census forecasts. Similar critical
+        human welfare implications as camp planning.
+
+    - domain: "urban-infrastructure-planning"
+      similarity: 0.76
+      notes: >
+        Water systems, power grids, waste management must be sized for
+        population forecasts. Longer timescales (years) than camps or
+        cloud, but same fundamental logic.
+
+    - domain: "supply-chain-inventory-management"
+      similarity: 0.78
+      notes: >
+        Stock levels adjusted for demand forecasts to avoid stockouts
+        or excess inventory. Similar cost/availability tradeoff.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "periodic-and-event-driven"
+    conditions:
+      - "Daily capacity forecast and threshold check"
+      - "Event-driven on significant population influx or capacity breach"
+
+  inputs:
+    - name: "population_data"
+      type: "stream<population_event>"
+      required: true
+      description: >
+        Current population counts by demographics (age, gender, special
+        needs). New arrivals, departures, and births/deaths.
+      freshness: "daily"
+
+    - name: "historical_demand"
+      type: "time_series"
+      required: true
+      description: >
+        Past consumption patterns: water per person per day, latrines
+        per population ratio, shelter m² per person, food kcal per day.
+        Adjusted for seasonal variation and special populations.
+      freshness: "< 30 days"
+
+    - name: "current_capacity"
+      type: "capacity_inventory"
+      required: true
+      description: >
+        Current infrastructure assets and their status: boreholes
+        (depth, yield), latrines (functional, broken), shelters
+        (beds available, damaged), food storage (tons available).
+      freshness: "real-time to daily"
+
+    - name: "capacity_constraints"
+      type: "rule_set"
+      required: true
+      description: >
+        Standards and thresholds: minimum water liters/person/day
+        (WHO standard: 20L/person for drinking/cooking, additional
+        for hygiene), latrine user ratio (Sphere: 1:50 maximum),
+        shelter space (Sphere: 45m² per family or 3.5m² per person
+        minimum), food security thresholds.
+
+    - name: "procurement_lead_times"
+      type: "map<resource, duration>"
+      required: true
+      description: >
+        How long it takes to source and deliver each resource type.
+        Water: 2 weeks for new borehole, 3 days for water tanker.
+        Latrines: 1 week for materials, 2 weeks for construction.
+        Shelter: 1-4 weeks depending on prefab vs. local construction.
+
+    - name: "budget_constraints"
+      type: "cost_model"
+      required: true
+      description: >
+        Available funds, cost per unit of each resource, and priorities
+        (life-saving > essential > comfort). Used to optimize allocation
+        when capacity insufficient for everyone.
+
+    - name: "displacement_intelligence"
+      type: "external_data"
+      required: false
+      description: >
+        Forecasts of additional inbound displaced persons from conflict
+        zones, natural disasters, or neighboring camps. Used to
+        anticipate demand spikes.
+
+  outputs:
+    - name: "capacity_forecast"
+      type: "forecast_report"
+      description: >
+        Predicted demand for each resource type over next 7, 14, and
+        30 days. Includes confidence intervals and sensitivity to
+        population influx scenarios.
+
+    - name: "capacity_status"
+      type: "status_report"
+      description: >
+        Current utilization (% of capacity), adequacy against standards,
+        and projected time until bottleneck or standard breach.
+
+    - name: "scaling_recommendation"
+      type: "action_plan"
+      description: >
+        Specific actions: procurement orders, timelines, budget required,
+        expected outcome, and risks if not executed.
+
+    - name: "allocation_optimization"
+      type: "resource_allocation"
+      description: >
+        If capacity insufficient: which populations receive priority
+        allocation, which services degrade, and impact on health/welfare.
+
+  reasoning:
+    method: "constrained-optimization-with-uncertainty"
+    objectives:
+      - "Meet Sphere Standards for all populations (weight: 0.5)"
+      - "Minimize cost per person served (weight: 0.3)"
+      - "Reduce project time to capacity readiness (weight: 0.2)"
+    approach: >
+      Multi-stage: (1) Demand forecasting using time-series analysis
+      of per-capita consumption + population growth scenarios,
+      (2) Identify which resources are bottlenecks (utilization > 80%
+      or projected to exceed within lead time), (3) For bottlenecks,
+      compute scaling options (expand source capacity vs. reduce demand
+      vs. ration allocation), (4) Optimize portfolio of options within
+      budget constraints, (5) Schedule procurement and implementation,
+      (6) Model outcomes against humanitarian standards.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Population counts are accurate and updated regularly"
+      strength: "soft"
+      adaptation_note: >
+        Cloud auto-scaling: metrics from instrumenting code (very
+        accurate). Camp infrastructure: manual headcount or RFID cards
+        (less accurate). May have 5-10% counting errors. Use ranges
+        instead of point estimates; compute capacity for mid-range and
+        upper-range scenarios separately.
+
+    - id: "DA-002"
+      assumption: "Historical consumption data exists and is representative"
+      strength: "soft"
+      adaptation_note: >
+        Cloud: months of traffic history. New refugee camps: little or
+        no data. Use Sphere Standards and comparables from similar camps
+        as priors. Adjust over time as camp-specific patterns emerge.
+
+    - id: "DA-003"
+      assumption: "Demand patterns are stationary or follow known seasonality"
+      strength: "soft"
+      adaptation_note: >
+        Cloud traffic: predictable (business hours, events). Camp demand
+        can shift suddenly (disease outbreak increases water/sanitation
+        needs, weather change affects shelter degradation). Build in
+        scenario planning for disruption events.
+
+    - id: "DA-004"
+      assumption: "Infrastructure capacity is fixed once built"
+      strength: "soft"
+      adaptation_note: >
+        Cloud compute: truly elastic (scale in minutes). Physical
+        infrastructure: degrades over time (boreholes yield drops,
+        latrines fill, shelters decay), requires maintenance, and
+        scaling takes weeks. Model capacity decay and maintenance
+        requirements explicitly.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Supply chains deliver reliably within stated lead times"
+      strength: "soft"
+      adaptation_note: >
+        Cloud supply: reliable within SLAs. Humanitarian supply chains
+        in conflict zones: highly unreliable. Delays of 50-100% above
+        estimate are common. Build in buffer and safety stock.
+
+    - id: "EA-002"
+      assumption: "New population arrivals are predictable or zero"
+      strength: "soft"
+      adaptation_note: >
+        Cloud: growth is smooth. Camps: sudden influxes of refugees
+        (conflict escalation, border closure) can cause population to
+        double overnight. Must maintain surge capacity or be prepared
+        for emergency rationing. Model inflow scenarios, not just base
+        case.
+
+    - id: "EA-003"
+      assumption: "Capacity can be used flexibly across populations"
+      strength: "soft"
+      adaptation_note: >
+        Cloud: compute is compute. Camp resources: water for drinking
+        is different from water for hygiene; shelter for families is
+        different from shelter for single men. Must respect population
+        segmentation and cultural/medical preferences.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single organization controls all resources"
+      strength: "soft"
+      adaptation_note: >
+        Cloud: yes. Camp: no. Multiple NGOs, UN agencies, and government
+        may operate different parts of camp. Must coordinate planning
+        across organizations with different priorities and budgets.
+
+    - id: "AA-002"
+      assumption: "Decisions are made by technical systems with human oversight"
+      strength: "hard"
+      adaptation_note: >
+        Same in both domains. Scaling recommendations require human
+        approval, especially when impact on affected populations is
+        significant (e.g., rationing water below Sphere Standard).
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "demand_predictor"
+    type: "swappable_component"
+    current: "api_traffic_forecaster"
+    interface: "DemandPredictor"
+    description: >
+      Predicts future resource demand based on drivers.
+      Interface: forecast(population, time_horizon) → demand_projection
+    suggested_alternatives:
+      - name: "api_traffic_forecaster"
+        for_domain: "cloud-infrastructure"
+        description: >
+          Time-series model of API requests per second based on time
+          of day, day of week, known events. ARIMA or LSTM model.
+
+      - name: "population_influx_model"
+        for_domain: "humanitarian-camp-planning"
+        description: >
+          Per-capita consumption rates (water liters/person/day, food
+          kcal/person/day) × current + inbound population. Adjusted
+          for demographics (children consume less; pregnant women need
+          more), season, and disease prevalence (cholera outbreak
+          increases water/sanitation demand by 3-5x).
+
+      - name: "patient_census_forecaster"
+        for_domain: "hospital-capacity"
+        description: >
+          Admits, discharges, length of stay by department. Bed
+          occupancy forecast includes emergency surge factors.
+
+  - id: "AP-002"
+    name: "capacity_model"
+    type: "configurable"
+    parameters:
+      - name: "unit_definitions"
+        current: "compute: CPUs, memory (GB); storage (TB)"
+        notes: >
+          For humanitarian: water (liters/day), latrines (number,
+          utilization ratio), shelter (m² or family units),
+          food (metric tons, kcal/day).
+
+      - name: "allocation_standards"
+        current: "SLA thresholds (99.99% uptime, <500ms latency)"
+        notes: >
+          For humanitarian: WHO/Sphere Standards (20-30L water/person/day,
+          1 latrine per 50 people, 45m² per family, 2100 kcal/person/day,
+          medical supplies budget per population).
+
+      - name: "capacity_utilization_thresholds"
+        current: "scale up if CPU > 70%, scale down if < 30%"
+        notes: >
+          For humanitarian: maintain buffer for surge (population influx
+          may occur in days). Safe utilization: 60% for water, 50% for
+          latrines (high failure modes at high occupancy), 75% for
+          shelter (some flexibility in density, but crowding causes
+          disease).
+
+      - name: "bottleneck_definition"
+        current: "any resource > 80% utilized or trending to exceed 100%"
+        notes: >
+          For humanitarian: identify which single resource is limiting
+          (often water or latrines). Scaling one resource while another
+          is bottleneck is waste.
+
+  - id: "AP-003"
+    name: "scaling_mechanism"
+    type: "swappable_component"
+    current: "cloud_api_provisioning"
+    interface: "ScalingExecutor"
+    description: >
+      Translates scaling recommendations into concrete actions.
+      Interface: scale(resource_type, delta) → action_plan
+    suggested_alternatives:
+      - name: "cloud_api_provisioning"
+        for_domain: "cloud-infrastructure"
+        description: >
+          Call AWS/Azure/GCP APIs to spin up instances, storage, etc.
+          within minutes.
+
+      - name: "logistics_procurement_pipeline"
+        for_domain: "humanitarian-camp-planning"
+        description: >
+          Create purchase orders for water tanks, latrine materials,
+          shelter kits. Coordinate with supply chain, shipping, customs.
+          Schedule construction/installation teams. Takes weeks, not
+          minutes. Requires budget approval and coordination with
+          partner organizations.
+
+      - name: "hospital_staffing_scheduler"
+        for_domain: "hospital-capacity"
+        description: >
+          Schedule additional shifts, call in off-duty staff, request
+          agency nurses. Negotiate with other departments for bed
+          reallocation. Takes hours to days.
+
+  - id: "AP-004"
+    name: "cost_optimizer"
+    type: "configurable"
+    parameters:
+      - name: "cost_model"
+        current: "per-CPU-hour, per-GB-month pricing"
+        notes: >
+          For humanitarian: fixed costs (staff, logistics hubs),
+          variable costs (food, medical supplies, water treatment),
+          and economy of scale (bulk procurement discounts).
+
+      - name: "optimization_objective"
+        current: "minimize monthly compute cost"
+        notes: >
+          For humanitarian: minimize cost per person-day in camp
+          while meeting Sphere Standards. Cost > 70% of available
+          budget triggers rationing of non-essential services
+          (entertainment, education materials).
+
+      - name: "priority_hierarchy"
+        current: "reduce non-essential services first"
+        notes: >
+          For humanitarian: life-saving (water, sanitation, medical)
+          > essential (shelter, food) > welfare (education, recreation).
+          Rationing logic follows this priority. Must explicitly model
+          humanitarian impact of cost cuts.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "population-census-tracker"
+      interface: "PopulationService"
+      purpose: "Provide current and projected population counts"
+      required: true
+
+    - behavior: "logistics-coordinator"
+      interface: "ProcurementService"
+      purpose: "Place orders, track delivery, coordinate installation"
+      required: true
+
+    - behavior: "infrastructure-inspector"
+      interface: "CapacityMonitor"
+      purpose: "Monitor current capacity status and degradation"
+      required: true
+
+    - behavior: "budget-manager"
+      interface: "BudgetService"
+      purpose: "Enforce spending limits and allocate funds across priorities"
+      required: true
+
+    - behavior: "scenario-simulator"
+      interface: "SimulationEngine"
+      purpose: "Run what-if analysis on capacity plans"
+      required: false
+
+  orchestrated_by:
+    - pattern: "camp-management-system"
+      role: "Provides demand inputs (population), executes capacity decisions"
+    - pattern: "humanitarian-coordination-hub"
+      role: "Aggregates capacity plans from multiple organizations"
+    - pattern: "financial-management-system"
+      role: "Approves procurement and allocates budget"
+
+  emits:
+    - event: "forecast_generated"
+      payload: "capacity_forecast"
+      description: "Daily/weekly demand projection with scenarios"
+
+    - event: "bottleneck_identified"
+      payload: "capacity_status"
+      description: "Resource approaching or exceeding safe utilization"
+
+    - event: "scaling_recommended"
+      payload: "scaling_recommendation"
+      description: "Action plan to increase capacity with budget and timeline"
+
+    - event: "capacity_breach_imminent"
+      payload: "alert"
+      description: "Critical: resource will exceed capacity within days without action"
+
+    - event: "allocation_optimized"
+      payload: "resource_allocation"
+      description: "If capacity insufficient, optimal rationing plan generated"
+
+  listens_to:
+    - event: "procurement_order_placed"
+      source: "logistics-coordinator"
+      action: "Track order; update lead time model"
+
+    - event: "resource_delivered_and_installed"
+      source: "infrastructure-inspector"
+      action: "Update capacity model; re-forecast"
+
+    - event: "major_population_influx"
+      source: "population-tracker"
+      action: "Trigger emergency forecast; alert scaling decision-makers"
+
+    - event: "capacity_failure_occurred"
+      source: "camp-operations"
+      action: "Investigate failure; adjust capacity model; implement mitigation"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Underestimate demand; capacity exhausted before scaling action completes"
+      impact: "People without water/sanitation/shelter during procurement delay (days/weeks)"
+      severity: "critical"
+      mitigation: >
+        Always forecast upper-range scenario (not just mean). Maintain
+        surge capacity buffer (20% spare for water, 30% for latrines).
+        Pre-position emergency supplies. Use displaced persons forecasts
+        from intelligence agencies to anticipate influxes.
+
+    - id: "FM-002"
+      scenario: "Over-provision capacity; waste limited funds"
+      impact: "Other populations served by same budget get less aid"
+      severity: "high"
+      mitigation: >
+        Balance safety margins against cost. Use Bayesian optimization
+        to find cost-effectiveness frontier. Regular review of forecast
+        accuracy; adjust margins if overprovisioning is chronic.
+
+    - id: "FM-003"
+      scenario: "Plan capacity for average consumption; peak demand causes failure"
+      impact: "Inadequate water/sanitation during disease outbreaks or extreme weather"
+      severity: "high"
+      mitigation: >
+        Plan for peak demand, not average. Include disease outbreak
+        scenarios and seasonal variations. Water demand in summer 30%
+        higher than winter; cholera increases latrine demand 5x.
+
+    - id: "FM-004"
+      scenario: "Allocate capacity optimally by utilitarian math; some populations deprived"
+      impact: "Rationing logic allocates less water to less-vocal populations"
+      severity: "high"
+      mitigation: >
+        Allocation decisions must respect humanitarian principles:
+        impartiality (don't favor certain ethnic groups) and non-discrimination.
+        Vulnerability criteria (children, elderly, medical conditions)
+        override utilitarian cost-minimization. Require human approval for
+        any rationing affecting specific populations.
+
+    - id: "FM-005"
+      scenario: "Infrastructure plan assumes stability; conflict forces evacuation"
+      impact: "Half-built capacity becomes stranded asset; new location needs new plan"
+      severity: "medium"
+      mitigation: >
+        Build modularity and portability into infrastructure (water
+        tanks, latrines, shelters should be demountable). Maintain
+        contingency plans for site relocations. Coordinate with security
+        assessment team; flag high-risk situations in recommendations.
+
+  ethical_flags:
+    - context: "humanitarian-camp-planning"
+      concern: >
+        Under-provisioning camp infrastructure means people die. Insufficient
+        water causes dehydration and disease. Insufficient latrines causes
+        cholera. Insufficient shelter leaves people exposed to elements.
+        The capacity planner's numbers directly translate to mortality.
+      recommendation: >
+        Conservative planning with safety margins. Never optimize solely
+        for cost; optimize for humanitarian impact. Visible health metrics
+        in output (estimated deaths per day if current capacity maintained
+        at current population vs. at projected population). Escalation to
+        health/protection leads required if forecast shows unsafe conditions.
+
+    - context: "humanitarian-camp-planning"
+      concern: >
+        Over-provisioning wastes funds that could serve other populations
+        (other camps, host communities, other crises). Humanitarian
+        principle of effectiveness means every dollar saved on waste
+        extends aid reach to others suffering.
+      recommendation: >
+        Provide both under-provisioning risk and over-provisioning cost.
+        Decision-maker can trade safety margin against cost explicitly.
+        Track forecast accuracy; if consistently over-provisioning, recalibrate
+        safety margins. Review quarterly with finance and humanitarian
+        impact teams.
+
+    - context: "any"
+      concern: >
+        Capacity rationing decisions embed value judgments (who gets
+        water? who gets shelter?). Algorithms should not make these
+        decisions alone.
+      recommendation: >
+        Provide allocation options with explicit trade-offs: "Option A:
+        cut food rations 10% for all (health impact: moderate malnutrition),
+        Option B: relocate 20% of single men to lower-amenity sector (welfare
+        impact: segregation), Option C: reduce shelter size from 45m² to 35m²
+        per family (safety impact: increased disease transmission)."
+        Humans make final allocation calls with full transparency of consequences.
+
+  performance:
+    tested_scale: "Camps up to 500,000 people; planning 1-12 month horizons"
+    latency: "Daily forecast < 1 hour; scenario analysis < 5 minutes"
+    accuracy: >
+      Cloud auto-scaling: forecast RMSE typically 5-10% of mean load.
+      Humanitarian camp: RMSE 15-25% due to population volatility and
+      data quality. Seasonal patterns captured; conflict-driven influxes
+      are low-probability high-impact events (handled separately with scenario modeling).
+    known_degradation: >
+      Accuracy drops significantly if: baseline historical data absent
+      (new camps), population structure changes (different age distribution),
+      supply chain disrupted, or climate/season shifts sharply. In these
+      cases, forecast confidence intervals widen; recommend more conservative
+      safety margins.
+
+  observability:
+    logging: "All forecasts, threshold breaches, and scaling recommendations logged with drivers"
+    explainability: >
+      Each forecast shows: base demand estimate, seasonal adjustment,
+      growth rate, and confidence interval. Each scaling recommendation
+      shows: current utilization, projected shortage date, options considered,
+      and reason for selection. Allocation plan shows humanitarian impact
+      of each option.
+    reproducibility: >
+      Deterministic given same population data and historical consumption
+      rates. Model versions tracked; changes to thresholds or standards
+      require documentation and human approval.
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "cloud-infrastructure"
+    organization: "ABC Registry"
+    original_use_case: >
+      Auto-scaling compute and storage resources for cloud platform based
+      on API traffic forecasts and cost optimization objectives.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "cloud-infrastructure"
+      date: "2025-09-20"
+      notes: "Elastic scaling for cloud compute and storage"
+
+    - version: "1.0.0"
+      domain: "humanitarian-camp-planning"
+      date: "2026-02-14"
+      notes: >
+        Forked for refugee camp infrastructure planning. Replaced API
+        traffic model with population-driven demand model, adapted
+        units to physical resources (water liters, latrines, shelters),
+        extended lead times for logistics procurement, and integrated
+        Sphere Standards for humanitarian adequacy thresholds.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "DA-004", "EA-001", "EA-002", "EA-003", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "Capacity planning workflow with scenario branching"
+      - name: "OR-Tools"
+        version: ">=9.7"
+        integration: "Optimization engine for resource allocation"
+      - name: "Apache Airflow"
+        version: ">=2.5"
+        integration: "DAG for daily forecast generation and monitoring"

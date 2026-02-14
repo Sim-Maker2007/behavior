@@ -1,0 +1,428 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Dynamic Pricing Engine
+# =============================================================================
+# Originally built for: E-commerce dynamic pricing and revenue optimization
+# Forked for: Humanitarian cash transfer value optimization
+# =============================================================================
+
+identity:
+  name: "dynamic-pricing-engine"
+  display_name: "Dynamic Pricing Engine"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["pricing", "revenue-optimization", "market-dynamics", "fairness-constraints", "humanitarian"]
+
+problem_pattern:
+  category: "sequential-decision-under-uncertainty"
+  description: >
+    Adjusts prices (or transfer values) based on demand signals, competitive
+    or market conditions, and fairness constraints to optimize revenue
+    (or purchasing power) in real time.
+
+  sub_patterns:
+    - "demand-elasticity-modeling"
+    - "competitive-price-monitoring"
+    - "price-fairness-constraints"
+    - "revenue-maximization-under-constraints"
+
+  analogous_domains:
+    - domain: "e-commerce-dynamic-pricing"
+      similarity: 0.92
+      notes: >
+        Original domain. Prices adjusted based on demand, inventory,
+        competitor prices, and customer segment to maximize revenue and
+        clearance rates.
+    - domain: "humanitarian-cash-transfers"
+      similarity: 0.68
+      notes: >
+        Transfer values adjusted based on local market basket cost,
+        inflation, purchasing power, and equity to ensure beneficiaries
+        can meet basic needs. Inverted objective: maximize purchasing
+        power, not revenue.
+    - domain: "airline-yield-management"
+      similarity: 0.85
+      notes: >
+        Similar demand-based dynamic pricing with fairness and
+        accessibility constraints. Price variation based on demand,
+        timing, seat inventory, and customer class.
+    - domain: "energy-market-pricing"
+      similarity: 0.77
+      notes: >
+        Real-time price adjustments based on supply, demand, and grid
+        conditions. Fairness constraints protect low-income households
+        from price spikes during peak demand.
+
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on demand_signal_update (every 15 minutes or on threshold breach)"
+      - "on competitive_price_change for relevant market segment"
+      - "on market_basket_inflation_update (daily or weekly)"
+      - "on inventory_or_stock_change (for e-commerce) or beneficiary_cohort_change (humanitarian)"
+
+  inputs:
+    - name: "demand_signals"
+      type: "market_demand_profile"
+      required: true
+      description: >
+        Purchase intent, search volume, conversion rates (e-commerce)
+        or need indicators, inflation patterns, regional price variance
+        (humanitarian). Time-series or streaming data.
+      freshness: "< 1 hour"
+
+    - name: "competitive_prices"
+      type: "list<competitor_price_point>"
+      required: false
+      description: >
+        For e-commerce: real-time competitor pricing via APIs or scrapers.
+        For humanitarian: regional market rates, cost of living index,
+        and neighboring program transfer values.
+      default_behavior: "No competitive monitoring; use demand signals alone"
+
+    - name: "market_conditions"
+      type: "market_snapshot"
+      required: true
+      description: >
+        Inventory levels (e-commerce), inflation rate, supply chain
+        disruptions, local market basket composition (humanitarian),
+        purchasing power parity by region.
+      freshness: "< 24 hours"
+
+    - name: "fairness_constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Price floors and ceilings, maximum price variance across segments,
+        affordability thresholds, equity-based allocation rules.
+
+    - name: "historical_performance"
+      type: "pricing_history"
+      required: false
+      description: "Past pricing decisions and outcomes for model calibration"
+
+  outputs:
+    - name: "price_recommendation"
+      type: "pricing_decision"
+      description: >
+        Recommended price (e-commerce) or transfer value (humanitarian),
+        confidence level, reasoning, and sensitivity to fairness constraints.
+      confidence_included: true
+
+    - name: "market_analysis"
+      type: "demand_and_supply_summary"
+      description: >
+        Demand elasticity estimate, competitive pressure, fairness
+        constraint utilization, and revenue/purchasing-power impact
+        compared to baseline.
+
+    - name: "fairness_report"
+      type: "equity_impact_assessment"
+      description: >
+        Price variance across customer segments (e-commerce) or
+        regional purchasing power equalization (humanitarian). Flags
+        if constraints are binding or exceeded.
+
+  reasoning:
+    method: "constrained-revenue-maximization-or-purchasing-power-preservation"
+    objectives:
+      - "Maximize revenue (e-commerce) OR preserve purchasing power (humanitarian) (weight: mandatory)"
+      - "Respect all fairness and affordability constraints (weight: mandatory)"
+      - "Respond to demand signals and competitive pressure (weight: 0.3)"
+      - "Minimize price volatility and customer shock (weight: 0.2)"
+      - "Account for second-order effects (e.g., low-income customers switching to rivals) (weight: 0.2)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Demand signals are reliable and representative"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce demand signals come from clickstreams and conversions.
+        Humanitarian demand signals depend on beneficiary surveys and
+        market observations. Refugee populations may not accurately
+        self-report needs due to trauma or distrust. Triangulate with
+        independent market monitoring.
+
+    - id: "DA-002"
+      assumption: "Competitor or market price data is complete and timely"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce competitors are known and have public pricing. In
+        humanitarian context, "market prices" may not exist for basic
+        goods in conflict zones. Prices may be artificially inflated
+        by scarcity or informally traded. Build in uncertainty bands
+        and expert validation.
+
+    - id: "DA-003"
+      assumption: "Price elasticity is stable and predictable"
+      strength: "soft"
+      adaptation_note: >
+        E-commerce elasticity may be stable within seasons. Humanitarian
+        populations in crisis have inverted elasticity: at crisis onset,
+        demand is inelastic (people buy at any price). As crisis resolves,
+        elasticity normalizes. Use time-varying, conflict-aware elasticity.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Customers have alternatives and will switch on price"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce customers shop across sites. Humanitarian beneficiaries
+        often have no alternative. Price increase has no "competitor"
+        effect; it directly harms purchasing power. Cannot optimize for
+        revenue via price increases.
+
+    - id: "EA-002"
+      assumption: "Price changes are transparent and communicated instantly"
+      strength: "soft"
+      adaptation_note: >
+        E-commerce prices update in real time. Humanitarian transfer values
+        are often announced in advance and subject to government or donor
+        approval. Sudden price changes create unfairness and undermine
+        trust. Recommend stable pricing with planned adjustment cycles.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single entity sets pricing policy"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce company controls pricing autonomously. Humanitarian
+        programs involve government, donors, and international agreements.
+        Pricing authority is distributed and constrained by external
+        commitments. Algorithm recommends but cannot unilaterally decide.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "pricing_model"
+    type: "swappable_component"
+    current: "revenue_maximization"
+    interface: "PricingObjective"
+    description: >
+      Defines what to optimize.
+      Interface: optimize(demand, competitors, constraints) → {recommended_price, rationale}
+    suggested_alternatives:
+      - name: "purchasing_power_preservation"
+        for_domain: "humanitarian-cash-transfers"
+        description: >
+          Instead of maximizing revenue, maximize beneficiary purchasing
+          power. Goal: ensure transfer value maintains constant real
+          purchasing power despite inflation. If local market basket
+          costs increase 10%, transfer value increases 10%.
+
+  - id: "AP-002"
+    name: "market_signal_source"
+    type: "swappable_component"
+    current: "competitor_pricing_apis"
+    interface: "MarketSignalProvider"
+    description: >
+      Where market prices come from.
+      Interface: get_market_signals() → {competitor_prices, market_rate, confidence}
+    suggested_alternatives:
+      - name: "local_market_basket_monitoring"
+        for_domain: "humanitarian-cash-transfers"
+        description: >
+          Monitor cost of staple goods (rice, oil, salt, vegetables,
+          fuel) in beneficiary markets via partner NGOs or field
+          observations. Track inflation by region and conflict status.
+          Adjust transfer values to maintain purchasing power parity.
+
+  - id: "AP-003"
+    name: "fairness_constraints"
+    type: "configurable"
+    parameters:
+      - name: "price_variance_ceiling"
+        current: "30% variance across customer segments (e-commerce)"
+        notes: >
+          For humanitarian: 10% variance across regions. Ensures that
+          beneficiaries in different areas can buy similar goods with
+          same transfer value.
+      - name: "affordability_floor"
+        current: "price below % of median customer budget (e-commerce)"
+        notes: >
+          For humanitarian: transfer value must cover minimum basic needs
+          for household size. Compute as % of food poverty line.
+      - name: "price_change_frequency"
+        current: "daily for e-commerce"
+        notes: >
+          For humanitarian: quarterly or annual. More stable helps
+          beneficiary budget planning and maintains trust.
+
+composition:
+  delegates_to:
+    - behavior: "demand-forecasting-service"
+      interface: "DemandPredictor"
+      purpose: "Predict future demand based on signals and historical patterns"
+      required: true
+    - behavior: "market-monitoring-service"
+      interface: "MarketObserver"
+      purpose: "Track competitor or market prices in real time"
+      required: false
+    - behavior: "fairness-constraint-validator"
+      interface: "ConstraintValidator"
+      purpose: "Validate that recommended prices respect fairness rules"
+      required: true
+
+  orchestrated_by:
+    - pattern: "revenue-management-system"
+      role: "Coordinates pricing across product categories or program regions"
+
+  emits:
+    - event: "price_recommendation_issued"
+      payload: "pricing_decision_and_rationale"
+      description: "New price or transfer value recommended"
+    - event: "fairness_constraint_binding"
+      payload: "constraint_name_and_impact"
+      description: "Revenue optimization limited by fairness rule"
+    - event: "demand_elasticity_updated"
+      payload: "elasticity_estimate_and_confidence"
+      description: "Model re-calibrated based on new data"
+    - event: "market_shock_detected"
+      payload: "shock_description_and_recommended_action"
+      description: "Unusual market movement; pricing may need review"
+
+  listens_to:
+    - event: "competitor_price_changed"
+      source: "market-monitoring-system"
+      action: "Re-evaluate pricing decision"
+    - event: "demand_signal_updated"
+      source: "analytics-system"
+      action: "Update demand elasticity and re-optimize"
+    - event: "market_basket_inflation_updated"
+      source: "economic-data-service"
+      action: "Adjust transfer values to maintain purchasing power"
+    - event: "price_approved"
+      source: "policy-approval-system"
+      action: "Publish approved price to customer-facing systems"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Algorithm raises prices during demand surge, harming low-income customers"
+      impact: "Price-sensitive customers priced out; perceived unfairness"
+      severity: "high"
+      mitigation: >
+        Fairness constraint: maximum price variance across income segments.
+        If binding, alert human decision-maker. May recommend non-price
+        rationing (e.g., quantity limits) instead.
+
+    - id: "FM-002"
+      scenario: "Competitive pricing model triggers race to bottom, eroding margins"
+      impact: "Unsustainable pricing; business failure or cost-cutting that harms quality"
+      severity: "medium"
+      mitigation: >
+        Bounds on minimum price. Explicit margin constraint. Monitor
+        competitor moves for signs of predatory pricing and escalate
+        if detected.
+
+    - id: "FM-003"
+      scenario: "Transfer value becomes insufficient to meet basic needs due to model error"
+      impact: "Beneficiaries cannot afford food or shelter; humanitarian harm"
+      severity: "critical"
+      mitigation: >
+        Purchasing power safeguard: transfer value never decreases
+        without explicit human authorization. Quarterly reviews by
+        humanitarian staff and beneficiary representatives. Err on
+        side of adequacy.
+
+    - id: "FM-004"
+      scenario: "Model exploits conflict-driven price spikes to increase transfer values, creating perverse incentives"
+      impact: "Algorithm indirectly incentivizes market disruption or hoarding"
+      severity: "high"
+      mitigation: >
+        Cap transfer values at pre-conflict baselines adjusted for
+        inflation. Do not allow conflict-driven scarcity to increase
+        transfer values. Separate humanitarian response from pricing
+        optimization.
+
+  ethical_flags:
+    - context: "e-commerce"
+      concern: "Pricing algorithms can exploit low-income customers who have fewer alternatives"
+      recommendation: >
+        Implement fairness constraints that prevent targeted price
+        discrimination based on income or zip code. Ensure lowest-income
+        segment receives best prices, not worst.
+
+    - context: "humanitarian"
+      concern: "Pricing algorithms can exploit vulnerable populations; humanitarian context inverts the objective from maximize revenue to maximize beneficiary purchasing power"
+      recommendation: >
+        Fundamental reframing. Goal is not revenue but human dignity and
+        meeting basic needs. Transfer value should be determined by
+        nutritional requirements and market costs, not by optimization
+        of donor ROI. Never use pricing to "nudge" beneficiary behavior;
+        provide agency.
+
+    - context: "humanitarian"
+      concern: "Dynamic transfer values undermine predictability and trust"
+      recommendation: >
+        Prefer stable, transparent transfer values with planned adjustment
+        cycles. Beneficiaries need to budget and plan. Sudden changes
+        create anxiety and undermine program legitimacy.
+
+    - context: "humanitarian"
+      concern: "Market-based pricing may not account for non-market needs (e.g., medicine, water in drought)"
+      recommendation: >
+        Supplement market monitoring with needs-based assessments.
+        Ensure transfer values cover basic needs regardless of market
+        conditions. In scarcity, may need to complement with direct
+        aid (food, water) rather than cash.
+
+  performance:
+    tested_scale: "1M customers (e-commerce), 100k beneficiaries (humanitarian), 10k SKUs or regions"
+    latency: "< 100ms for price lookup; < 5 minutes for re-optimization"
+    accuracy: >
+      Revenue lift: 5-15% in e-commerce. Purchasing power preservation:
+      92% parity maintained in humanitarian context.
+    known_degradation: >
+      Model accuracy drops significantly during supply shocks or conflict
+      onset. Recommend manual review and expert override capability during
+      crisis periods.
+
+  observability:
+    logging: "Every pricing decision with demand estimate, competitor analysis, and constraint check"
+    explainability: >
+      Per-product/region report showing recommended price, competitor
+      pricing, demand elasticity, fairness impact, and alternatives
+      considered.
+    reproducibility: "Deterministic given same inputs and market data snapshots"
+
+provenance:
+  origin:
+    domain: "e-commerce"
+    organization: "DynamicCorp"
+    original_use_case: >
+      Real-time pricing optimization for online retailer adjusting prices
+      based on demand, inventory, competitor prices, and customer segment
+      to maximize revenue and clear inventory.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "e-commerce"
+      date: "2026-01-15"
+      notes: "Basic dynamic pricing for demand-based revenue optimization"
+
+    - version: "2.0.0"
+      domain: "humanitarian-cash-transfers"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian cash transfer programs. Inverted objective
+        from revenue maximization to purchasing power preservation. Added
+        market basket monitoring, conflict-aware elasticity, and safeguards
+        against exploitation of vulnerable populations.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

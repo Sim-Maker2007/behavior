@@ -1,0 +1,439 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Customer Journey Orchestrator
+# =============================================================================
+# Originally built for: E-commerce customer conversion funnel optimization
+# Forked for: Refugee resettlement pathway coordination
+# =============================================================================
+
+identity:
+  name: "customer-journey-orchestrator"
+  display_name: "Customer Journey Orchestrator"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["journey-orchestration", "sequential-decision", "personalization", "dropout-prediction", "barriers"]
+
+problem_pattern:
+  category: "sequential-decision-under-uncertainty"
+  description: >
+    Guides an individual through a multi-stage process by predicting
+    dropout risk at each stage, identifying barriers, and delivering
+    personalized nudges to maintain momentum and support progression.
+
+  sub_patterns:
+    - "multi-step-process-guidance"
+    - "dropout-prediction"
+    - "personalized-nudging"
+    - "milestone-tracking"
+    - "barrier-identification"
+
+  analogous_domains:
+    - domain: "e-commerce-conversion"
+      similarity: 0.90
+      notes: >
+        Original domain. Customer progression through discovery → cart →
+        checkout → payment. Dropout is cart abandonment. Nudges are
+        discount offers and email reminders.
+    - domain: "refugee-resettlement-pathway"
+      similarity: 0.73
+      notes: >
+        Refugee progression through registration → documentation →
+        interview → placement → integration. Dropout is case abandonment.
+        Barriers are bureaucratic and trauma-related. Nudges are case
+        worker contact and holistic support.
+    - domain: "patient-treatment-adherence"
+      similarity: 0.78
+      notes: >
+        Patient progression through diagnosis → treatment plan → adherence →
+        recovery. Dropout is non-compliance. Barriers are side effects and
+        cost. Nudges are appointment reminders and education.
+    - domain: "university-enrollment-journey"
+      similarity: 0.80
+      notes: >
+        Student progression through application → acceptance → deposit →
+        enrollment → orientation. Dropout is yield loss. Barriers are cost
+        and competing offers. Nudges are financial aid and campus engagement.
+
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on journey_stage_transition for any participant"
+      - "on dropout_risk_detected for at-risk individuals"
+      - "on barrier_detected for immediate intervention"
+      - "daily batch for milestone tracking and nudge scheduling"
+
+  inputs:
+    - name: "participant_profile"
+      type: "person_journey_state"
+      required: true
+      description: >
+        Current stage in journey, historical completion time per stage,
+        demographic and psychographic attributes, communication preferences,
+        language, and previous interaction history.
+      freshness: "< 24 hours"
+
+    - name: "journey_stages"
+      type: "list<stage_definition>"
+      required: true
+      description: >
+        Configurable stages defining the journey, success criteria,
+        typical duration, and decision points at each stage.
+
+    - name: "barrier_signals"
+      type: "list<signal_profile>"
+      required: false
+      description: >
+        Known barriers mapped to detection signals and recommended
+        interventions. Domain-specific: abandon patterns, form submission
+        delays, help desk queries, etc.
+      default_behavior: "No barrier detection; rely on dropout prediction only"
+
+    - name: "communication_history"
+      type: "list<message_log>"
+      required: false
+      description: "Prior nudges, interventions, and participant responses"
+
+  outputs:
+    - name: "journey_status_report"
+      type: "progression_summary"
+      description: >
+        Current stage, time in stage, progress toward next milestone,
+        estimated completion probability, and risk level.
+      confidence_included: true
+
+    - name: "intervention_recommendation"
+      type: "nudge_specification"
+      description: >
+        If intervention needed: type (reassurance, information, resource,
+        escalation), timing, channel, and success metrics.
+
+    - name: "barrier_analysis"
+      type: "obstacle_assessment"
+      description: >
+        Identified barriers, barriers preventing progression, severity,
+        recommended support or workarounds.
+
+  reasoning:
+    method: "personalized-dropout-prediction-and-intervention-sequencing"
+    objectives:
+      - "Predict dropout risk for each participant (weight: mandatory)"
+      - "Identify specific barriers preventing progression (weight: mandatory)"
+      - "Deliver interventions at optimal timing and channel (weight: 0.4)"
+      - "Personalize nudge content to individual context (weight: 0.3)"
+      - "Respect autonomy — guide, don't coerce (weight: 0.3)"
+      - "Track milestone achievement for feedback loops (weight: 0.2)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Stage transitions reflect actual progression"
+      strength: "hard"
+      adaptation_note: >
+        In e-commerce, stage transitions are logged. In refugee resettlement,
+        stages may be aspirational or delayed by bureaucracy. Must track
+        actual document submission, interview completion, not just case
+        worker assertions. Source truth from primary records.
+
+    - id: "DA-002"
+      assumption: "Participant attributes are stable and reliable"
+      strength: "hard"
+      adaptation_note: >
+        Refugee circumstances change rapidly: new trauma exposure, family
+        arrivals, housing changes, employment shifts. Build in regular
+        re-assessment touchpoints and treat attributes as time-varying.
+
+    - id: "DA-003"
+      assumption: "Historical cohort data accurately predicts future dropout"
+      strength: "soft"
+      adaptation_note: >
+        E-commerce cohorts may be large and homogeneous. Refugee journeys
+        are highly contextual. Stratify prediction by conflict region,
+        family composition, and arrival date. Acknowledge novelty and
+        calibrate confidence intervals accordingly.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Barriers are primarily informational or motivational"
+      strength: "soft"
+      adaptation_note: >
+        E-commerce barriers are solvable with better copy and incentives.
+        Refugee barriers include legal complexity, trauma, housing shortage,
+        and hostile local environment. Interventions must address structural
+        barriers, not just individual motivation. May require escalation or
+        advocacy, not nudging.
+
+    - id: "EA-002"
+      assumption: "Participant has autonomous choice at each stage"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce customer chooses whether to complete purchase. Refugee
+        may face coercion (family pressure, case worker pressure, visa
+        conditions). Journey guidance must be genuinely supportive, not
+        coercive. Ensure participant understands rights and alternatives.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single entity designs and controls the journey"
+      strength: "hard"
+      adaptation_note: >
+        E-commerce brand controls funnel design. Refugee resettlement
+        involves government, NGOs, and local service providers. Journey
+        design authority is distributed. Coordinator must reconcile
+        multiple stakeholders' requirements and preserve participant agency.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "journey_stages"
+    type: "configurable"
+    parameters:
+      - name: "stage_definitions"
+        current: "purchase funnel: discovery → cart → checkout → payment"
+        notes: >
+          For refugee resettlement: registration → documentation →
+          interview → placement → integration. Stages may overlap or
+          recur (re-interviews for additional claims).
+      - name: "stage_success_criteria"
+        current: "completed_checkout = success"
+        notes: >
+          For resettlement: document submission verified, interview
+          scheduled/completed, placement offer accepted, first job
+          secured, six-month integration review.
+      - name: "typical_duration_per_stage"
+        current: "minutes to hours"
+        notes: >
+          For resettlement: weeks to months. Build in patience and
+          flag only if exceeding region-specific baselines significantly.
+
+  - id: "AP-002"
+    name: "barrier_detector"
+    type: "swappable_component"
+    current: "ecommerce_abandonment_predictor"
+    interface: "BarrierDetector"
+    description: >
+      Identifies obstacles preventing progression.
+      Interface: detect(participant, stage_context) → {barriers, severity, action}
+    suggested_alternatives:
+      - name: "humanitarian_barrier_detector"
+        for_domain: "refugee-resettlement"
+        description: >
+          Detects barriers specific to resettlement: missing documents,
+          lost passports, previous visa rejections, unresolved trauma,
+          family separation, unsafe accommodation, lack of local support
+          network, language barrier, legal status complications, and
+          employment restrictions. Triggers case worker escalation, not
+          automated nudge.
+
+  - id: "AP-003"
+    name: "communication_engine"
+    type: "swappable_component"
+    current: "marketing_email_nudger"
+    interface: "CommunicationService"
+    description: >
+      Delivers nudges to support progression.
+      Interface: compose_and_send(participant, intervention) → {sent, received, opened}
+    suggested_alternatives:
+      - name: "humanitarian_case_worker_notification"
+        for_domain: "refugee-resettlement"
+        description: >
+          Routes interventions to dedicated case workers, not direct
+          participant messaging. Supports multilingual, trauma-informed
+          communication. Alerts case workers to at-risk individuals,
+          missing documentation, or upcoming milestones. Can escalate
+          to specialized services (mental health, legal aid, housing).
+
+  - id: "AP-004"
+    name: "dropout_predictor"
+    type: "swappable_component"
+    current: "cart_abandonment_model"
+    interface: "DropoutRiskAssessor"
+    description: >
+      Predicts risk of abandoning journey.
+      Interface: assess(participant, current_stage) → {risk_score, drivers, confidence}
+    suggested_alternatives:
+      - name: "case_abandonment_model"
+        for_domain: "refugee-resettlement"
+        description: >
+          Factors: days since last case worker contact, unresolved
+          document requests, appointment no-shows, expressed distress,
+          family separation status, previous case closures, housing
+          instability signals. Higher base rate of "dropout" due to
+          exogenous shocks (re-arrest, forced relocation).
+
+composition:
+  delegates_to:
+    - behavior: "case-worker-notification-service"
+      interface: "NotificationService"
+      purpose: "Alert case workers to at-risk participants and required interventions"
+      required: true
+    - behavior: "document-management-system"
+      interface: "DocumentService"
+      purpose: "Track submission and verification of required documents"
+      required: true
+    - behavior: "translation-and-interpretation-service"
+      interface: "TranslationService"
+      purpose: "Multilingual barrier assessment and communication"
+      required: false
+
+  orchestrated_by:
+    - pattern: "refugee-case-management-hub"
+      role: "Manages overall refugee support pathway within broader resettlement program"
+
+  emits:
+    - event: "stage_transition_completed"
+      payload: "participant_and_stage"
+      description: "Participant progressed to next journey stage"
+    - event: "dropout_risk_alert"
+      payload: "risk_assessment_and_recommendations"
+      description: "Participant at elevated risk; case worker intervention needed"
+    - event: "barrier_identified"
+      payload: "barrier_details_and_suggested_support"
+      description: "Specific obstacle detected; support or escalation required"
+    - event: "milestone_achieved"
+      payload: "participant_and_stage"
+      description: "Participant reached important checkpoint"
+
+  listens_to:
+    - event: "document_submitted"
+      source: "document-intake-system"
+      action: "Update stage progress, trigger stage-transition logic"
+    - event: "interview_scheduled"
+      source: "appointment-system"
+      action: "Confirm stage transition ready, schedule pre-interview support"
+    - event: "interview_completed"
+      source: "case-worker-system"
+      action: "Mark stage complete, assess next stage barriers"
+    - event: "participant_help_request"
+      source: "help-desk"
+      action: "Log barrier signal, assess if barrier prediction model needs update"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Dropout prediction is incorrect; false alarm triggers unnecessary intervention"
+      impact: "Wasted case worker time, participant feels over-monitored"
+      severity: "low"
+      mitigation: >
+        Threshold-based triggering: only escalate if risk_score > 0.7 and
+        multiple signals agree. Case worker can dismiss false alarms
+        without penalty.
+
+    - id: "FM-002"
+      scenario: "Barriers are missed; dropout happens without warning"
+      impact: "Participant lost to follow-up; case abandoned"
+      severity: "high"
+      mitigation: >
+        Proactive barrier scanning at every stage transition. Barrier
+        model continuously updated from case worker notes. Regular
+        retrospective analysis of abandoned cases to improve detection.
+
+    - id: "FM-003"
+      scenario: "Algorithm nudges participant toward an unsuitable path or placement"
+      impact: "Refugee trapped in inappropriate situation due to pressure"
+      severity: "critical"
+      mitigation: >
+        Autonomy safeguard: nudges are suggestions only. Case worker
+        must explicitly approve any recommendation that affects
+        participant placement, family status, or legal status. Algorithm
+        can only inform, never decide.
+
+    - id: "FM-004"
+      scenario: "Trauma-informed communication principles are violated"
+      impact: "Algorithmic messages re-traumatize or manipulate vulnerable individual"
+      severity: "critical"
+      mitigation: >
+        All communication templates reviewed by trauma-informed human experts.
+        Messaging is supportive and informative, never punitive or
+        pressure-based. Case worker always present for difficult
+        conversations.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "The person being 'guided' through a funnel is a vulnerable human, not a customer conversion metric"
+      recommendation: >
+        Fundamental reframing required. Refugee is not a 'conversion funnel'
+        but a human with rights, agency, and inherent dignity. Algorithm
+        objective should be 'support successful integration' not 'maximize
+        throughput.' Participant should be able to opt out or slow down
+        without penalty.
+
+    - context: "humanitarian"
+      concern: "Predictive model may perpetuate historical biases in resettlement outcomes"
+      recommendation: >
+        Conduct fairness audit across demographic groups. Ensure dropout
+        predictions are not lower for privileged nationalities or higher
+        for conflict-affected groups. Monitor for and mitigate selection
+        bias in training data.
+
+    - context: "humanitarian"
+      concern: "Nudging may normalize bureaucratic barriers instead of fixing them"
+      recommendation: >
+        If model consistently detects same barriers across cohort (e.g.,
+        missing translations, slow document processing), escalate to policy
+        level. Don't nudge people around broken systems; fix the systems.
+
+    - context: "humanitarian"
+      concern: "Journey assumes linear progression; real refugee lives are non-linear"
+      recommendation: >
+        Support backward steps, pauses, and recirculation. Someone may
+        regress from 'placement' to 'documentation' if visa issue emerges.
+        Treat journey as a web, not a funnel. Celebrate resilience and
+        partial progress.
+
+  performance:
+    tested_scale: "10,000 participants, 5 journey types, 25 barrier categories"
+    latency: "< 5 seconds for risk assessment; < 1 minute for intervention recommendation"
+    accuracy: "82% precision for dropout prediction; 71% recall (acceptable for alert system)"
+    known_degradation: >
+      Model accuracy varies significantly by refugee origin and arrival
+      cohort. Recommend per-cohort calibration and human review of
+      out-of-distribution cases.
+
+  observability:
+    logging: "Every stage transition, barrier detected, and intervention recommended"
+    explainability: >
+      Per-participant report showing current stage, days in stage,
+      risk drivers, and case worker actions taken. Audit trail of
+      algorithm recommendations vs. case worker decisions.
+    reproducibility: >
+      Deterministic given same inputs. Results reproducible across
+      case workers for fairness checking.
+
+provenance:
+  origin:
+    domain: "e-commerce"
+    organization: "RetailTech Inc"
+    original_use_case: >
+      Guiding online shoppers through purchase funnel, predicting cart
+      abandonment, and delivering personalized discounts and reminders.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "e-commerce"
+      date: "2026-01-10"
+      notes: "Basic purchase funnel guidance and abandonment prediction"
+
+    - version: "2.0.0"
+      domain: "refugee-resettlement-pathway"
+      date: "2026-02-14"
+      notes: >
+        Forked for refugee resettlement case management. Added trauma-informed
+        communication, structural barrier detection, case worker integration,
+        and autonomy safeguards. Fundamentally reframed objective from
+        conversion to supportive guidance.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

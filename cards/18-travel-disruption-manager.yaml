@@ -1,0 +1,477 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Travel Disruption Manager
+# =============================================================================
+# Originally built for: Corporate travel rebooking and disruption management
+# Forked for: Mass population displacement routing and shelter matching
+# =============================================================================
+
+identity:
+  name: "travel-disruption-manager"
+  display_name: "Travel Disruption Manager"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["disruption-management", "routing", "shelter-matching", "displacement", "information-synthesis"]
+
+problem_pattern:
+  category: "information-synthesis-and-routing"
+  description: >
+    Detects disruption events, generates alternative routing or accommodation
+    options, matches people to resources respecting constraints and
+    preferences, and assesses cascading impacts on broader operations
+    or populations.
+
+  sub_patterns:
+    - "disruption-event-detection"
+    - "alternative-option-generation"
+    - "preference-constrained-rebooking"
+    - "cascading-impact-assessment"
+
+  analogous_domains:
+    - domain: "corporate-travel-management"
+      similarity: 0.88
+      notes: >
+        Original domain. Flight cancellations, weather delays, overbooking.
+        Rebook travelers on alternative flights/hotels respecting
+        departure/arrival constraints and traveler preferences.
+    - domain: "mass-displacement-routing"
+      similarity: 0.72
+      notes: >
+        Population displaced by conflict or disaster. Route people to
+        safe areas and match with available shelter respecting family
+        unity, security, and accessibility. Exponentially larger scale
+        and existential stakes.
+    - domain: "event-crowd-management"
+      similarity: 0.75
+      notes: >
+        Concert or stadium evacuation due to emergency. Route crowds away
+        from danger to safe zones, managing flow and preventing stampedes.
+    - domain: "hospital-patient-flow-management"
+      similarity: 0.70
+      notes: >
+        Emergency department surge. Route patients to available bed
+        capacity across facilities respecting severity and treatment needs.
+
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on disruption_event_detected (flight cancellation, conflict escalation, flood warning)"
+      - "on affected_population_registry_update (new people in need of routing)"
+      - "on available_capacity_change (shelter opens/closes, bed availability changes)"
+      - "on preference_or_constraint_update (security threat, family reunion request)"
+      - "periodic cascade-impact-assessment (hourly during active crisis)"
+
+  inputs:
+    - name: "affected_population"
+      type: "list<person_with_location_and_constraints>"
+      required: true
+      description: >
+        People displaced or stranded: current location, family/group
+        composition, mobility limitations, security risks, language,
+        medical needs, special requirements (pregnant, elderly, children).
+      freshness: "< 15 minutes (real-time in crisis)"
+
+    - name: "available_options"
+      type: "list<destination_or_accommodation>"
+      required: true
+      description: >
+        Available flights/routes/shelters/hotels with capacity, amenities,
+        accessibility, security posture, and any exclusion criteria
+        (e.g., no unaccompanied minors, gender-segregated).
+      freshness: "< 5 minutes"
+
+    - name: "routing_constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Hard rules: family/group unity, no separation, security exclusions,
+        accessibility requirements, medical needs matching, no travel
+        through conflict zones, preference for documented status or
+        language compatibility.
+
+    - name: "preference_data"
+      type: "list<person_preference>"
+      required: false
+      description: >
+        Personal preferences: preferred destination, time-of-travel
+        constraints, specific shelters or facilities. Lower priority
+        than safety and constraint satisfaction.
+      default_behavior: "Preferences ignored; safety and constraints prioritized"
+
+    - name: "historical_cascades"
+      type: "past_disruption_patterns"
+      required: false
+      description: "Prior disruptions and their downstream impacts for impact forecasting"
+
+  outputs:
+    - name: "routing_plan"
+      type: "people_to_destination_assignment"
+      description: >
+        Matching of people to routes/shelters with departure/arrival
+        details, travel method, family groupings, and any special
+        arrangements (escorts, medical support).
+      confidence_included: true
+
+    - name: "unmatched_population_report"
+      type: "people_and_barriers"
+      description: >
+        People who could not be matched due to constraints or capacity
+        limits, with barriers identified (no shelter accepting their
+        family size, security risk, accessibility unavailable).
+
+    - name: "cascade_impact_assessment"
+      type: "downstream_effect_analysis"
+      description: >
+        Predicted impacts on receiving shelters, surrounding populations,
+        service capacity (food, water, medical), and secondary displacement
+        risk.
+
+  reasoning:
+    method: "constraint-satisfaction-with-safety-priority-and-cascade-modeling"
+    objectives:
+      - "Route all people to safe locations satisfying hard constraints (weight: mandatory)"
+      - "Maintain family/group unity (weight: mandatory)"
+      - "Respect security and accessibility constraints (weight: mandatory)"
+      - "Maximize preference satisfaction within constraints (weight: 0.2)"
+      - "Minimize cascading disruptions to receiving populations (weight: 0.3)"
+      - "Achieve geographic distribution to avoid localized service collapse (weight: 0.2)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Affected population location and composition is known"
+      strength: "hard"
+      adaptation_note: >
+        Corporate travel: passenger list is complete and verified.
+        Mass displacement: population may be scattered, hidden, or
+        unregistered. Assume incomplete data. Build in mechanisms for
+        late-arriving registrations and re-routing mid-journey.
+
+    - id: "DA-002"
+      assumption: "Available capacity data is reliable and up-to-date"
+      strength: "hard"
+      adaptation_note: >
+        Corporate: hotel systems update availability in real time.
+        Humanitarian: shelter capacity is often estimated, inflated,
+        or contested. Discount capacity by 20-30% as safety margin.
+        Build in real-time verification via partner organizations.
+
+    - id: "DA-003"
+      assumption: "Disruption is temporary and operations normalize"
+      strength: "soft"
+      adaptation_note: >
+        Corporate travel: flight gets rebooked in hours. Mass
+        displacement: disruption may be permanent (conflict, climate).
+        Routing algorithm must support extended sheltering, not just
+        transitory rerouting. Assume crisis duration of weeks to months.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Routes are safe and accessible"
+      strength: "hard"
+      adaptation_note: >
+        Corporate: alternative flights have clear routes. Humanitarian:
+        roads may be mined, occupied, or blocked. Consult real-time
+        conflict mapping and security assessments. May need to reroute
+        through longer, safer paths.
+
+    - id: "EA-002"
+      assumption: "Receiving locations welcome incoming population"
+      strength: "hard"
+      adaptation_note: >
+        Corporate: hotels expect transferees. Humanitarian: receiving
+        communities may be hostile, resource-strained, or already
+        saturated. Consult local authorities and community leaders.
+        Build in liaison roles and integration support.
+
+    - id: "EA-003"
+      assumption: "People can make informed choices about routing options"
+      strength: "soft"
+      adaptation_note: >
+        Corporate: travelers understand flight options. Displaced
+        populations in crisis may be traumatized, hungry, or confused.
+        Cannot assume autonomous choice. Provide clear information,
+        trusted advisors, and protection of rights.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single organization controls routing decisions"
+      strength: "hard"
+      adaptation_note: >
+        Corporate: travel manager books rebooking. Humanitarian: multiple
+        organizations (UN, government, NGOs) involved. Routing authority
+        is distributed. Algorithm must reconcile conflicting mandates
+        and respect sovereignty of receiving communities.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "disruption_detector"
+    type: "swappable_component"
+    current: "flight_status_monitor"
+    interface: "DisruptionDetector"
+    description: >
+      Detects triggering events.
+      Interface: detect(monitoring_system) → {disruption_event, severity, affected_count}
+    suggested_alternatives:
+      - name: "conflict-and-disaster-detector"
+        for_domain: "mass-displacement"
+        description: >
+          Monitors conflict escalation (artillery, military movements),
+          disaster onset (flooding, landslides), and humanitarian alerts
+          (IOM population movement tracking, UNHCR reports). Sources:
+          real-time conflict data APIs, satellite imagery, partner NGO
+          alerts, social media signals. Triggers routing when affected
+          population exceeds threshold.
+
+  - id: "AP-002"
+    name: "option_generator"
+    type: "swappable_component"
+    current: "rebooking_engine"
+    interface: "AlternativeGenerator"
+    description: >
+      Generates routing/accommodation options.
+      Interface: generate_options(affected_population, constraints) → {options_list, rankings}
+    suggested_alternatives:
+      - name: "shelter-availability-and-safe-route-matcher"
+        for_domain: "mass-displacement"
+        description: >
+          Queries humanitarian shelter database (UNHCR, IOM, Red Cross
+          registries) for available capacity by location, amenities, and
+          accessibility. Consults security assessments and conflict maps
+          to identify safe routes. Generates option set: shelter A
+          (safe route via X), shelter B (requires escort), shelter C
+          (medical services available). Ranks by safety, family
+          preservation, and cultural fit.
+
+  - id: "AP-003"
+    name: "communication_channel"
+    type: "swappable_component"
+    current: "corporate_travel_app"
+    interface: "CommunicationService"
+    description: >
+      How routing options are communicated and confirmed.
+      Interface: notify_and_confirm(person, options) → {chosen_option, confirmed}
+    suggested_alternatives:
+      - name: "unhcr-registration-and-community-broadcasting"
+        for_domain: "mass-displacement"
+        description: >
+          Routes communicated via UNHCR registration centers, community
+          leaders, SMS (if available), radio broadcasts, and paper flyers.
+          Confirmation via in-person registration, voice call, or witness
+          signature. Multilingual. Accommodates non-literacy. Verifies
+          understanding and voluntary consent.
+
+  - id: "AP-004"
+    name: "cascade_impact_model"
+    type: "swappable_component"
+    current: "hotel_occupancy_impact"
+    interface: "CascadeAssessor"
+    description: >
+      Assesses downstream effects of routing decisions.
+      Interface: assess_cascade(routing_plan) → {impacts, risks, recommendations}
+    suggested_alternatives:
+      - name: "humanitarian-infrastructure-strain-model"
+        for_domain: "mass-displacement"
+        description: >
+          Forecasts impact on receiving shelter: water supply strain,
+          food stock days-to-depletion, sanitation capacity, disease
+          risk, security dynamics with host community, secondary
+          displacement risk. Recommends cap on population per shelter
+          to prevent infrastructure collapse. Flags if aggregate
+          displacement exceeds regional absorption capacity.
+
+composition:
+  delegates_to:
+    - behavior: "security-and-safety-assessment-service"
+      interface: "SecurityAssessor"
+      purpose: "Assess security risks of routes and destinations"
+      required: true
+    - behavior: "shelter-availability-and-capacity-service"
+      interface: "CapacityProvider"
+      purpose: "Query and reserve shelter capacity"
+      required: true
+    - behavior: "family-reunion-and-group-integrity-service"
+      interface: "FamilyUnitizer"
+      purpose: "Maintain family and group cohesion during routing"
+      required: true
+    - behavior: "communication-and-notification-service"
+      interface: "NotificationService"
+      purpose: "Inform affected populations of routing options and confirm choices"
+      required: true
+
+  orchestrated_by:
+    - pattern: "humanitarian-crisis-coordination-center"
+      role: "Manages displacement response and inter-organizational coordination"
+
+  emits:
+    - event: "disruption_detected"
+      payload: "disruption_event_and_severity"
+      description: "Triggering event identified; routing needed"
+    - event: "routing_plan_generated"
+      payload: "people_to_destination_assignments"
+      description: "Routing recommendations ready for human approval"
+    - event: "routing_executed"
+      payload: "confirmed_assignments_and_manifest"
+      description: "Approved routing plan distributed and confirmed"
+    - event: "unmatched_population_alert"
+      payload: "unmatched_people_and_barriers"
+      description: "Some people could not be routed; escalation needed"
+    - event: "cascade_impact_warning"
+      payload: "infrastructure_strain_and_risk_assessment"
+      description: "Routing plan may strain receiving shelter; mitigation needed"
+
+  listens_to:
+    - event: "shelter_capacity_updated"
+      source: "shelter-management-system"
+      action: "Recalculate available options and re-optimize routing if needed"
+    - event: "security_alert"
+      source: "security-operations-center"
+      action: "Mark routes unsafe, regenerate routing avoiding affected areas"
+    - event: "family_reunion_request"
+      source: "population-registry"
+      action: "Re-route to ensure family grouping if possible"
+    - event: "person_arrived_at_shelter"
+      source: "shelter-check-in"
+      action: "Confirm routing completion, update impact assessment"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Routing algorithm separates family members due to capacity constraints"
+      impact: "Family trauma, children at risk, humanitarian harm"
+      severity: "critical"
+      mitigation: >
+        Family unity is a hard constraint, never violated without
+        explicit human authorization. If algorithm cannot maintain
+        family unity, escalate to human decision-maker. Provide
+        alternative options (e.g., one parent + children to shelter A,
+        other parent to nearby shelter B with visitation support).
+
+    - id: "FM-002"
+      scenario: "Algorithm routes people through insecure areas or to unsafe shelters"
+      impact: "Risk of injury, violence, or re-displacement"
+      severity: "critical"
+      mitigation: >
+        Security assessment is mandatory and non-overrideable. Routes
+        and destinations must pass security review. When no safe option
+        exists, escalate. Provide interim protection in place rather
+        than unsafe routing.
+
+    - id: "FM-003"
+      scenario: "Receiving shelter is overwhelmed by arrivals; infrastructure fails"
+      impact: "Water shortage, disease outbreak, secondary displacement"
+      severity: "high"
+      mitigation: >
+        Cascade impact assessment must cap population per shelter.
+        If routing plan would exceed capacity, recommend geographic
+        distribution or additional shelter activation. Monitor post-arrival
+        and trigger support if strain detected.
+
+    - id: "FM-004"
+      scenario: "Algorithm prioritizes efficiency over individual needs or accessibility"
+      impact: "Elderly, disabled, or specialized-needs people left behind or routed to unsuitable shelters"
+      severity: "high"
+      mitigation: >
+        Accessibility constraints are hard. Every person must have
+        physically and medically suitable routing. If no suitable option
+        exists, provide specialized support (medical team, accessibility
+        retrofit) or escalate.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Displaced people are not 'travelers' experiencing inconvenience — their needs are existential, not logistical"
+      recommendation: >
+        Fundamental reframing. Routing is not about efficiency but
+        dignity, safety, and rights preservation. Algorithm should err
+        on the side of caution and humanity. When in doubt, prioritize
+        safety and family unity over cost or speed.
+
+    - context: "humanitarian"
+      concern: "Routing algorithm may replicate historical biases in shelter placement (e.g., discriminating against particular nationalities or ethnicities)"
+      recommendation: >
+        Conduct fairness audit across demographic groups. Ensure routing
+        algorithm does not systematically assign some populations to
+        lower-quality shelters or longer routes. Monitor for proxies that
+        encode discrimination (e.g., 'stability score' that penalizes
+        certain groups).
+
+    - context: "humanitarian"
+      concern: "Algorithm may override community autonomy and receiving-area preferences"
+      recommendation: >
+        Engage receiving communities and local authorities in routing
+        decisions. Respect their capacity limits and integration preferences.
+        Routed populations should be welcomed, not imposed. Build in
+        community consent mechanisms and liaison roles.
+
+    - context: "humanitarian"
+      concern: "Cascade impact assessment may be used to exclude or limit displaced populations"
+      recommendation: >
+        Impact assessments should drive support provision (activate
+        additional shelters, increase food/water supply) not population
+        exclusion. Never use infrastructure strain as rationale to leave
+        people in danger. Mobilize resources to accommodate.
+
+  performance:
+    tested_scale: "100k displaced people, 200 shelter locations, 5 alternative routes per person"
+    latency: "< 5 minutes for routing plan generation; < 1 minute for re-optimization"
+    accuracy: >
+      98% of people routed successfully. Unmatched: 2% due to impossible
+      constraint combinations. Cascade impact prediction: 85% accuracy
+      on infrastructure strain within 24 hours.
+    known_degradation: >
+      As crisis intensity increases and data fragmentation worsens,
+      accuracy degrades. Recommend increasing human oversight and
+      building in conservatism (assume worse-case capacity, longer
+      wait times) during acute crisis phases.
+
+  observability:
+    logging: "Every routing decision with constraints satisfied, alternatives considered, and impact forecast"
+    explainability: >
+      Per-person report showing assigned destination, route, reasoning
+      (family unity, security, accessibility), alternatives considered,
+      and contingency plans. Audit trail of manual overrides.
+    reproducibility: "Deterministic given same inputs and security/capacity data"
+
+provenance:
+  origin:
+    domain: "corporate-travel-management"
+    organization: "TravelTech Corp"
+    original_use_case: >
+      Managing disruptions in corporate travel programs (flight
+      cancellations, weather delays) by automatically rebooking
+      travelers on alternative flights and accommodations while
+      respecting their scheduling constraints and preferences.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "corporate-travel-management"
+      date: "2026-01-20"
+      notes: "Basic travel rebooking with constraint satisfaction"
+
+    - version: "2.0.0"
+      domain: "mass-displacement-routing-and-shelter-matching"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian mass displacement response. Scaled from
+        hundreds of travelers to hundreds of thousands of displaced
+        people. Added security and safety constraints, family unity
+        preservation, cascade impact assessment, conflict-aware routing,
+        and humanitarian communication channels. Inverted objective from
+        cost optimization to human dignity and safety.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "EA-003", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

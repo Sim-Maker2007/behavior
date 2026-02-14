@@ -54,20 +54,35 @@ This means a crisis responder in Haiti can search *"constrained resource allocat
 
 ## Registry Contents
 
-### Cards (10 behaviors across 5 pattern categories)
+### Cards (25 behaviors across 8 pattern categories)
 
 | # | Card | Pattern | Origin → Fork |
 |---|---|---|---|
-| 01 | [Inventory Rebalance Optimizer](cards/01-inventory-rebalance-optimizer.yaml) | `constrained-resource-allocation` | Outdoor retail → Humanitarian aid distribution |
-| 02 | [Workforce Shift Scheduler](cards/02-workforce-shift-scheduler.yaml) | `constrained-resource-allocation` | Retail employee scheduling → Disaster volunteer coordination |
-| 03 | [Budget Envelope Allocator](cards/03-budget-envelope-allocator.yaml) | `constrained-resource-allocation` | Marketing budget optimization → Emergency fund distribution |
-| 05 | [Pattern Anomaly Detector](cards/05-pattern-anomaly-detector.yaml) | `anomaly-detection-and-response` | E-commerce fraud detection → Disease outbreak surveillance |
+| 01 | [Inventory Rebalance Optimizer](cards/01-inventory-rebalance-optimizer.yaml) | `constrained-resource-allocation` | Retail → Humanitarian aid distribution |
+| 02 | [Workforce Shift Scheduler](cards/02-workforce-shift-scheduler.yaml) | `constrained-resource-allocation` | Retail scheduling → Disaster volunteer coordination |
+| 03 | [Budget Envelope Allocator](cards/03-budget-envelope-allocator.yaml) | `constrained-resource-allocation` | Marketing budget → Emergency fund distribution |
+| 04 | [Fleet Route Optimizer](cards/04-fleet-route-optimizer.yaml) | `constrained-resource-allocation` | Delivery logistics → Humanitarian convoy routing |
+| 05 | [Pattern Anomaly Detector](cards/05-pattern-anomaly-detector.yaml) | `anomaly-detection-and-response` | E-commerce fraud → Disease outbreak surveillance |
 | 06 | [Equipment Health Monitor](cards/06-equipment-health-monitor.yaml) | `anomaly-detection-and-response` | Predictive maintenance → Post-disaster infrastructure assessment |
 | 07 | [Supply Chain Disruption Detector](cards/07-supply-chain-disruption-detector.yaml) | `anomaly-detection-and-response` | Retail supply chain → Food security early warning |
-| 08 | [Communication Triage & Router](cards/08-comms-triage-router.yaml) | `information-synthesis-and-routing` | Customer support routing → Crisis communication triage |
+| 08 | [Communication Triage & Router](cards/08-comms-triage-router.yaml) | `information-synthesis-and-routing` | Customer support → Crisis communication triage |
+| 09 | [Regulatory Compliance Checker](cards/09-regulatory-compliance-checker.yaml) | `compliance-and-constraint-checking` | Financial AML/KYC → Humanitarian donor compliance |
 | 10 | [Daily Intelligence Briefer](cards/10-daily-intelligence-briefer.yaml) | `information-synthesis-and-routing` | Competitive intelligence → Humanitarian sitrep generation |
-| 11 | [Multi-Party Resource Negotiator](cards/11-multi-party-negotiator.yaml) | `multi-stakeholder-negotiation` | Supplier pricing negotiation → Humanitarian cluster coordination |
-| 15 | [Project Risk Cascade Planner](cards/15-project-risk-cascade-planner.yaml) | `sequential-decision-under-uncertainty` | Construction project management → Disaster recovery planning |
+| 11 | [Multi-Party Resource Negotiator](cards/11-multi-party-negotiator.yaml) | `multi-stakeholder-negotiation` | Supplier pricing → Humanitarian cluster coordination |
+| 12 | [Patient Risk Stratifier](cards/12-patient-risk-stratifier.yaml) | `pattern-matching-and-classification` | Insurance risk scoring → Community health prioritization |
+| 13 | [Environmental Impact Monitor](cards/13-environmental-impact-monitor.yaml) | `anomaly-detection-and-response` | Corporate ESG → Climate adaptation warning |
+| 14 | [Safety Incident Predictor](cards/14-safety-incident-predictor.yaml) | `sequential-decision-under-uncertainty` | Workplace safety → Conflict escalation early warning |
+| 15 | [Project Risk Cascade Planner](cards/15-project-risk-cascade-planner.yaml) | `sequential-decision-under-uncertainty` | Construction management → Disaster recovery planning |
+| 16 | [Customer Journey Orchestrator](cards/16-customer-journey-orchestrator.yaml) | `sequential-decision-under-uncertainty` | E-commerce funnel → Refugee resettlement pathway |
+| 17 | [Dynamic Pricing Engine](cards/17-dynamic-pricing-engine.yaml) | `sequential-decision-under-uncertainty` | E-commerce pricing → Humanitarian cash transfer optimization |
+| 18 | [Travel Disruption Manager](cards/18-travel-disruption-manager.yaml) | `information-synthesis-and-routing` | Corporate travel → Mass displacement routing |
+| 19 | [Adaptive Content Personalizer](cards/19-adaptive-content-personalizer.yaml) | `adaptive-communication` | Marketing personalization → Public health messaging |
+| 20 | [Data Privacy Guardian](cards/20-data-privacy-guardian.yaml) | `compliance-and-constraint-checking` | GDPR compliance → Humanitarian beneficiary data protection |
+| 21 | [Visual Damage Assessor](cards/21-visual-damage-assessor.yaml) | `pattern-matching-and-classification` | Insurance photo assessment → Satellite disaster assessment |
+| 22 | [Document Intelligence Extractor](cards/22-document-intelligence-extractor.yaml) | `pattern-matching-and-classification` | Invoice processing → Humanitarian document processing |
+| 23 | [Infrastructure Capacity Planner](cards/23-infrastructure-capacity-planner.yaml) | `constrained-resource-allocation` | Cloud auto-scaling → Refugee camp planning |
+| 24 | [Sentiment & Feedback Analyzer](cards/24-sentiment-and-feedback-analyzer.yaml) | `information-synthesis-and-routing` | Brand sentiment → Community perception monitoring |
+| 25 | [Crisis Simulation & Scenario Planner](cards/25-crisis-simulation-planner.yaml) | `sequential-decision-under-uncertainty` | Financial stress testing → Humanitarian contingency planning |
 
 ### Schema & Spec
 
@@ -130,9 +145,9 @@ Numbers 01-25 are reserved for the initial registry seeding. Community contribut
 
 - [x] Define the ABC specification (v0.1.0)
 - [x] Create JSON Schema for validation
-- [x] Seed registry with 10 example cards
-- [ ] Build searchable registry website
-- [ ] Reach 25 cards across all 8 pattern categories
+- [x] Seed registry with 25 example cards
+- [x] Build searchable registry website
+- [x] Reach 25 cards across all 8 pattern categories
 - [ ] Define the formal adaptation protocol
 - [ ] Automated compatibility scoring
 - [ ] Community-contributed cards

@@ -1,0 +1,574 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Visual Damage Assessor
+# =============================================================================
+# Originally built for: Insurance claims photo damage assessment
+# Forked for: Satellite/drone post-disaster damage classification
+# =============================================================================
+
+identity:
+  name: "visual-damage-assessor"
+  display_name: "Visual Damage Assessor"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["damage-assessment", "image-classification", "post-disaster", "satellite-imagery", "humanitarian"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "pattern-matching-and-classification"
+  description: >
+    Analyzes visual imagery (photos, satellite, drone) to detect and
+    classify damage, grades severity level, compares before/after to
+    detect change, fuses data from multiple sources, and maps geographic
+    damage distribution. Adapts from insurance claims (determining repair
+    costs) to humanitarian response (determining aid priority and allocation).
+
+  sub_patterns:
+    - "image-classification"
+    - "damage-severity-grading"
+    - "change-detection"
+    - "multi-source-image-fusion"
+    - "geographic-damage-mapping"
+
+  analogous_domains:
+    - domain: "insurance-photo-assessment"
+      similarity: 0.88
+      notes: >
+        Original domain. Photos of vehicle/property damage classified as
+        repairable, total loss, etc. Determines insurance payout. Key
+        difference: insurance optimizes for cost control; humanitarian
+        optimizes for aid allocation to most-affected populations.
+
+    - domain: "post-disaster-satellite-assessment"
+      similarity: 0.80
+      notes: >
+        Classifying building damage from satellite imagery (Maxar, Planet)
+        to map disaster scope and prioritize response. Similar challenges:
+        cloud cover, resolution limits, need for pre/post comparison,
+        multi-source fusion.
+
+    - domain: "agricultural-crop-damage-assessment"
+      similarity: 0.77
+      notes: >
+        Classifying crop damage (disease, drought, storm) from drone/
+        satellite imagery to estimate crop loss and insurance payouts.
+        Similar grading scale (minor/moderate/severe) and change
+        detection methods.
+
+    - domain: "infrastructure-inspection"
+      similarity: 0.82
+      notes: >
+        Bridge, road, dam inspections using drone/satellite imagery to
+        detect structural damage. Similar image processing pipeline;
+        different severity grades (engineering-focused).
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on new_satellite_imagery_available"
+      - "on batch_drone_survey_completed"
+      - "on field_team_photo_submission"
+      - "on damage_assessment_request from coordination_lead"
+
+  inputs:
+    - name: "imagery"
+      type: "image_or_video"
+      required: true
+      description: >
+        Visual source: satellite imagery (Maxar/Planet/Sentinel), drone
+        photos/video, field team smartphone photos. Includes metadata:
+        timestamp, location, resolution, source
+      freshness: "real-time"
+
+    - name: "pre_disaster_baseline"
+      type: "reference_imagery"
+      required: true
+      description: >
+        Pre-disaster imagery of same locations for before/after
+        comparison. May be months or years old.
+      freshness: "< 1 year"
+
+    - name: "damage_taxonomy"
+      type: "severity_grade_scale"
+      required: true
+      description: >
+        Grading scale: for insurance (repair_cost_tier_1-5) vs
+        humanitarian (destroyed/major/minor/unaffected). Includes
+        keywords and visual features for each grade.
+      freshness: "< 1 week"
+
+    - name: "geographic_map"
+      type: "building_or_infrastructure_footprint"
+      required: true
+      description: >
+        Map of buildings/structures pre-disaster with GPS coordinates,
+        building type (residential/commercial/health facility/etc.)
+      freshness: "< 3 months"
+
+    - name: "damage_history"
+      type: "prior_assessments"
+      required: false
+      description: >
+        Prior damage assessments from different sources (humanitarian
+        teams, government, satellite vendors) for cross-validation
+      freshness: "< 7 days"
+
+  outputs:
+    - name: "damage_classification"
+      type: "graded_assessment"
+      description: >
+        Each building/structure classified by damage grade: confidence
+        score, visual evidence, grade rationale. For humanitarian: does
+        this building need emergency shelter support?
+
+    - name: "change_detection"
+      type: "before_after_comparison"
+      description: >
+        What changed since pre-disaster baseline: new damage, cleared
+        debris, reconstruction progress
+
+    - name: "damage_map"
+      type: "geographic_heat_map"
+      description: >
+        Spatial distribution of damage: clusters of destroyed buildings,
+        partially damaged areas, unaffected neighborhoods. Helps identify
+        most-affected communities.
+
+    - name: "aid_priority_recommendation"
+      type: "allocation_guidance"
+      description: >
+        For humanitarian: which areas should receive aid first based on
+        damage severity and population density
+
+    - name: "confidence_and_limitations"
+      type: "assessment_quality"
+      description: >
+        Confidence score for each assessment, limitations (cloud cover,
+        poor resolution, ambiguous damage), areas needing field verification
+
+  reasoning:
+    method: "multi-source-image-fusion-and-grading"
+    objectives:
+      - "Accurately classify damage severity (weight: 0.5)"
+      - "Detect change from pre-disaster state (weight: 0.25)"
+      - "Fuse multiple image sources for robustness (weight: 0.15)"
+      - "Minimize misclassification bias (weight: 0.1)"
+    approach: >
+      Pipeline: (1) load and align satellite/drone/field imagery,
+      (2) detect buildings and infrastructure,
+      (3) compare with pre-disaster baseline for change detection,
+      (4) classify each feature by damage severity,
+      (5) fuse classifications across sources (satellite, drone, field),
+      (6) map geographic distribution,
+      (7) estimate confidence per classification,
+      (8) flag areas needing human verification.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Satellite/drone imagery of adequate resolution available"
+      strength: "soft"
+      adaptation_note: >
+        In rapid-onset disasters, satellite imagery may lag by days.
+        Drone access requires airspace permission and pilot availability.
+        Field team photos may be the only immediate source. Support
+        degraded quality: lower resolution, partial coverage.
+
+    - id: "DA-002"
+      assumption: "Pre-disaster baseline imagery is available"
+      strength: "soft"
+      adaptation_note: >
+        In developing regions or conflict zones, pre-disaster imagery may
+        not exist or be poor quality. Use best available baseline or
+        extract features from post-disaster imagery itself (find
+        undamaged reference buildings in same region).
+
+    - id: "DA-003"
+      assumption: "Damage is visible in imagery"
+      strength: "soft"
+      adaptation_note: >
+        Imagery may not show internal damage (e.g., roof collapsed but
+        walls standing). Flood damage is harder to detect than building
+        collapse. Corroborate with field reports: if imagery-based
+        assessment conflicts with field observation, reconcile.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Clear imagery is available (no cloud cover)"
+      strength: "soft"
+      adaptation_note: >
+        Rainy season, monsoons, or persistent cloud cover may prevent
+        good satellite imagery for weeks. Integrate radar-based satellite
+        (penetrates clouds) for supplementary data. Rely more on drone
+        and field assessment in cloudy periods.
+
+    - id: "EA-002"
+      assumption: "Coordinate systems are consistent"
+      strength: "soft"
+      adaptation_note: >
+        Imagery from different sources may use different coordinate
+        systems, have georeferencing errors. Implement image registration:
+        automatically align satellite to pre-disaster baseline, validate
+        with ground control points from field team GPS.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Damage assessment determines aid allocation"
+      strength: "hard"
+      adaptation_note: >
+        Automated assessment can perpetuate bias: if training data skews
+        toward certain building types or neighborhoods, assessment will
+        over- or under-count damage in others. Audit by geography and
+        building type; oversample underrepresented areas in retraining.
+
+    - id: "AA-002"
+      assumption: "Single damage taxonomy applies to all buildings"
+      strength: "soft"
+      adaptation_note: >
+        Destroyed schoolhouse has different implications than destroyed
+        residence. Hospital damage is critical; warehouse less so. Support
+        building-type-aware damage grading: same visible damage gets
+        different humanitarian priority based on building function.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "image_classifier"
+    type: "swappable_component"
+    current: "insurance_vehicle_property_damage_classifier"
+    interface: "ImageClassifier"
+    description: >
+      Classifies damage in imagery. Interface:
+      classify(image, baseline_image) → {damage_grade, confidence, features}
+    suggested_alternatives:
+      - name: "xbd_building_damage_classifier"
+        for_domain: "humanitarian"
+        description: >
+          Trained on xBD (eXtreme Bound Dataset): building collapse,
+          major damage, minor damage, no-damage grades for humanitarian
+          disasters. Handles satellite imagery of buildings in diverse
+          geographic contexts.
+
+      - name: "flood_damage_detector"
+        for_domain: "humanitarian-flood"
+        description: >
+          Specialized for flood damage: water lines on walls, mud
+          accumulation, waterlogged interiors. Handles standing water
+          obscuring buildings.
+
+      - name: "medical_facility_damage_assessor"
+        for_domain: "health-facility-damage"
+        description: >
+          Assesses hospital/clinic damage: roof/wall integrity,
+          operating room visible, water/sanitation systems, generator
+          damage. Higher weight on functional status vs total destruction.
+
+  - id: "AP-002"
+    name: "damage_scale"
+    type: "configurable"
+    parameters:
+      - name: "grade_definitions"
+        current: ["total_loss", "major_damage_$30k+", "moderate_damage_$5-30k", "minor_damage_<$5k"]
+        suggested_values: >
+          For humanitarian: destroyed (uninhabitable, structural failure)/
+          major (uninhabitable without repair)/minor (habitable with
+          repair)/unaffected. Include functionality: can hospital still
+          operate? Can clinic treat patients?
+
+      - name: "secondary_indicators"
+        current: "repair_cost_estimate"
+        suggested_values: >
+          For humanitarian: add livelihood impact (farmer lost fields?),
+          water/sanitation damage, school operational status, community
+          center damage, displacement from property.
+
+  - id: "AP-003"
+    name: "data_source"
+    type: "swappable_component"
+    current: "customer_smartphone_photos"
+    interface: "ImagerySource"
+    description: >
+      Obtains imagery for assessment. Interface:
+      get_imagery(location, timerange) → {images: list<Image>, metadata}
+    suggested_alternatives:
+      - name: "multimodal_satellite_drone_field_fusion"
+        for_domain: "humanitarian"
+        description: >
+          Primary: Satellite imagery Maxar/Planet for broad coverage,
+          historical baseline. Secondary: Drone footage for higher
+          resolution and change detection in key areas. Tertiary: Field
+          team photos for ground truth and internal damage visibility.
+          Fuse all sources: if satellite and drone agree, high confidence;
+          if field photo contradicts satellite, escalate for investigation.
+
+      - name: "radar_optical_fusion"
+        for_domain: "humanitarian-all-weather"
+        description: >
+          Optical satellite (Maxar) for visual assessment. Radar satellite
+          (Sentinel-1) to penetrate clouds. Fuse both for cloud-obscured
+          regions where optical is unavailable.
+
+  - id: "AP-004"
+    name: "change_detection"
+    type: "configurable"
+    parameters:
+      - name: "temporal_resolution"
+        current: "daily"
+        suggested_values: >
+          For humanitarian: initial assessment post-disaster (daily for
+          first week), then weekly, then monthly. Detect demolition
+          (intentional debris removal vs. secondary collapse) and
+          reconstruction progress.
+
+      - name: "image_registration_method"
+        current: "manual_georeferencing"
+        suggested_values: >
+          For humanitarian: automated image-to-image registration
+          (feature matching) to align satellite/drone to baseline despite
+          coordinate system differences. Manual validation of registration
+          errors.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "image-preprocessing"
+      interface: "ImagePreprocessor"
+      purpose: "Cloud removal, image enhancement, resolution upsampling"
+      required: true
+
+    - behavior: "building-detection"
+      interface: "ObjectDetector"
+      purpose: "Detect and localize buildings in imagery"
+      required: true
+
+    - behavior: "geospatial-registration"
+      interface: "ImageRegistration"
+      purpose: "Align imagery to maps and baseline imagery"
+      required: true
+
+    - behavior: "change-detection"
+      interface: "ChangeDetector"
+      purpose: "Compare before/after imagery for damage detection"
+      required: true
+
+    - behavior: "confidence-estimator"
+      interface: "UncertaintyQuantifier"
+      purpose: "Estimate confidence of each classification"
+      required: false
+
+  orchestrated_by:
+    - pattern: "disaster-response-coordination"
+      role: "Central damage assessment in multi-agency disaster response"
+
+  emits:
+    - event: "damage_assessment_complete"
+      payload: "damage_classification"
+      description: "Emitted when building/structure classification is done"
+
+    - event: "high_damage_cluster_detected"
+      payload: "geographic_cluster"
+      description: "Emitted when concentration of destroyed buildings detected; priority area"
+
+    - event: "low_confidence_assessment"
+      payload: "damage_classification"
+      description: "Emitted when confidence < threshold; flags for human review"
+
+    - event: "field_verification_needed"
+      payload: "location_list"
+      description: "Emitted with list of locations needing field team ground truth"
+
+    - event: "reconstruction_progress_detected"
+      payload: "change_detection"
+      description: "Emitted when subsequent imagery shows rebuilding activity"
+
+  listens_to:
+    - event: "new_satellite_imagery_available"
+      source: "satellite-data-provider"
+      action: "Begin assessment pipeline"
+
+    - event: "field_report_submitted"
+      source: "field-team"
+      action: "Integrate field photos and observations into assessment"
+
+    - event: "pre_disaster_baseline_available"
+      source: "geospatial-library"
+      action: "Load baseline for change detection"
+
+    - event: "assessment_prioritization_update"
+      source: "coordination-lead"
+      action: "Update damage scale and priority criteria"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Automated damage classification determines which communities get aid first"
+      impact: "Errors have life-or-death consequences: underestimated damage means delayed life-saving aid"
+      severity: "critical"
+      mitigation: >
+        Conservative bias: when uncertain, classify UP (destroyed vs
+        major). All low-confidence classifications flagged for human review
+        before aid allocation. Rapid field verification in first 48 hours:
+        send teams to spot-check satellite assessments in high-damage areas.
+        Cross-validate with humanitarian organizations' field reports.
+
+    - id: "FM-002"
+      scenario: "Systematic bias in training data: certain neighborhoods/building types systematically misclassified"
+      impact: "Aid systematically misdirected; wealthy vs poor neighborhoods, ethnic groups treated unequally"
+      severity: "critical"
+      mitigation: >
+        Audit accuracy by geography, building type, wealth indicator.
+        Require stratified validation: assess representative sample from
+        each neighborhood. If accuracy < 80% in any stratum, retrain with
+        augmented data from that stratum. Transparency: report accuracy
+        by demographic group.
+
+    - id: "FM-003"
+      scenario: "Cloud cover, poor resolution, or outdated baseline make assessment unreliable"
+      impact: "Assessment appears confident but is actually guessing"
+      severity: "high"
+      mitigation: >
+        Confidence estimation critical: include "not assessable — requires
+        field verification" as valid output. Don't force classification
+        when uncertain. Combine sources: satellite + drone + field to
+        improve confidence. Identify areas where confidence < 60% and
+        flag for human assessment.
+
+    - id: "FM-004"
+      scenario: "Assessment used to justify exclusion of communities from aid"
+      impact: "Undamaged-looking areas with vulnerable populations get no aid"
+      severity: "high"
+      mitigation: >
+        Damage is not the only criterion for aid. Assessment should inform,
+        not determine, aid allocation. Require human review: coordination
+        lead combines damage assessment with population vulnerability,
+        access difficulty, presence of health facility, etc. Make reasoning
+        transparent to communities.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: >
+        Automated damage classification determines which communities
+        receive aid first — errors have life-or-death consequences.
+        Algorithm bias could systematically disadvantage already
+        marginalized groups.
+      recommendation: >
+        Conservative classification bias: prefer false positives (marking
+        unaffected as damaged) over false negatives (missing actual damage).
+        Mandatory human verification of all damage assessments before aid
+        allocation. Audit accuracy by neighborhood/demographic; retrain
+        if disparities found. Transparency: show communities how their
+        area was assessed and why.
+
+    - context: "humanitarian"
+      concern: >
+        Satellite imagery reveals not just damage but also population
+        location and building types. In conflict zones, this data could
+        enable targeting.
+      recommendation: >
+        Restrict access to damage assessment data. Limit sharing to
+        humanitarian organizations only. Don't publish precise building
+        locations in conflict zones. Aggregate to cluster level for
+        public reporting.
+
+    - context: "humanitarian"
+      concern: >
+        Damage assessment doesn't measure suffering: 10 partially
+        damaged houses may involve more people than 1 destroyed
+        mansion. Focusing on structural damage may miss social damage
+        (displacement, trauma, livelihood loss).
+      recommendation: >
+        Combine damage assessment with vulnerability data: household
+        size, elderly or disabled members, income level. Prioritize
+        aid based on people in need, not buildings. Make this weighting
+        explicit and adjustable by coordination lead.
+
+  performance:
+    tested_scale: "50K buildings, 3 satellite sources, 100 drone surveys, 10K field photos/campaign"
+    latency: "< 5 minutes for satellite-based assessment; < 30 minutes with drone fusion"
+    accuracy: "Damage classification F1 > 0.85 on xBD test set; field validation accuracy > 0.90"
+    known_degradation: >
+      Accuracy drops below 0.75 when cloud cover > 30%. Rural areas with
+      sparse building footprints: lower accuracy (few training examples).
+      Small structures (kiosks, sheds) easily missed. Residential vs
+      commercial distinction: accuracy ~0.78.
+
+  observability:
+    logging: "Every classification logged with image source, visual features used, confidence, grade assigned"
+    explainability: >
+      Each damage classification includes: visual evidence (crops of
+      damaged area), comparison to pre-disaster baseline, confidence and
+      uncertainty, whether field verification recommended
+    reproducibility: "Deterministic given same imagery version and model; provide assessment audit trail"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "insurance"
+    organization: "InsuranceInnovations"
+    original_use_case: >
+      Processing insurance claims for vehicle and property damage.
+      Policyholders submit photos of damaged car/house, system classifies
+      damage severity (total loss, major, moderate, minor) to determine
+      payout amount. Reduces claims adjuster workload and speeds payout.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "insurance"
+      date: "2026-01-08"
+      notes: "Vehicle damage classification from customer photos"
+
+    - version: "1.5.0"
+      domain: "insurance"
+      date: "2026-02-02"
+      notes: "Added property damage assessment and multi-angle photo fusion"
+      adaptation_points_changed: ["AP-001", "AP-003"]
+
+    - version: "2.0.0"
+      domain: "humanitarian-disaster-response"
+      date: "2026-02-14"
+      notes: >
+        Forked for post-disaster damage assessment. Major changes: damage
+        scale redesigned from repair cost tiers to humanitarian need grades
+        (destroyed/major/minor/unaffected); data sources shifted from
+        customer phones to satellite (Maxar/Planet) + drone + field teams;
+        change detection added for before/after comparison; geographic
+        damage mapping for priority area identification; conservative
+        classification bias (mark uncertain as higher severity);
+        cross-validation with field reports mandatory; accuracy audited
+        by geography to detect bias.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-001", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI Tool wrapper for damage classification"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph node for image processing pipeline with streaming"

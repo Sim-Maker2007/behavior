@@ -1,0 +1,342 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Regulatory Compliance Checker
+# =============================================================================
+# Originally built for: Financial transaction compliance (AML/KYC)
+# Forked for: Humanitarian donor compliance and aid diversion monitoring
+# =============================================================================
+
+identity:
+  name: "regulatory-compliance-checker"
+  display_name: "Regulatory Compliance Checker"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["compliance", "regulation", "audit", "verification", "monitoring"]
+
+problem_pattern:
+  category: "compliance-and-constraint-checking"
+  description: >
+    Continuously monitors activities against a ruleset, flags violations
+    or potential violations, generates audit trails, and recommends
+    corrective actions — while adapting to changing regulations.
+
+  sub_patterns:
+    - "rule-matching-against-activity-stream"
+    - "risk-scoring-and-prioritization"
+    - "exception-investigation-workflow"
+    - "regulatory-change-tracking"
+    - "audit-trail-generation"
+
+  analogous_domains:
+    - domain: "financial-aml-kyc"
+      similarity: 0.90
+      notes: >
+        Original domain. Transaction monitoring against AML rules,
+        sanctions lists, and suspicious activity patterns.
+    - domain: "humanitarian-donor-compliance"
+      similarity: 0.78
+      notes: >
+        Monitoring aid fund usage against donor conditions, sanctions
+        compliance, and aid diversion detection. Rules are donor-specific
+        rather than regulatory.
+    - domain: "healthcare-hipaa-compliance"
+      similarity: 0.80
+      notes: >
+        Patient data access monitoring. Similar rule-matching but
+        focused on data privacy rather than financial flows.
+    - domain: "environmental-emissions-compliance"
+      similarity: 0.72
+      notes: >
+        Monitoring industrial output against environmental regulations.
+        Measurement uncertainty adds complexity.
+    - domain: "construction-safety-compliance"
+      similarity: 0.75
+      notes: >
+        Site inspection and safety rule verification. More physical/visual
+        inputs than document-based compliance.
+
+behavior:
+  trigger:
+    type: "continuous"
+    conditions:
+      - "monitors each transaction/activity as it occurs"
+      - "runs comprehensive compliance review monthly"
+      - "triggered on regulatory_change for rule update"
+
+  inputs:
+    - name: "activity_stream"
+      type: "stream<activity_record>"
+      required: true
+      description: >
+        Continuous stream of activities to monitor: transactions,
+        data access events, fund disbursements, or operational actions.
+      freshness: "real-time"
+
+    - name: "ruleset"
+      type: "compliance_rules"
+      required: true
+      description: >
+        Active rules to check against: regulations, donor conditions,
+        internal policies, sanctions lists, and thresholds.
+
+    - name: "entity_profiles"
+      type: "list<entity_profile>"
+      required: true
+      description: >
+        Profiles of monitored entities: organizations, individuals,
+        accounts, or partners with their risk ratings and history.
+
+    - name: "regulatory_updates"
+      type: "stream<rule_change>"
+      required: false
+      description: "Feed of regulatory changes to incorporate"
+      default_behavior: "Static ruleset; manual updates only"
+
+  outputs:
+    - name: "compliance_alert"
+      type: "violation_report"
+      description: >
+        Flagged activity with: rule violated, severity, evidence,
+        recommended action, and investigation priority.
+      confidence_included: true
+
+    - name: "audit_trail"
+      type: "audit_log"
+      description: >
+        Complete, tamper-evident log of all checks performed,
+        decisions made, and actions taken.
+
+    - name: "compliance_scorecard"
+      type: "periodic_report"
+      description: >
+        Aggregate compliance health across all monitored entities
+        with trend analysis and risk concentration highlights.
+
+  reasoning:
+    method: "rule-matching-with-risk-scoring"
+    objectives:
+      - "Detect all true violations with zero tolerance for false negatives (weight: 0.5)"
+      - "Minimize false positives to prevent investigation fatigue (weight: 0.25)"
+      - "Generate actionable, investigation-ready alerts (weight: 0.15)"
+      - "Maintain complete audit trail (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Activities are digitally recorded with complete metadata"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian operations include cash distributions, in-kind aid,
+        and local procurement — often with paper records or incomplete
+        digital trails. Support manual entry, photo-based receipt capture,
+        and reconciliation workflows for gaps.
+
+    - id: "DA-002"
+      assumption: "Rules are clearly defined and machine-interpretable"
+      strength: "soft"
+      adaptation_note: >
+        Donor compliance conditions are often written in legal prose
+        with ambiguous terms. Requires rule interpretation layer that
+        maps natural language conditions to structured rules, with
+        human review for edge cases.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Regulatory environment changes gradually"
+      strength: "soft"
+      adaptation_note: >
+        Sanctions lists and counter-terrorism regulations change rapidly.
+        Humanitarian operations must screen all partners against multiple
+        lists (OFAC, EU, UN) that update weekly.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single compliance officer reviews alerts"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian compliance involves multiple stakeholders: donor
+        compliance teams, internal audit, partner organizations, and
+        host government regulators. Route alerts to appropriate authority
+        based on violation type and donor source.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "rule_engine"
+    type: "swappable_component"
+    current: "financial_aml_ruleset"
+    interface: "ComplianceRuleEngine"
+    description: >
+      Core rule matching logic. Interface:
+      check(activity, rules) → {compliant, violations, confidence}
+    suggested_alternatives:
+      - name: "donor_condition_engine"
+        for_domain: "humanitarian"
+        description: >
+          Checks fund usage against per-donor conditions: geographic
+          restrictions, sector earmarks, overhead caps, procurement
+          rules, and beneficiary targeting criteria.
+      - name: "hipaa_rule_engine"
+        for_domain: "healthcare"
+        description: >
+          Monitors data access against HIPAA minimum necessary standard,
+          break-the-glass protocols, and consent requirements.
+
+  - id: "AP-002"
+    name: "screening_service"
+    type: "swappable_component"
+    current: "sanctions_list_screener"
+    interface: "EntityScreener"
+    description: >
+      Screens entities against watchlists. Interface:
+      screen(entity) → {matches, risk_score}
+    suggested_alternatives:
+      - name: "humanitarian_partner_screener"
+        for_domain: "humanitarian"
+        description: >
+          Screens implementing partners, vendors, and beneficiary
+          organizations against OFAC, EU sanctions, UN consolidated
+          list, and country-specific restricted entities.
+
+  - id: "AP-003"
+    name: "reporting_format"
+    type: "configurable"
+    parameters:
+      - name: "report_template"
+        current: "SAR (Suspicious Activity Report)"
+        notes: >
+          Humanitarian: donor-specific reporting formats (USAID SF-425,
+          ECHO interim reports, DFID annual review). Each donor has
+          different compliance reporting requirements.
+      - name: "retention_period"
+        current: "7 years"
+        notes: "Humanitarian donor records typically 5-10 years post-grant closure"
+
+composition:
+  delegates_to:
+    - behavior: "anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Detect unusual patterns that may indicate violations"
+      required: false
+    - behavior: "report-generator"
+      interface: "ReportGenerator"
+      purpose: "Generate compliance reports in required formats"
+      required: true
+
+  orchestrated_by:
+    - pattern: "governance-framework"
+      role: "Compliance monitoring component of organizational governance"
+
+  emits:
+    - event: "violation_detected"
+      payload: "compliance_alert"
+      description: "Potential compliance violation requiring investigation"
+    - event: "sanctions_match"
+      payload: "screening_result"
+      description: "Entity matched against sanctions or watchlist"
+    - event: "compliance_report_ready"
+      payload: "periodic_report"
+      description: "Scheduled compliance report generated"
+
+  listens_to:
+    - event: "new_transaction"
+      source: "finance-system"
+      action: "Run compliance checks on transaction"
+    - event: "regulatory_update"
+      source: "regulatory-feed"
+      action: "Update ruleset and re-screen affected activities"
+    - event: "partner_onboarded"
+      source: "partner-management"
+      action: "Run initial screening on new partner"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "True violation missed due to incomplete data"
+      impact: "Regulatory penalties, reputational damage, potential aid diversion"
+      severity: "critical"
+      mitigation: >
+        Data completeness checks before compliance assessment.
+        Flag activities with missing fields for manual review.
+        Never mark incomplete records as compliant.
+
+    - id: "FM-002"
+      scenario: "Overzealous screening blocks legitimate aid partner"
+      impact: "Aid delivery delayed to vulnerable populations"
+      severity: "high"
+      mitigation: >
+        Multi-stage verification for sanctions matches. Fuzzy matching
+        requires human confirmation. Emergency override with audit trail
+        for time-critical humanitarian operations.
+
+    - id: "FM-003"
+      scenario: "Rule interpretation error causes systematic miscategorization"
+      impact: "Entire category of activities incorrectly flagged or cleared"
+      severity: "high"
+      mitigation: >
+        Periodic rule validation against test cases. Spot-check samples
+        of cleared activities. Alert when violation rate changes significantly.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Counter-terrorism compliance requirements can block aid to populations in areas controlled by sanctioned groups"
+      recommendation: >
+        Implement humanitarian exemption tracking. Document due diligence
+        demonstrating aid reaches civilian beneficiaries. Advocate for
+        humanitarian carve-outs in sanctions frameworks.
+
+    - context: "any"
+      concern: "Compliance monitoring creates surveillance infrastructure"
+      recommendation: >
+        Purpose limitation: compliance data used only for compliance.
+        Minimum necessary data collection. Regular privacy impact
+        assessments. Data deletion after retention period.
+
+  performance:
+    tested_scale: "10,000 transactions/day across 200 entities"
+    latency: "< 2 seconds per transaction check; < 5 minutes for entity screening"
+    accuracy: "99.7% true violation detection rate; 8% false positive rate"
+    known_degradation: "Fuzzy name matching produces more false positives with non-Latin scripts"
+
+  observability:
+    logging: "Every compliance check logged with rule applied, result, and evidence"
+    explainability: "Each alert traces to specific rule, threshold, and triggering data"
+    reproducibility: "Deterministic given same rules and inputs"
+
+provenance:
+  origin:
+    domain: "financial-services"
+    organization: "FinTechCo"
+    original_use_case: >
+      AML/KYC transaction monitoring for a financial services platform,
+      screening transactions against sanctions lists and suspicious
+      activity patterns.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "financial-aml"
+      date: "2025-09-01"
+      notes: "Basic AML transaction monitoring"
+
+    - version: "2.0.0"
+      domain: "humanitarian-compliance"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian donor compliance. Replaced AML rules
+        with donor condition engine, added multi-donor reporting,
+        humanitarian exemption tracking, and partner screening.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

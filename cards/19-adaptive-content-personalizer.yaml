@@ -1,0 +1,524 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Adaptive Content Personalizer
+# =============================================================================
+# Originally built for: Marketing content personalization across customer segments
+# Forked for: Multilingual public health messaging for diverse populations
+# =============================================================================
+
+identity:
+  name: "adaptive-content-personalizer"
+  display_name: "Adaptive Content Personalizer"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["personalization", "content-generation", "audience-segmentation", "multilingual", "public-health"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "adaptive-communication"
+  description: >
+    Segments audiences based on characteristics, generates tailored message
+    variants optimized for each segment, selects appropriate delivery
+    channels, and incorporates cultural adaptation — with feedback loops to
+    continuously improve relevance and comprehension.
+
+  sub_patterns:
+    - "audience-segmentation"
+    - "message-variant-generation"
+    - "channel-optimization"
+    - "cultural-adaptation"
+    - "feedback-loop-optimization"
+
+  analogous_domains:
+    - domain: "marketing-personalization"
+      similarity: 0.90
+      notes: >
+        Original domain. Audience segmentation by demographics and behavior,
+        message variant generation (copy A/B testing), channel selection
+        (email vs social vs SMS). Key difference: marketing optimizes for
+        engagement; public health optimizes for comprehension and behavior
+        change that saves lives.
+
+    - domain: "public-health-messaging"
+      similarity: 0.78
+      notes: >
+        Tailoring health information to different literacy levels, languages,
+        and cultural contexts. Public health messaging often requires
+        simplification without losing medical accuracy — the opposite of
+        marketing's embellishment.
+
+    - domain: "educational-content-adaptation"
+      similarity: 0.80
+      notes: >
+        Similar personalization by learning level, language, and background
+        knowledge. Educational platforms also use feedback loops (learner
+        performance) to adapt content difficulty.
+
+    - domain: "government-services-communication"
+      similarity: 0.72
+      notes: >
+        Government agencies tailor policy communication to different citizen
+        groups (e.g., benefits information in multiple languages and literacy
+        levels). Similar need for cultural sensitivity and accuracy.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on new_health_message_to_distribute"
+      - "on audience_segment_registration"
+      - "on feedback_received from prior campaign"
+      - "on batch_campaign_launch"
+
+  inputs:
+    - name: "health_message"
+      type: "message_object"
+      required: true
+      description: >
+        Core health message: text content, intended audience,
+        medical accuracy level, urgency, desired behavior change
+      freshness: "current"
+
+    - name: "audience_segments"
+      type: "list<segment_profile>"
+      required: true
+      description: >
+        Audience characteristics: language, literacy level, cultural context,
+        health beliefs, access to technology, preferred channels, prior
+        messaging exposure
+      freshness: "< 1 day"
+
+    - name: "content_generation_templates"
+      type: "template_library"
+      required: true
+      description: >
+        Language-specific and culture-specific message templates and
+        variation patterns for generating personalizations
+
+    - name: "channel_capabilities"
+      type: "channel_profiles"
+      required: true
+      description: >
+        Available channels (SMS, radio, social media, community health
+        worker networks, mosque announcements, etc.) with reach,
+        literacy requirements, and latency
+
+    - name: "feedback_data"
+      type: "campaign_feedback"
+      required: false
+      description: >
+        Prior campaign results: which messages resonated with which
+        segments, comprehension metrics, behavior change outcomes
+      freshness: "< 3 days"
+
+  outputs:
+    - name: "personalized_messages"
+      type: "list<segment_message>"
+      description: >
+        Message variants tailored to each segment: text in appropriate
+        language/literacy level, cultural adaptation notes, recommended
+        channels, expected comprehension score
+
+    - name: "channel_assignment"
+      type: "delivery_plan"
+      description: >
+        Which channels to use for each segment, timing, and sequencing
+
+    - name: "comprehension_estimation"
+      type: "quality_score"
+      description: >
+        Confidence that target segment will understand the message as
+        intended, based on literacy level, language match, cultural fit
+
+    - name: "feedback_instrumentation"
+      type: "measurement_plan"
+      description: >
+        How to collect feedback: comprehension checks, behavior change
+        tracking, sentiment monitoring
+
+  reasoning:
+    method: "segmentation-and-variant-generation-pipeline"
+    objectives:
+      - "Ensure health message is understood correctly (weight: 0.6)"
+      - "Maximize reach to all population segments (weight: 0.2)"
+      - "Adapt cultural sensitivity (weight: 0.15)"
+      - "Minimize literacy barriers (weight: 0.05)"
+    approach: >
+      Pipeline: (1) profile audience segments,
+      (2) generate message variants per language and literacy level,
+      (3) apply cultural adaptation (examples, values alignment),
+      (4) select optimal channels for reach,
+      (5) estimate comprehension via readability and segment history,
+      (6) instrument feedback collection,
+      (7) iterate on feedback from prior campaigns.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Audience segments are well-characterized"
+      strength: "soft"
+      adaptation_note: >
+        In humanitarian crises, demographic data may be incomplete or
+        outdated. Use participatory methods (community leaders identify
+        vulnerable groups) to supplement static data.
+
+    - id: "DA-002"
+      assumption: "Core health message has been vetted for medical accuracy"
+      strength: "hard"
+      adaptation_note: >
+        Personalization layer must never degrade medical accuracy.
+        Implement automated checks: simplified messages must be validated
+        against original by subject matter experts.
+
+    - id: "DA-003"
+      assumption: "Literacy level is measurable and stable"
+      strength: "soft"
+      adaptation_note: >
+        Literacy is context-dependent (people may be literate in one
+        domain but not another). Use functional health literacy measures
+        rather than years of education.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Multiple communication channels available"
+      strength: "soft"
+      adaptation_note: >
+        In low-resource contexts, channels are limited (radio, SMS,
+        hand-delivered flyers, community health worker visits).
+        Graceful degradation: ensure message core translates to
+        any single channel.
+
+    - id: "EA-002"
+      assumption: "Feedback collection is feasible"
+      strength: "soft"
+      adaptation_note: >
+        In crisis, people may be too busy surviving to provide feedback.
+        Use passive signals: medication adherence data, clinic visit
+        patterns, behavioral outcomes rather than surveys.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single message source controls all variants"
+      strength: "hard"
+      adaptation_note: >
+        In decentralized crises, multiple organizations emit health
+        messages. Implement message deduplication and conflict detection
+        to prevent contradictory messaging to same population.
+
+    - id: "AA-002"
+      assumption: "Cultural adaptation is neutral"
+      strength: "hard"
+      adaptation_note: >
+        Cultural adaptation can encode bias or colonialism. Require
+        community validation: adapted messages must be reviewed by
+        in-community health leaders, not just external cultural experts.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "segmentation_model"
+    type: "swappable_component"
+    current: "customer_persona_segmentation"
+    interface: "SegmentationModel"
+    description: >
+      Segments audience into groups. Interface:
+      segment(audience_data) → {segments: list<Segment>}
+    suggested_alternatives:
+      - name: "health_literacy_language_cultural_segmentation"
+        for_domain: "public-health"
+        description: >
+          Segments by: health literacy level (basic/intermediate/advanced),
+          language (primary language + code-switching patterns), cultural
+          context (beliefs about disease/medicine/authority), access
+          (digital vs non-digital), vulnerability (disability, isolation).
+
+      - name: "disease_specific_segmentation"
+        for_domain: "public-health-endemic"
+        description: >
+          Disease-aware segmentation: prior infection status, vaccination
+          status, occupational risk factors, household composition.
+
+  - id: "AP-002"
+    name: "content_generator"
+    type: "swappable_component"
+    current: "marketing_copy_engine"
+    interface: "ContentGenerator"
+    description: >
+      Generates message variants from core message. Interface:
+      generate(message, segment, tone) → {variant_text, confidence}
+    suggested_alternatives:
+      - name: "health_literate_plain_language_generator"
+        for_domain: "public-health"
+        description: >
+          Generates simplified health messages: limit sentence length,
+          use active voice, explain medical terms, break into actionable
+          steps. Maintains medical accuracy via automated fact-checking
+          against source.
+
+      - name: "cultural_adaptation_engine"
+        for_domain: "public-health-culturally-sensitive"
+        description: >
+          Incorporates cultural health beliefs, local examples, trusted
+          messengers (e.g., religious leaders for some populations).
+          Generates variants using locally resonant framing.
+
+  - id: "AP-003"
+    name: "channel_selector"
+    type: "swappable_component"
+    current: "email_social_push_router"
+    interface: "ChannelSelector"
+    description: >
+      Selects best channel for segment. Interface:
+      select_channels(segment) → {channels: list<Channel>, rationale}
+    suggested_alternatives:
+      - name: "low_resource_channel_selector"
+        for_domain: "public-health-humanitarian"
+        description: >
+          Available channels: radio broadcasts, SMS (with length limits),
+          community health worker visits, mosque announcements, market
+          gatherings, printed leaflets. Routes complex messages to
+          high-contact channels (health workers); simple awareness to
+          broadcast channels (radio).
+
+      - name: "accessibility_aware_channel_selector"
+        for_domain: "public-health-inclusive"
+        description: >
+          Considers accessibility: deaf-friendly (video with captions,
+          written summaries), blind-friendly (audio + detailed
+          descriptions), mobility-limited (delivers to home vs
+          requiring clinic visit).
+
+  - id: "AP-004"
+    name: "feedback_loop"
+    type: "configurable"
+    parameters:
+      - name: "feedback_sources"
+        current: ["survey", "a_b_test", "user_behavior"]
+        suggested_values: >
+          In humanitarian context: clinic visit rates, medication
+          adherence, behavior change indicators (hand-washing
+          observation), qualitative interviews with community leaders,
+          health worker feedback on comprehension questions during
+          visits.
+      - name: "iteration_frequency"
+        current: "weekly"
+        suggested_values: >
+          In rapid-onset crisis: daily iteration on messaging based on
+          health worker reports of confusion or misinformation.
+      - name: "minimum_feedback_sample"
+        current: "100 responses"
+        suggested_values: >
+          In small populations: 10-20 interviews with segment
+          representatives (may be more reliable than scaled survey
+          in low-literacy context).
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "language-translator"
+      interface: "TranslationService"
+      purpose: "Generate translations per language"
+      required: true
+
+    - behavior: "readability-analyzer"
+      interface: "ReadabilityAnalyzer"
+      purpose: "Assess simplification level and adjust for literacy level"
+      required: true
+
+    - behavior: "fact-checker"
+      interface: "FactChecker"
+      purpose: "Verify simplified versions maintain medical accuracy"
+      required: true
+
+    - behavior: "cultural-validation"
+      interface: "CulturalValidator"
+      purpose: "Validate cultural appropriateness and alignment"
+      required: false
+
+  orchestrated_by:
+    - pattern: "public-health-campaign-coordinator"
+      role: "Central campaign management coordinating multiple personalization agents"
+
+  emits:
+    - event: "personalized_variants_ready"
+      payload: "personalized_messages"
+      description: "Emitted when all segment variants are generated and validated"
+
+    - event: "comprehension_concern"
+      payload: "segment_message"
+      description: "Emitted when estimated comprehension score is below threshold"
+
+    - event: "cultural_conflict_detected"
+      payload: "adaptation_notes"
+      description: "Emitted when cultural adaptation conflicts with health message"
+
+    - event: "channel_unavailable"
+      payload: "segment_channel_pair"
+      description: "Emitted when optimal channel for segment is unreachable"
+
+  listens_to:
+    - event: "health_message_approved"
+      source: "public-health-authority"
+      action: "Begin personalization pipeline"
+
+    - event: "campaign_feedback_received"
+      source: "field-reporters"
+      action: "Update feedback loop; iterate on messaging"
+
+    - event: "segment_profile_updated"
+      source: "demographic-tracker"
+      action: "Regenerate variants for affected segments"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Oversimplification loses medical accuracy"
+      impact: "People follow incorrect health guidance"
+      severity: "critical"
+      mitigation: >
+        Automated fact-checking: simplified message validated by NER
+        + semantic similarity to original. All simplifications < certain
+        threshold reviewed by medical expert before deployment.
+
+    - id: "FM-002"
+      scenario: "Low-literacy population excluded by inaccessible variants"
+      impact: "Most vulnerable population receives no useful information"
+      severity: "critical"
+      mitigation: >
+        Set minimum accessibility level: no variant should exclude basic
+        literacy. Use multiple channels for same message (some get radio +
+        health worker visit, others get written leaflet + SMS summary).
+        Community health workers trained to detect comprehension failure
+        in real-time.
+
+    - id: "FM-003"
+      scenario: "Cultural adaptation encodes bias or misrepresentation"
+      impact: "Message offensive or misaligned with community values"
+      severity: "high"
+      mitigation: >
+        Community validation required before launch: in-community leaders
+        (not external experts only) review adapted variants. Include
+        cultural sensitivity workshop in deployment.
+
+    - id: "FM-004"
+      scenario: "Feedback loop fails; system keeps repeating ineffective variants"
+      impact: "Campaign message doesn't achieve behavior change"
+      severity: "medium"
+      mitigation: >
+        Requires manual intervention every 3 iterations if behavior change
+        not detected. Escalate to campaign lead for strategy rethink.
+
+  ethical_flags:
+    - context: "public-health"
+      concern: >
+        Personalization can reinforce existing health inequities: if
+        system has low-quality data for marginalized groups, those
+        groups receive lower-quality messaging
+      recommendation: >
+        Audit variant quality by demographic group. Allocate more
+        expert review to segments with sparse feedback history.
+        Mandate community co-design for underserved populations.
+
+    - context: "public-health"
+      concern: >
+        Health-literate messaging must not exclude low-literacy
+        populations — this risks creating a two-tier system where
+        educated and uneducated get different information
+      recommendation: >
+        Ensure every health topic is available at multiple literacy
+        levels with equal frequency of update. Don't let low-literacy
+        variants lag behind high-literacy ones.
+
+    - context: "cultural"
+      concern: >
+        Cultural adaptation for "acceptability" can contradict health
+        evidence if cultural belief systems conflict with medicine
+      recommendation: >
+        Health facts are non-negotiable. Adapt presentation, not content.
+        When unavoidable conflicts exist, be transparent: explain both
+        cultural understanding and medical evidence, let community decide.
+
+  performance:
+    tested_scale: "15 languages, 50+ audience segments, 500+ message variants/campaign"
+    latency: "< 5 seconds for variant generation per segment"
+    accuracy: "Comprehension estimation F1 > 0.82 on validation data"
+    known_degradation: >
+      Variant quality degrades for languages with < 200 training
+      examples. Cultural adaptation accuracy < 0.70 for unfamiliar
+      cultural contexts without community review.
+
+  observability:
+    logging: "Every variant generation logged with segment, adaptation choices, confidence"
+    explainability: >
+      Each variant includes: why simplified in this way, which cultural
+      elements adapted, why channels chosen, estimated comprehension,
+      confidence level
+    reproducibility: "Deterministic given same model version and segment profiles"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "marketing"
+    organization: "MarketingTech Corp"
+    original_use_case: >
+      Personalizing marketing content for customer segments (by
+      demographics, purchase history, device) to maximize engagement
+      and conversion. Different copy variants optimized for mobile vs
+      desktop, budget-conscious vs premium customers, etc.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "marketing"
+      date: "2026-01-15"
+      notes: "Basic personalization by segment and channel selection"
+
+    - version: "1.5.0"
+      domain: "marketing"
+      date: "2026-02-05"
+      notes: "Added multilingual support for EU campaigns"
+      adaptation_points_changed: ["AP-002", "AP-003"]
+
+    - version: "2.0.0"
+      domain: "public-health"
+      date: "2026-02-14"
+      notes: >
+        Forked for public health messaging. Major changes: added health
+        literacy level segmentation, plain-language generation with
+        accuracy verification, cultural adaptation with community
+        validation, feedback loop based on health outcomes not engagement
+        metrics, accessibility as first-class requirement.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "EA-001", "EA-002", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI Tool wrapper for variant generation"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph node with streaming support for large campaigns"

@@ -1,0 +1,579 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Environmental Impact Monitor
+# =============================================================================
+# Originally built for: Corporate carbon emissions tracking for ESG reporting
+# Forked for: Climate adaptation early warning for vulnerable communities
+# =============================================================================
+
+identity:
+  name: "environmental-impact-monitor"
+  display_name: "Environmental Impact Monitor"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["anomaly-detection", "climate", "environmental-monitoring", "early-warning", "adaptation"]
+
+problem_pattern:
+  category: "anomaly-detection-and-response"
+  description: >
+    Monitors environmental indicators against baseline conditions to detect
+    significant deviations that signal emerging threats or opportunities.
+    Distinguishes normal seasonal variation from meaningful anomalies,
+    predicts impact trajectories, and triggers proportionate response
+    protocols. Adapts baselines dynamically while maintaining historical
+    continuity for trend analysis.
+
+  sub_patterns:
+    - "emissions-baseline-tracking"
+    - "regulatory-threshold-monitoring"
+    - "trend-anomaly-detection"
+    - "impact-forecasting"
+    - "adaptive-threshold-recalibration"
+
+  analogous_domains:
+    - domain: "corporate-esg-compliance"
+      similarity: 0.90
+      notes: >
+        Original domain. Monitoring carbon emissions, water consumption,
+        and other environmental metrics against regulatory targets and
+        corporate sustainability commitments.
+    - domain: "climate-adaptation-warning"
+      similarity: 0.77
+      notes: >
+        Monitoring environmental indicators for early warning of climate
+        hazards (drought, flooding, temperature extremes) affecting
+        vulnerable communities and food security.
+    - domain: "agricultural-yield-monitoring"
+      similarity: 0.72
+      notes: >
+        Tracking soil health, water availability, pest populations, and
+        weather patterns to detect yield risks and optimize interventions.
+    - domain: "water-quality-surveillance"
+      similarity: 0.80
+      notes: >
+        Continuous monitoring of water sources for contamination anomalies
+        and threshold violations indicating public health risks.
+    - domain: "forest-health-monitoring"
+      similarity: 0.75
+      notes: >
+        Detecting deforestation, disease outbreaks, and fire risk through
+        satellite imagery and ground sensors.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "continuous monitoring with fixed reporting intervals"
+      - "on_threshold_breach for immediate anomaly detection"
+      - "on_new_sensor_data for real-time updates where available"
+      - "on_seasonal_shift for baseline recalibration"
+
+  inputs:
+    - name: "environmental_data_streams"
+      type: "list<measurement_record>"
+      required: true
+      description: >
+        Time-series data from sensors, satellite imagery, or field
+        observations including emissions, temperature, precipitation,
+        soil moisture, water quality, land use, vegetation indices.
+        Multiple data sources with varying reliability and frequency.
+
+    - name: "baseline_framework"
+      type: "environmental_baseline_model"
+      required: true
+      description: >
+        Historical baseline conditions, seasonal patterns, and tolerance
+        ranges. Corporate ESG: emissions targets and regulatory limits.
+        Climate adaptation: historical climate normals and community
+        vulnerability thresholds.
+
+    - name: "impact_model"
+      type: "impact_forecast_model"
+      required: true
+      description: >
+        Predictive model translating environmental anomalies into
+        potential impacts (emissions → ESG reporting obligations,
+        drought → crop failure and food insecurity).
+
+    - name: "community_context"
+      type: "contextual_vulnerability_data"
+      required: false
+      description: >
+        Social and economic context indicating which environmental
+        changes matter most and to whom (e.g., crop-dependent
+        communities, livestock vulnerability, water scarcity zones).
+
+  outputs:
+    - name: "anomaly_detections"
+      type: "list<anomaly_alert>"
+      description: >
+        Detected deviations from baseline with severity classification,
+        confidence level, affected regions/assets, and temporal context
+        (isolated incident vs sustained trend).
+      confidence_included: true
+
+    - name: "impact_forecast"
+      type: "impact_trajectory_projection"
+      description: >
+        Projected impacts if current trend continues, timeline to
+        critical thresholds, affected stakeholders, and adaptation
+        window remaining for intervention.
+
+    - name: "response_recommendations"
+      type: "adaptation_action_plan"
+      description: >
+        Recommended interventions prioritized by urgency, feasibility,
+        and effectiveness. Corporate: operational adjustments and
+        reporting changes. Community: adaptation measures and resource
+        mobilization needs.
+
+    - name: "baseline_update"
+      type: "updated_baseline_parameters"
+      description: >
+        Recalibrated baselines reflecting legitimate environmental
+        shifts (e.g., climate normals in changing climate) while
+        maintaining sensitivity to anomalies.
+
+  reasoning:
+    method: "statistical-anomaly-detection-with-impact-forecasting"
+    objectives:
+      - "Detect meaningful environmental changes early (weight: 0.4)"
+      - "Distinguish noise and seasonal variation from real anomalies (weight: 0.3)"
+      - "Forecast impact trajectories to enable timely adaptation (weight: 0.2)"
+      - "Maintain community and stakeholder trust through transparency (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Reliable baseline data exists covering multiple years and seasonal cycles"
+      strength: "hard"
+      adaptation_note: >
+        Climate adaptation contexts often lack historical data,
+        especially for localized conditions. Use satellite data,
+        regional climate models, or neighboring communities as proxy
+        baselines. Explicitly flag confidence when baselines are
+        constructed rather than measured. Update baselines as more
+        data accumulates.
+
+    - id: "DA-002"
+      assumption: "Environmental measurements are comparable across time and space"
+      strength: "hard"
+      adaptation_note: >
+        Sensor calibration, maintenance, and replacement change
+        measurement characteristics. Community-based monitoring
+        requires training and standardization. Metadata must track
+        measurement method changes. Apply calibration corrections
+        and document drift.
+
+    - id: "DA-003"
+      assumption: "Data transmission is available and timely"
+      strength: "soft"
+      adaptation_note: >
+        Remote communities may have limited connectivity. Support
+        offline data collection with delayed batch uploads. Mobile
+        and radio-based reporting systems. Graceful degradation when
+        real-time data unavailable; use most recent reliable data
+        point with explicit staleness flags.
+
+    - id: "DA-004"
+      assumption: "Environmental indicators accurately represent underlying conditions"
+      strength: "soft"
+      adaptation_note: >
+        Proxy indicators (satellite vegetation indices) may not capture
+        all relevant environmental changes. Validate indicators against
+        ground-truth observations. Understand indicator limitations and
+        failure modes (e.g., satellite data obscured by clouds).
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Climate and environmental conditions remain relatively stable"
+      strength: "soft"
+      adaptation_note: >
+        Climate change is fundamentally altering baseline conditions
+        and increasing extreme event frequency. Historical baselines
+        become unreliable. Shift from fixed baselines to dynamic
+        recalibration. Use climate projections to inform forward-looking
+        baselines. Expect increasing threshold breaches and anomalies.
+
+    - id: "EA-002"
+      assumption: "Adaptation responses can be implemented if warning is provided"
+      strength: "soft"
+      adaptation_note: >
+        Vulnerable communities may lack capacity, resources, or authority
+        to implement adaptations. Recommendations must be technically
+        feasible, culturally appropriate, and economically realistic.
+        Coordinate with local governance and resource availability.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Environmental monitoring authority is shared responsibility"
+      strength: "soft"
+      adaptation_note: >
+        Corporate ESG: company owns emissions data and reporting
+        obligation. Climate adaptation: environmental data is common
+        good; multiple stakeholders (government, communities, NGOs,
+        research) have interests. Establish data governance clarifying
+        who owns data, who sets thresholds, and who triggers responses.
+
+    - id: "AA-002"
+      assumption: "Threshold breaches trigger mandatory reporting and response"
+      strength: "soft"
+      adaptation_note: >
+        Corporate context: regulatory and contractual obligations are
+        clear. Climate adaptation: who is responsible for responding?
+        Establish explicit accountability mechanisms. Community consent
+        and participation in setting thresholds and response triggers.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "data_sources"
+    type: "swappable_component"
+    current: "corporate-emissions-sensors"
+    interface: "EnvironmentalDataProvider"
+    description: >
+      Source of environmental measurements. Interface:
+      measure() → measurement_record
+    suggested_alternatives:
+      - name: "satellite-imagery"
+        for_domain: "climate-adaptation"
+        description: >
+          NOAA, Landsat, Copernicus satellite data for land cover,
+          vegetation health, temperature, moisture. Public and free.
+          Limited temporal resolution and cloud obstruction.
+
+      - name: "community-observation-network"
+        for_domain: "climate-adaptation"
+        description: >
+          Community members reporting local observations via mobile,
+          voice, or radio. Captures local variation but requires
+          standardization and training. Combines traditional knowledge
+          with systematic monitoring.
+
+      - name: "government-meteorological-data"
+        for_domain: "climate-adaptation"
+        description: >
+          National weather services, regional climate centers. Good
+          coverage in accessible areas; gaps in remote regions. Subject
+          to data access policies.
+
+  - id: "AP-002"
+    name: "threshold_framework"
+    type: "configurable"
+    parameters:
+      - name: "baseline_definition"
+        current: "corporate-esg-targets"
+        notes: >
+          Corporate: official emissions targets and regulatory limits.
+          Climate adaptation: historical climate normals (typically
+          1961-1990 or 1991-2020) adjusted for local vulnerability.
+          Dynamic baselines accounting for gradual climate shifts.
+
+      - name: "anomaly_tolerance"
+        current: ["warning: 1.5_std_dev", "critical: 2.5_std_dev"]
+        notes: >
+          Corporate ESG: tolerance for variance from targets before
+          escalation required. Climate adaptation: adjusted for
+          increasing variability. Different tolerances for different
+          environmental indicators (precipitation more variable than
+          temperature).
+
+      - name: "vulnerability_weighting"
+        current: "none"
+        notes: >
+          Corporate: uniform weighting. Climate adaptation: weight
+          anomalies by affected community vulnerability, asset value
+          at risk, and adaptation capacity. Same anomaly magnitude
+          triggers different responses in different contexts.
+
+  - id: "AP-003"
+    name: "alert_routing"
+    type: "swappable_component"
+    current: "executive-dashboards-and-reports"
+    interface: "AlertNotifier"
+    description: >
+      How anomaly alerts are delivered. Interface:
+      notify(anomaly, audience, urgency) → delivery_confirmation
+    suggested_alternatives:
+      - name: "community-radio-and-sms"
+        for_domain: "climate-adaptation"
+        description: >
+          Audio broadcasts on community radio (accessible to
+          non-literate populations) and SMS alerts for mobile phone
+          users. Works in low-connectivity settings. Multiple languages
+          and local context integration.
+
+      - name: "local-government-coordination"
+        for_domain: "climate-adaptation"
+        description: >
+          Alerts escalate through local government channels to
+          distributed community leaders, agricultural extension
+          officers, and disaster response teams.
+
+      - name: "hierarchical-dashboard"
+        for_domain: "corporate-esg"
+        description: >
+          Progressive escalation from operational teams to risk
+          management to executive board. Supports drill-down analysis
+          and documentation for regulatory reporting.
+
+  - id: "AP-004"
+    name: "impact_forecast_model"
+    type: "swappable_component"
+    current: "esg-reporting-obligations-calculator"
+    interface: "ImpactPredictor"
+    description: >
+      Translates environmental anomalies into impacts. Interface:
+      predict_impact(anomaly) → impact_forecast
+    suggested_alternatives:
+      - name: "crop-yield-impact-model"
+        for_domain: "climate-adaptation"
+        description: >
+          Models precipitation and temperature anomalies to food
+          production impacts using agronomic models and local crop
+          varieties. Predicts yield loss, food insecurity, and income
+          impact for farming communities.
+
+      - name: "water-scarcity-impact-model"
+        for_domain: "climate-adaptation"
+        description: >
+          Models precipitation anomalies to water availability impacts
+          for drinking water, livestock, and irrigation. Accounts for
+          catchment characteristics, competing demands, and storage.
+
+      - name: "heat-health-impact-model"
+        for_domain: "climate-adaptation"
+        description: >
+          Models temperature extremes to morbidity and mortality impacts
+          in populations with varying heat adaptation and healthcare
+          capacity.
+
+composition:
+  delegates_to:
+    - behavior: "trend-analyzer"
+      interface: "TrendDetector"
+      purpose: "Distinguish short-term noise from sustained trends"
+      required: true
+
+    - behavior: "impact-forecaster"
+      interface: "ImpactPredictor"
+      purpose: "Project forward impacts to enable adaptation planning"
+      required: true
+
+    - behavior: "baseline-updater"
+      interface: "BaselineRecalibrator"
+      purpose: "Adapt baselines to legitimate environmental shifts"
+      required: false
+
+  orchestrated_by:
+    - pattern: "climate-adaptation-hub"
+      role: "Early warning component of community climate resilience"
+
+    - pattern: "esg-compliance-management"
+      role: "Emissions tracking and threshold monitoring"
+
+  emits:
+    - event: "threshold_breach"
+      payload: "anomaly_alert"
+      description: "Environmental measurement exceeds acceptable threshold"
+
+    - event: "trend_emerging"
+      payload: "trend_projection"
+      description: "Sustained anomalous trend detected with impact implications"
+
+    - event: "impact_window_closing"
+      payload: "urgent_adaptation_window"
+      description: "Adaptation window for response is narrowing; action needed soon"
+
+  listens_to:
+    - event: "new_environmental_data"
+      source: "sensor-network"
+      action: "Re-evaluate anomalies against updated data"
+
+    - event: "adaptation_action_completed"
+      source: "response-coordinator"
+      action: "Update forecasts reflecting action taken"
+
+    - event: "baseline_should_recalibrate"
+      source: "climate-analyst"
+      action: "Update baseline to account for climate shift"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Slow-onset environmental change missed by anomaly detection"
+      impact: >
+        Gradual temperature increase or precipitation decline goes
+        undetected because it's below anomaly threshold. Communities
+        miss critical adaptation window until change becomes severe.
+      severity: "high"
+      mitigation: >
+        Combine anomaly detection with trend analysis. Flag sustained
+        directional changes even if individually small. Use climate
+        projections to contextualize recent trends. Regular baseline
+        review by environmental experts to catch paradigm shifts.
+
+    - id: "FM-002"
+      scenario: "False reassurance from incomplete data"
+      impact: >
+        Monitoring data covers only subset of environmental conditions.
+        Unmeasured indicators are degrading rapidly but invisibly.
+        Communities believe conditions are normal based on monitored
+        data until crisis manifests.
+      severity: "high"
+      mitigation: >
+        Explicitly document which environmental dimensions are monitored
+        and which are not. Identify blind spots. Combine quantitative
+        monitoring with qualitative community observations and
+        traditional ecological knowledge. Never claim comprehensive
+        environmental status.
+
+    - id: "FM-003"
+      scenario: "Alert fatigue from seasonal and inter-annual variations"
+      impact: >
+        Thresholds set too tight for natural variability. Constant
+        false alarms erode trust and cause response fatigue. Communities
+        and authorities stop responding to real anomalies.
+      severity: "medium"
+      mitigation: >
+        Calibrate thresholds using long historical baseline capturing
+        natural variability ranges. Include seasonal adjustment factors.
+        Distinguish between typical variation and meaningful anomaly.
+        Adaptive thresholds that tighten as confidence grows.
+
+    - id: "FM-004"
+      scenario: "Threshold calibrated to historical baseline now obsolete"
+      impact: >
+        Climate change shifts baseline conditions beyond historical
+        range. Thresholds based on 1961-1990 normals no longer meaningful
+        for 2026 conditions. System becomes either insensitive to new
+        anomalies or hypersensitive to new normals.
+      severity: "high"
+      mitigation: >
+        Use dynamic baseline recalibration accounts for climate trends.
+        Explicitly forward-looking baselines informed by climate
+        projections. Monitor baseline shift itself as indicator. Regular
+        threshold review and update.
+
+    - id: "FM-005"
+      scenario: "Impact forecast model fails to capture complex tipping points"
+      impact: >
+        Linear impact model predicts gradual consequences. Actual impacts
+        are non-linear with sudden tipping points (ecosystem collapse,
+        migration surge, famine). Warning comes too late for adequate
+        response.
+      severity: "critical"
+      mitigation: >
+        Incorporate ecological and social tipping point research into
+        models. Work with domain experts to identify non-linearities.
+        Conservative forecasting when tipping point risk is uncertain.
+        Multiple impact scenarios not just single projection.
+
+  ethical_flags:
+    - context: "environmental-justice"
+      concern: >
+        Polluters (wealthy nations and corporations) cause environmental
+        damage while vulnerable communities bear the impacts. Monitoring
+        systems can perpetuate this inequity by documenting problems
+        without addressing root causes or supporting adequate adaptation.
+      recommendation: >
+        Environmental monitoring must be paired with accountability
+        mechanisms and support for adaptation. Establish who pays for
+        monitoring, who bears costs of adaptation, and how monitoring
+        informs resource allocation. Ensure vulnerable communities have
+        voice in threshold-setting and response planning.
+
+    - context: "data-sovereignty"
+      concern: >
+        Environmental data from indigenous and traditional territories
+        may be extracted and used without consent or benefit-sharing.
+        External environmental monitoring can undermine community
+        authority over their own lands and resources.
+      recommendation: >
+        Recognize indigenous and community rights to environmental data
+        from their territories. Co-design monitoring with communities.
+        Ensure benefits from environmental data analysis flow to
+        communities. Respect traditional ecological knowledge alongside
+        scientific monitoring.
+
+    - context: "prediction-and-determinism"
+      concern: >
+        Environmental impact forecasts can become self-fulfilling
+        prophecies ("this region will fail") justifying disinvestment
+        and abandonment instead of adaptation support.
+      recommendation: >
+        Frame forecasts as conditional on current trajectory, not
+        deterministic. Emphasize adaptation window and effectiveness of
+        timely action. Avoid language of inevitability. Use forecasts
+        to mobilize support, not rationalize neglect.
+
+  performance:
+    tested_scale: "monitoring networks with 100+ sensors, satellite data covering regions of 1M+ km2"
+    latency: "anomaly detection < 1 hour of new data ingestion; impact forecast < 5 minutes"
+    accuracy: >
+      Anomaly detection F1: 0.85 for sustained anomalies; 0.62 for
+      early transient signals. Impact forecast within 20% for 1-month
+      horizon, degrades beyond 3 months.
+    known_degradation: >
+      Accuracy drops when > 30% of baseline data is missing. Forecast
+      uncertainty increases exponentially beyond 3-month horizon.
+      Satellite-based monitoring reduced by 40% during cloud season.
+
+  observability:
+    logging: >
+      Every measurement ingested with source, timestamp, calibration
+      metadata, and comparison to baseline. Every anomaly detected with
+      severity calculation and impact projection.
+    explainability: >
+      Per-anomaly breakdown showing which measurement(s) drove
+      detection, comparison to historical distribution, and strength
+      of trend evidence.
+    reproducibility: >
+      Deterministic given same input data and baseline parameters.
+      Baseline versioning enables historical reconstruction.
+
+provenance:
+  origin:
+    domain: "corporate-esg-reporting"
+    organization: "GreenCorp ESG Systems"
+    original_use_case: >
+      Continuous monitoring of corporate carbon emissions and other
+      environmental metrics for ESG reporting, regulatory compliance,
+      and internal sustainability target tracking. Automated threshold
+      monitoring and escalation to management.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "corporate-esg-reporting"
+      date: "2025-08-15"
+      notes: "Emissions monitoring for ESG reporting compliance"
+
+    - version: "2.0.0"
+      domain: "climate-adaptation-early-warning"
+      date: "2026-02-14"
+      notes: >
+        Forked for climate adaptation early warning in vulnerable
+        communities. Replaced corporate emissions sensors with satellite
+        and community-based monitoring. Baseline framework now includes
+        climate vulnerability indices alongside corporate ESG targets.
+        Alert routing adapted for low-connectivity, low-literacy
+        communities via community radio and SMS. Impact models focus on
+        food security, water availability, and health rather than
+        regulatory reporting.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-003", "EA-001", "EA-002", "AA-001", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"
+      - name: "OpenCDM"
+        version: ">=1.0"

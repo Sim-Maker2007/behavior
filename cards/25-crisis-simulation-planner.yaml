@@ -1,0 +1,708 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Crisis Simulation & Scenario Planner
+# =============================================================================
+# Originally built for: Financial stress testing and scenario modeling (Monte Carlo)
+# Forked for: Humanitarian contingency planning and crisis simulation
+# =============================================================================
+
+identity:
+  name: "crisis-simulation-planner"
+  display_name: "Crisis Simulation & Scenario Planner"
+  version: "1.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["scenario-planning", "risk-modeling", "contingency-planning", "crisis-simulation", "preparedness"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "sequential-decision-under-uncertainty"
+  description: >
+    Generates plausible crisis scenarios (natural disaster, conflict
+    escalation, disease outbreak, infrastructure failure) with probability
+    estimates, simulates cascading impacts on affected population, estimates
+    resource requirements and timelines, explores decision points under
+    uncertainty, and produces contingency plans that prepare organizations
+    for multiple possible futures.
+
+  sub_patterns:
+    - "scenario-generation"
+    - "impact-modeling"
+    - "resource-requirement-forecasting"
+    - "decision-tree-exploration"
+    - "preparedness-gap-analysis"
+
+  analogous_domains:
+    - domain: "financial-stress-testing"
+      similarity: 0.85
+      notes: >
+        Original domain. Stress test portfolio against scenarios (market
+        crash, interest rate shock, credit event). Estimate losses and
+        capital requirements. Map directly to humanitarian impact simulation.
+
+    - domain: "humanitarian-contingency-planning"
+      similarity: 0.78
+      notes: >
+        Scenario planning for humanitarian crises. What if refugee influx
+        doubles? What if disease outbreak occurs? Pre-position resources
+        and prepare response protocols.
+
+    - domain: "military-wargaming"
+      similarity: 0.75
+      notes: >
+        Simulate conflict scenarios, test strategies, identify weaknesses.
+        But humanitarian planning must remain neutral and impartial, not
+        military-aligned.
+
+    - domain: "pandemic-preparedness-modeling"
+      similarity: 0.80
+      notes: >
+        Disease transmission models (SEIR), forecast case load under
+        intervention scenarios, estimate capacity needs. Directly applicable
+        to disease outbreaks in humanitarian settings.
+
+    - domain: "disaster-risk-reduction-planning"
+      similarity: 0.82
+      notes: >
+        Earthquake, flood, tsunami risk modeling. Vulnerability assessments.
+        Scenario planning for natural disasters.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "periodic-and-on-demand"
+    conditions:
+      - "Quarterly scenario planning exercise (proactive)"
+      - "On-demand when new threat identified (reactive)"
+      - "Annual preparedness drill based on highest-risk scenarios"
+
+  inputs:
+    - name: "base_scenario"
+      type: "scenario_definition"
+      required: true
+      description: >
+        Starting crisis scenario to model: conflict escalation, disease
+        outbreak, natural disaster, infrastructure failure. Includes
+        initial conditions (population, assets, capacity) and triggering event.
+      freshness: "on-demand"
+
+    - name: "probability_distributions"
+      type: "map<uncertain_factor, distribution>"
+      required: true
+      description: >
+        Probability models for uncertain parameters: refugee influx rate
+        (distribution over weeks), disease transmission rate, conflict
+        expansion likelihood, supply chain disruption duration.
+      freshness: "< 6 months (updated with new intelligence)"
+
+    - name: "impact_models"
+      type: "model_library"
+      required: true
+      description: >
+        Models to simulate cascading impacts: population displacement from
+        conflict, disease transmission and case load, malnutrition from
+        food insecurity, water-borne disease from destroyed WASH systems.
+
+    - name: "current_capacity"
+      type: "capacity_inventory"
+      required: true
+      description: >
+        Current assets: shelter capacity, WASH infrastructure, health
+        facility beds/staff, food storage, supply chain capacity.
+
+    - name: "resource_models"
+      type: "cost_and_logistics_model"
+      required: true
+      description: >
+        Unit costs and procurement lead times for resources: food, medical
+        supplies, shelter materials, water trucking, staffing.
+
+    - name: "decision_points"
+      type: "list<decision>"
+      required: true
+      description: >
+        Critical decisions to explore under uncertainty: when to escalate
+        alert level? When to open emergency funding? When to request
+        international assistance? Each with options and consequences.
+
+    - name: "operational_constraints"
+      type: "rule_set"
+      required: true
+      description: >
+        Constraints: staff available (limited pool), budget limits, political
+        constraints (some actions may not be feasible), logistics infrastructure
+        (roads, ports, customs).
+
+    - name: "humanitarian_standards"
+      type: "standards"
+      required: true
+      description: >
+        Humanitarian standards for adequacy (Sphere, IASC, country-specific):
+        minimum water/food per person, health coverage, shelter standards.
+        Scenario planning must show resource gaps against standards.
+
+  outputs:
+    - name: "scenario_set"
+      type: "set<scenario>"
+      description: >
+        Multiple plausible crisis scenarios with probability estimates:
+        Base case, optimistic, pessimistic, and wildcard scenarios.
+
+    - name: "impact_projection"
+      type: "impact_report"
+      description: >
+        For each scenario: expected population affected, estimated casualties,
+        infrastructure damage, displacement, disease cases, resource needs,
+        timeline from trigger to peak impact.
+
+    - name: "resource_requirement"
+      type: "resource_gap_analysis"
+      description: >
+        For each scenario: food requirements by week, medical supplies by type,
+        shelter needs, WASH infrastructure, staffing, budget required.
+        Compared to current capacity to identify gaps.
+
+    - name: "decision_tree"
+      type: "branching_decision_tree"
+      description: >
+        Decision points with options, consequences, and payoffs under each
+        scenario. Shows optimal decision paths given uncertainty.
+
+    - name: "contingency_plan"
+      type: "action_plan"
+      description: >
+        Pre-planned responses to crisis: trigger thresholds that activate
+        response, resource pre-positioning, staffing surge protocols,
+        coordination with partner organizations, decision authority chains.
+
+    - name: "preparedness_assessment"
+      type: "gap_analysis"
+      description: >
+        For each high-risk scenario: current readiness level, gaps between
+        requirements and capacity, investments needed to close gaps,
+        preparedness timeline.
+
+  reasoning:
+    method: "monte-carlo-scenario-simulation-with-decision-analysis"
+    objectives:
+      - "Identify credible worst-case scenarios (weight: 0.3)"
+      - "Quantify resource requirements for adequate response (weight: 0.4)"
+      - "Prepare decision-makers to act decisively under crisis (weight: 0.3)"
+    approach: >
+      Multi-stage: (1) Define scenario trigger event and initial conditions,
+      (2) Model uncertainty: Monte Carlo sampling of demand drivers
+      (population influx rate, disease transmission, supply chain disruptions),
+      (3) Simulate cascade of impacts using domain-specific models,
+      (4) For each simulation path, compute resource requirements and
+      compare to capacity to identify bottlenecks, (5) Run sensitivity
+      analysis: which assumptions matter most? (6) Model decision points:
+      at what population threshold do we activate emergency procurement?
+      At what case load do we request international support? (7) Optimize
+      decision thresholds to balance early action (cost, false alarms)
+      vs. late action (inadequate response), (8) Generate contingency plans
+      and preparedness assessments.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Historical data reliably predicts future scenarios"
+      strength: "soft"
+      adaptation_note: >
+        Financial stress testing: historical volatility used to model
+        future shocks. Refugee crises: historical data may not predict new
+        conflicts (low-frequency events). Use INFORM risk index, expert
+        elicitation, and intelligence assessments to supplement historical data.
+        Scenario probabilities should be validated by domain experts, not
+        derived from limited history.
+
+    - id: "DA-002"
+      assumption: "Probability distributions are accurate"
+      strength: "soft"
+      adaptation_note: >
+        Financial: volatility smile is well-studied. Humanitarian: probability
+        of scenarios is highly uncertain. Build wide confidence intervals.
+        Model tail risks explicitly (low-probability high-impact events).
+        Update probabilities as new intelligence arrives.
+
+    - id: "DA-003"
+      assumption: "Impact models are linear or well-understood"
+      strength: "soft"
+      adaptation_note: >
+        Financial: fairly linear (doubling market volatility ≈ doubles losses).
+        Humanitarian: highly nonlinear and chaotic. Refugee influx compounds
+        with disease (crowding, poor sanitation). Conflict disrupts supply
+        chains (sudden lockdowns, route closures). Model nonlinearities and
+        tipping points. Test model assumptions with domain experts.
+
+    - id: "DA-004"
+      assumption: "Scenarios are independent or correlations are known"
+      strength: "soft"
+      adaptation_note: >
+        Financial: correlation structures studied. Humanitarian: crises
+        cluster (climate stress + conflict often co-occur). Model known
+        correlations. Leave uncertainty bounds for unknown correlations.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Decision-makers can act within planning timeline"
+      strength: "soft"
+      adaptation_note: >
+        Financial: minutes (trading). Humanitarian: procurement and logistics
+        take weeks or months. Build lead time realism into scenarios. Pre-position
+        resources before crisis hits. Decision thresholds must trigger early
+        actions (purchase orders, staff recruitment) not late reactions
+        (emergency appeals for funds).
+
+    - id: "EA-002"
+      assumption: "Resources can be marshaled from global system"
+      strength: "soft"
+      adaptation_note: >
+        Financial: capital flows globally. Humanitarian: supply chains
+        disrupted by conflict, customs delays, port closures. Scenario
+        planning must account for local supply constraints. Consider supply
+        chain localization and pre-positioning as mitigation.
+
+    - id: "EA-003"
+      assumption: "Neutrality and impartiality are feasible"
+      strength: "soft"
+      adaptation_note: >
+        If scenario planning is weaponized (conflict predictions used to favor
+        one side), neutrality breaks. Scenario planning must serve neutral
+        humanitarian response, not military or political goals. Restrict
+        access to sensitive scenarios; vet distribution carefully.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Scenarios inform but don't constrain decision-maker options"
+      strength: "hard"
+      adaptation_note: >
+        Scenario planning explores possibilities, not prescriptions. Human
+        decision-maker retains authority to deviate from recommended plans
+        based on real-time intelligence, political constraints, or humanitarian
+        judgment. Scenarios are tools, not oracles.
+
+    - id: "AA-002"
+      assumption: "Contingency plans are activated by designated authorities"
+      strength: "hard"
+      adaptation_note: >
+        Same in both domains. Clear decision authority chains. Thresholds
+        for activating contingency actions (e.g., population > 100,000
+        triggers emergency procurement). Escalation protocols for crises
+        exceeding local capacity.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "scenario_generator"
+    type: "swappable_component"
+    current: "financial_shock_scenario_library"
+    interface: "ScenarioGenerator"
+    description: >
+      Generates plausible crisis scenarios with initial conditions and triggers.
+      Interface: generate_scenarios(base_case, num_scenarios) → scenarios
+    suggested_alternatives:
+      - name: "financial_shock_scenarios"
+        for_domain: "financial-stress-testing"
+        description: >
+          Market crash, interest rate shock, credit event, contagion from
+          specific counterparty failure. Based on historical financial
+          crises and VaR (value-at-risk) metrics.
+
+      - name: "natural_disaster_scenarios"
+        for_domain: "humanitarian-disaster-planning"
+        description: >
+          Earthquake magnitude, flood volume, cyclone intensity, volcanic
+          ash extent. Based on historical event distributions, INFORM risk
+          index, and hazard maps for specific regions.
+
+      - name: "conflict_escalation_scenarios"
+        for_domain: "humanitarian-conflict-planning"
+        description: >
+          Conflict dynamics: skirmish → localized fighting → regional war,
+          with displacement per stage. Based on conflict prediction models
+          (ACLED, UCDP), geopolitical analysis, and expert elicitation.
+
+      - name: "disease_outbreak_scenarios"
+        for_domain: "humanitarian-epidemic-planning"
+        description: >
+          Index case → local transmission → regional outbreak. Based on
+          SEIR models, R0 estimates by pathogen, and population immunity
+          levels. COVID, cholera, measles, Ebola scenarios.
+
+  - id: "AP-002"
+    name: "impact_model"
+    type: "swappable_component"
+    current: "portfolio_value_at_risk"
+    interface: "ImpactModel"
+    description: >
+      Simulates cascading impacts of crisis scenario. Interface:
+      simulate(scenario, resources) → impact_trajectory
+    suggested_alternatives:
+      - name: "portfolio_var_model"
+        for_domain: "financial-stress-testing"
+        description: >
+          Asset price changes, credit loss, liquidity stress. Portfolio
+          value reduction and solvency impact.
+
+      - name: "displacement_model"
+        for_domain: "humanitarian-conflict-planning"
+        description: >
+          Conflict progression → population fleeing → displacement rate
+          (% per week). Destination patterns (cross-border vs. internal).
+          Cascade: displacement → humanitarian need (shelter, food, WASH,
+          health) → resource demand.
+
+      - name: "disease_transmission_model"
+        for_domain: "humanitarian-epidemic-planning"
+        description: >
+          SEIR (Susceptible-Exposed-Infected-Recovered) compartmental model.
+          Transmission rate β, incubation rate σ, recovery rate γ. Outputs:
+          case load trajectory, peak timing, duration of outbreak, attack rate.
+
+      - name: "infrastructure_damage_model"
+        for_domain: "humanitarian-disaster-planning"
+        description: >
+          Hazard intensity (earthquake magnitude, flood depth) → infrastructure
+          damage (% of buildings damaged, critical infrastructure destroyed) →
+          displaced population and resource need.
+
+  - id: "AP-003"
+    name: "resource_calculator"
+    type: "swappable_component"
+    current: "financial_capital_requirement"
+    interface: "ResourceCalculator"
+    description: >
+      Estimates resource requirements given impact projection.
+      Interface: calculate_requirements(impact) → resource_needs
+    suggested_alternatives:
+      - name: "capital_requirement_calculator"
+        for_domain: "financial-stress-testing"
+        description: >
+          Minimum capital to absorb losses and maintain solvency under
+          stress scenario. Regulatory capital requirement (Basel III).
+
+      - name: "humanitarian_supply_calculator"
+        for_domain: "humanitarian-crisis-planning"
+        description: >
+          Based on Sphere Standards and IASC guidelines:
+          - Food: 2100 kcal/person/day × affected population × duration
+          - Water: 20L/person/day for drinking/cooking + 50L for hygiene
+          - Health: medical supplies, staff, facility beds based on case load
+          - Shelter: 45m² per family or 3.5m² per person
+          - Logistics: transport, warehousing, staff. Staff surge: recruitment
+            timeline + training.
+
+      - name: "financial_and_logistics_model"
+        for_domain: "humanitarian"
+        description: >
+          Supply calculator + cost model + supply chain constraints.
+          Output: total cost, timeline to full supply, procurement bottlenecks,
+          staffing requirements, partner organization support needed.
+
+  - id: "AP-004"
+    name: "decision_model"
+    type: "configurable"
+    parameters:
+      - name: "decision_points"
+        current: "portfolio rebalancing, hedging, capital raising"
+        notes: >
+          For humanitarian: when to activate emergency funding, when to
+          escalate alert level, when to request international assistance,
+          when to initiate evacuations, when to impose rationing. Build
+          decision trees with thresholds (e.g., >100,000 displaced →
+          activate contingency plan).
+
+      - name: "option_values"
+        current: "early action (cost low, benefit low), late action (cost high, benefit varies)"
+        notes: >
+          For humanitarian: early pre-positioning saves lives but ties up
+          resources. Late emergency response is costly and inadequate.
+          Model tradeoffs explicitly. Optimize decision timing.
+
+      - name: "authority_chains"
+        current: "Chief Risk Officer approves capital raising"
+        notes: >
+          For humanitarian: County Commissioner approves emergency response,
+          Minister approves international assistance request. Contingency
+          plans must specify who decides what and escalation protocols.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "risk-analyst"
+      interface: "RiskAssessment"
+      purpose: "Assess probability and severity of potential crises"
+      required: true
+
+    - behavior: "impact-modeler"
+      interface: "ImpactSimulator"
+      purpose: "Simulate population and resource impacts for scenarios"
+      required: true
+
+    - behavior: "logistics-calculator"
+      interface: "SupplyPlanner"
+      purpose: "Estimate supply needs and procurement timelines"
+      required: true
+
+    - behavior: "financial-modeler"
+      interface: "CostEstimator"
+      purpose: "Calculate budget required for contingency response"
+      required: true
+
+    - behavior: "decision-optimizer"
+      interface: "DecisionAnalysis"
+      purpose: "Optimize response thresholds and action timing"
+      required: false
+
+    - behavior: "plan-documentor"
+      interface: "PlanWriter"
+      purpose: "Generate contingency plan documents"
+      required: true
+
+  orchestrated_by:
+    - pattern: "humanitarian-strategic-planning"
+      role: "Uses scenarios to inform preparedness strategy"
+    - pattern: "emergency-operations-center"
+      role: "Activates contingency plans when crisis occurs"
+    - pattern: "interagency-coordination"
+      role: "Coordinates scenario planning across NGOs and government"
+
+  emits:
+    - event: "scenario_set_generated"
+      payload: "scenario_set"
+      description: "Plausible crisis scenarios with probabilities"
+
+    - event: "impact_projection_calculated"
+      payload: "impact_projection"
+      description: "Estimated population and infrastructure impacts for each scenario"
+
+    - event: "resource_gap_identified"
+      payload: "resource_requirement"
+      description: "Resource shortfalls vs. humanitarian standards for scenarios"
+
+    - event: "decision_tree_analyzed"
+      payload: "decision_tree"
+      description: "Optimal action thresholds and decision options under uncertainty"
+
+    - event: "contingency_plan_ready"
+      payload: "contingency_plan"
+      description: "Pre-planned response protocols for high-risk scenarios"
+
+    - event: "preparedness_gap_assessed"
+      payload: "preparedness_assessment"
+      description: "Current readiness level and investments needed to close gaps"
+
+  listens_to:
+    - event: "real_crisis_occurred"
+      source: "incident-responder"
+      action: "Compare actual trajectory to scenarios; update models for next planning cycle"
+
+    - event: "intelligence_update"
+      source: "risk-assessment"
+      action: "Recalibrate scenario probabilities; trigger re-planning if probabilities shift significantly"
+
+    - event: "new_vulnerability_identified"
+      source: "vulnerability-assessment"
+      action: "Add new scenarios covering discovered vulnerabilities"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Scenario planning predicts conflict escalation; information leaked to combatants"
+      impact: "Intelligence becomes weapon; prediction becomes prophecy; helps one side attack other"
+      severity: "critical"
+      mitigation: >
+        Restrict access to sensitive scenarios. Separate "public preparedness
+        scenarios" (natural disasters, disease) from "sensitive scenarios"
+        (conflict escalation). Classify sensitive plans. Vet all scenario
+        distribution. Use secure communication channels. Consider not publishing
+        conflict scenarios at all; keep them for internal coordination only.
+
+    - id: "FM-002"
+      scenario: "Worst-case scenario is overestimated; organization prepares for impossible scenario"
+      impact: "Resources wasted on low-probability scenarios; under-preparation for likely scenarios"
+      severity: "high"
+      mitigation: >
+        Probability estimates must be grounded in evidence and expert judgment,
+        not just model output. Include confidence intervals. Scenario planning
+        should cover multiple scenarios (base, optimistic, pessimistic, wildcard),
+        not just worst-case. Tailor preparedness to most-likely AND most-impactful
+        scenarios, not just most-impactful.
+
+    - id: "FM-003"
+      scenario: "Crisis occurs; actual trajectory differs from all scenarios"
+      impact: "Contingency plans don't match reality; organization improvises poorly"
+      severity: "high"
+      mitigation: >
+        Scenario planning prepares mindsets and processes, not just plans.
+        Teams practice decision-making under uncertainty through tabletop
+        exercises and simulations. Contingency plans are adaptive (IF-THEN rules)
+        not rigid (fixed timeline). Real-time monitoring triggers plan
+        adjustments as crisis unfolds.
+
+    - id: "FM-004"
+      scenario: "Resource requirements calculated for peak impact; sustained shortfalls cause slow-moving crisis"
+      impact: "Prepared for spike but not for marathon; resources exhausted after months"
+      severity: "high"
+      mitigation: >
+        Model not just peak impact but sustained requirements over weeks/months.
+        Include supply chain fatigue (partner organizations get exhausted,
+        donations dry up, staff burn out). Plan for 6-12 month sustained
+        operations, not just initial emergency response.
+
+    - id: "FM-005"
+      scenario: "Plan depends on assumptions that break (supply chain actually unavailable, partner organizations don't show up)"
+      impact: "Contingency plan fails when actually needed"
+      severity: "high"
+      mitigation: >
+        Explicitly document assumptions in contingency plans. War-game scenarios
+        where key assumptions fail. Test with actual partners: "If you can't
+        deliver food, what's the consequence?" Build redundancy: pre-position
+        supplies, develop local sourcing alternatives, maintain diverse partner
+        network so single partner failure doesn't break response.
+
+  ethical_flags:
+    - context: "humanitarian-crisis-planning"
+      concern: >
+        Scenarios that predict conflict can become intelligence if disclosed.
+        Humanitarian organizations must maintain impartiality and neutrality.
+        If crisis planning is shared with one combatant side, neutrality is
+        compromised.
+      recommendation: >
+        Separate public preparedness work (natural disasters, epidemiology)
+        from sensitive conflict scenario planning. Conflict scenarios kept
+        for internal coordination with other neutral organizations, not shared
+        with governments or combatants. If conflict prediction is released
+        publicly, must be presented neutrally (risks to all populations, not
+        supporting one side). Explicitly renounce use of scenario planning
+        for military purposes.
+
+    - context: "humanitarian-crisis-planning"
+      concern: >
+        Scenario planning that focuses only on quantified impacts (deaths,
+        displacement) may miss dignity and human dimensions. Planning may
+        become technocratic (optimize cost-effectiveness) rather than
+        humanitarian (preserve human rights and dignity in crisis).
+      recommendation: >
+        Impact projections must include qualitative humanitarian impacts:
+        separation of families, sexual violence, mental health trauma, loss of
+        livelihoods. Contingency plans must include protection components, not
+        just logistics. Decision-making includes humanitarian principles
+        (humanity, impartiality, neutrality, independence), not just
+        cost-effectiveness. Involve affected communities in scenario planning
+        and contingency design.
+
+    - context: "any"
+      concern: >
+        Over-emphasis on preparing for known scenarios may leave organization
+        blind-sided by novel crises (black swan events). Scenario planning
+        can create false confidence ("we're prepared") that leads to
+        complacency.
+      recommendation: >
+        Explicitly include "wildcard" scenarios: low-probability high-impact
+        events that don't fit standard categories (pandemic + earthquake,
+        cascading cyber attacks, rapid climate shift). Include "pre-mortem"
+        exercise: imagine scenario unfolded worst possible way; what could
+        have been done better? Use outcomes to improve flexibility and
+        adaptive capacity, not just plan execution.
+
+  performance:
+    tested_scale: "Scenarios modeling 500,000-5,000,000 affected population"
+    latency: >
+      Single scenario simulation: 10-30 minutes (depending on model complexity).
+      Batch Monte Carlo (10,000 scenarios): 4-8 hours. Interactive scenario
+      exploration: 2-5 minutes per scenario. Annual planning exercise: 2-3 weeks
+      (intensive collaboration with partners).
+    accuracy: >
+      Point estimates for well-understood processes (food requirement per
+      person) are highly accurate. Cascade dynamics (conflict → displacement →
+      disease → death) are less predictable. Confidence intervals typically
+      50-100% of point estimate (wide bounds reflect uncertainty). Scenario
+      planning is about exploring possibility space, not predicting specifics.
+    known_degradation: >
+      Accuracy drops for: novel crises (no historical precedent), highly
+      dependent on political decisions (hard to model), chaotic dynamics
+      (weather, conflict), and assumption failures (supply chain collapses
+      in ways not foreseen). In these cases, scenarios become less reliable;
+      emphasize adaptive planning and real-time monitoring.
+
+  observability:
+    logging: "All scenarios, assumptions, and impact models versioned and documented"
+    explainability: >
+      Each scenario output includes: trigger event, initial conditions,
+      assumptions, impact mechanisms, resource requirements, and decision
+      points. Sensitivity analysis shows which assumptions drive outcomes.
+      Contingency plans show decision logic: "IF displaced population >
+      100,000 THEN activate emergency procurement."
+    reproducibility: >
+      Deterministic given same scenario definitions, parameters, and model
+      versions. Model versions tracked. Changes to scenarios or assumptions
+      documented and require approval before re-running. Allows comparison of
+      "old plan vs. new plan given new intelligence."
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "financial-services"
+    organization: "ABC Registry"
+    original_use_case: >
+      Stress testing investment portfolios and estimating capital requirements
+      under financial crisis scenarios (market crash, interest rate shock,
+      credit events). Uses Monte Carlo simulation and Value-at-Risk (VaR)
+      methodology.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "financial-stress-testing"
+      date: "2025-07-15"
+      notes: "Portfolio stress testing and capital adequacy modeling"
+
+    - version: "1.0.0"
+      domain: "humanitarian-contingency-planning"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian crisis scenario planning and preparedness.
+        Replaced financial shock scenarios with humanitarian crisis scenarios
+        (conflict, disease, natural disaster), replaced portfolio VaR with
+        population impact modeling, adapted resource calculator to humanitarian
+        supply and logistics, integrated Sphere Standards for adequacy thresholds,
+        and added decision-tree analysis for contingency activation.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "DA-004", "EA-001", "EA-002", "EA-003"]
+
+  compatibility:
+    frameworks:
+      - name: "SimPy"
+        version: ">=4.0"
+        integration: "Discrete event simulation for crisis dynamics"
+      - name: "NumPy/SciPy"
+        version: ">=1.21"
+        integration: "Monte Carlo sampling and statistical analysis"
+      - name: "MESA"
+        version: ">=2.0"
+        integration: "Agent-based modeling for population dynamics"
+      - name: "Plotly"
+        version: ">=5.0"
+        integration: "Interactive visualization of scenario outcomes and decision trees"

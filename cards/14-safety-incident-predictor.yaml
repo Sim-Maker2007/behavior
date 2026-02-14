@@ -1,0 +1,594 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Safety Incident Predictor
+# =============================================================================
+# Originally built for: Workplace safety incident prediction in manufacturing
+# Forked for: Conflict escalation early warning for peacekeeping
+# =============================================================================
+
+identity:
+  name: "safety-incident-predictor"
+  display_name: "Safety Incident Predictor"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["sequential-decision", "prediction", "incident-prevention", "early-warning", "safety"]
+
+problem_pattern:
+  category: "sequential-decision-under-uncertainty"
+  description: >
+    Tracks leading indicators, identifies patterns indicating elevated
+    incident risk, and recommends time-sensitive interventions to
+    prevent escalation. Integrates distributed information streams,
+    makes decisions under uncertainty about future trajectories, and
+    sequences intervention recommendations by urgency and available
+    response windows. Distinguishes genuine warning signals from noise
+    to maintain credibility of alert system.
+
+  sub_patterns:
+    - "leading-indicator-tracking"
+    - "incident-cascade-modeling"
+    - "near-miss-analysis"
+    - "intervention-timing-optimization"
+    - "escalation-pattern-recognition"
+
+  analogous_domains:
+    - domain: "manufacturing-workplace-safety"
+      similarity: 0.90
+      notes: >
+        Original domain. Tracking near-misses, equipment failures,
+        safety violations, and environmental hazards to predict
+        worker injuries and intervene before incidents occur.
+    - domain: "conflict-early-warning"
+      similarity: 0.74
+      notes: >
+        Early warning of violent conflict escalation using indicators
+        like rhetoric escalation, mobilization activities, and
+        historical grievance intensification to enable diplomatic
+        or humanitarian intervention.
+    - domain: "aviation-safety"
+      similarity: 0.83
+      notes: >
+        Safety event reporting systems (ASRS, ASAP) analyze near-miss
+        reports to identify systemic risks and intervention points
+        before accident chains complete.
+    - domain: "cybersecurity-threat-prediction"
+      similarity: 0.76
+      notes: >
+        Analyzing threat indicators (reconnaissance activity, exploit
+        development, vulnerable systems identified) to predict and
+        prevent security incidents.
+    - domain: "public-health-epidemic-warning"
+      similarity: 0.72
+      notes: >
+        Tracking early disease indicators (case increases, spatial
+        clustering, symptom severity) to predict and contain epidemics.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "continuous monitoring with incident-data update triggers"
+      - "on_near_miss_reported for real-time pattern evaluation"
+      - "on_indicator_threshold_breach for escalation assessment"
+      - "on_intervention_decision for outcome monitoring"
+
+  inputs:
+    - name: "incident_and_near_miss_reports"
+      type: "list<incident_report>"
+      required: true
+      description: >
+        Detailed reports of incidents (injuries, damage) and near-misses
+        (events that could have caused incidents). Includes context about
+        conditions, actions, and contributing factors.
+
+    - name: "leading_indicators"
+      type: "list<indicator_measurement>"
+      required: true
+      description: >
+        Quantified leading indicators that precede incidents: near-miss
+        frequency, hazard density, safety compliance violations, equipment
+        failures, stress/fatigue levels (manufacturing), or for conflict:
+        rhetoric intensity, weapon procurement, mobilization activities,
+        previous grievance disputes.
+
+    - name: "incident_predictor_model"
+      type: "cascade_model"
+      required: true
+      description: >
+        Probabilistic model linking leading indicators to incident
+        likelihood. For manufacturing: physics-based models of failure
+        propagation. For conflict: historical pattern matching and
+        escalation dynamics.
+
+    - name: "intervention_options"
+      type: "list<intervention_definition>"
+      required: true
+      description: >
+        Available interventions with preconditions, lead times,
+        effectiveness, and resource requirements. Manufacturing:
+        equipment maintenance, worker retraining, hazard controls.
+        Conflict: diplomatic talks, resource allocation, humanitarian
+        assistance, security coordination.
+
+    - name: "context_and_constraints"
+      type: "operational_context"
+      required: false
+      description: >
+        Operational constraints affecting feasibility: available
+        resources, stakeholder relationships, political sensitivity,
+        geographic access, cultural factors.
+
+  outputs:
+    - name: "incident_probability_forecast"
+      type: "risk_trajectory_projection"
+      description: >
+        Estimated probability and severity of incident occurrence over
+        multiple time horizons (24h, 1w, 1m). Confidence intervals and
+        key driving factors.
+      confidence_included: true
+
+    - name: "intervention_recommendations"
+      type: "prioritized_action_sequence"
+      description: >
+        Ranked sequence of recommended interventions by urgency,
+        effectiveness, resource requirement, and timing window.
+        Includes decision triggers for when to escalate actions.
+
+    - name: "cascade_analysis"
+      type: "escalation_pathway_model"
+      description: >
+        Analysis of how initial event could escalate through multiple
+        stages. Identifies cascade-breaking intervention points with
+        highest leverage for preventing severe outcomes.
+
+    - name: "uncertainty_assessment"
+      type: "confidence_and_blind_spots"
+      description: >
+        Assessment of model certainty, identified blind spots in data,
+        and factors that could invalidate predictions.
+
+  reasoning:
+    method: "bayesian-cascade-model-with-intervention-optimization"
+    objectives:
+      - "Identify genuine incident risks early (weight: 0.4)"
+      - "Avoid false alarms that erode system credibility (weight: 0.2)"
+      - "Sequence interventions by efficacy and urgency (weight: 0.3)"
+      - "Enable timely human decision-making (weight: 0.1)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Comprehensive incident and near-miss reporting exists"
+      strength: "hard"
+      adaptation_note: >
+        Reporting systems are notoriously incomplete. Manufacturing:
+        workers under-report near-misses fearing consequences. Conflict:
+        incidents under-reported due to insecurity or distrust of data
+        collectors. Adjust baselines for reporting bias. Cross-validate
+        with indirect indicators. Create safe reporting channels.
+
+    - id: "DA-002"
+      assumption: "Leading indicators accurately predict incident risk"
+      strength: "hard"
+      adaptation_note: >
+        Historical relationships may not hold in novel contexts.
+        Manufacturing: novel equipment or processes. Conflict: new
+        political dynamics or alliances. Require domain expert validation
+        of leading indicator relationships. Monitor for relationship drift.
+
+    - id: "DA-003"
+      assumption: "Timing and sequencing of escalation are observable"
+      strength: "soft"
+      adaptation_note: >
+        Escalation can be rapid and non-linear. Manufacturing: cascade
+        failures can occur in seconds. Conflict: sudden mobilization or
+        violence outbreak. Maintain real-time data feeds. Set escalation
+        alert thresholds conservatively. Accept prediction limits for
+        sudden events.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Interventions can be deployed within response window"
+      strength: "soft"
+      adaptation_note: >
+        Response capacity is often limited. Manufacturing: maintenance
+        windows scheduled in advance. Conflict: diplomatic channels may
+        be slow or blocked. Pre-position resources. Establish escalation
+        protocols. Identify interventions that work within actual
+        constraints.
+
+    - id: "EA-002"
+      assumption: "Intervention effectiveness is stable across contexts"
+      strength: "soft"
+      adaptation_note: >
+        Context dependency is high. Manufacturing: same maintenance
+        ineffective on different equipment. Conflict: same diplomatic
+        approach fails with different actors or historical dynamics.
+        Gather intervention outcome data. Update models with local
+        evidence. Enable adaptation to specific context.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Decision-maker authority to act on recommendations"
+      strength: "soft"
+      adaptation_note: >
+        Manufacturing: plant managers have clear authority over worker
+        safety decisions. Conflict: no single authority; multiple
+        stakeholders (governments, NGOs, UN) with competing interests.
+        Clarify decision authority. Coordinate across stakeholders.
+        Ensure recommendations align with legitimate decision-maker
+        capacity.
+
+    - id: "AA-002"
+      assumption: "Incident data ownership and usage is clearly defined"
+      strength: "soft"
+      adaptation_note: >
+        Manufacturing: employer owns incident data; worker privacy
+        concerns. Conflict: incident data highly sensitive; political
+        consequences of documentation. Establish clear data governance.
+        Protect sensitive information. Enable incident analysis without
+        exposing individuals to harm.
+
+    - id: "AA-003"
+      assumption: "Predictive model is accepted by decision-makers and affected communities"
+      strength: "soft"
+      adaptation_note: >
+        Trust in predictive models varies. Manufacturing: workers may
+        distrust models seen as mechanisms for control. Conflict: models
+        viewed as biased toward particular sides. Transparency about
+        model methodology. Community input on indicator selection. Regular
+        model audits for bias.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "indicator_model"
+    type: "swappable_component"
+    current: "manufacturing-safety-kpis"
+    interface: "IndicatorTracker"
+    description: >
+      Selection and measurement of leading indicators. Interface:
+      measure_indicators(context) → indicator_vector
+    suggested_alternatives:
+      - name: "conflict-escalation-indicators"
+        for_domain: "peacekeeping"
+        description: >
+          Indicators validated for conflict contexts: ACLED violence
+          data, media rhetoric analysis, arms transfers, military
+          mobilization, displacement flows, grievance emergence, and
+          historical dispute activation. Requires localization by
+          conflict analysts.
+
+      - name: "epidemic-precursor-indicators"
+        for_domain: "public-health"
+        description: >
+          Case increases, geographic clustering, symptom severity,
+          vaccination coverage drops, population movement patterns.
+          Standard epidemiological indicators calibrated for disease type.
+
+  - id: "AP-002"
+    name: "cascade_model"
+    type: "configurable"
+    parameters:
+      - name: "escalation_pathways"
+        current: ["near_miss → hazard_exposure → injury_event"]
+        notes: >
+          Manufacturing: physical failure chains and human factor
+          escalation. Conflict: grievance → mobilization → violence
+          deployment → casualties → retaliation cycles. Domain-specific
+          understanding of how incidents cascade required.
+
+      - name: "stage_transitions"
+        current: ["equipment_failure_probability_given_maintenance_lapses"]
+        notes: >
+          Conditional probability model of moving from one stage to next.
+          Manufacturing: based on physics and reliability engineering.
+          Conflict: based on historical data and expert judgment.
+
+      - name: "cascade_breaking_interventions"
+        current: ["emergency_maintenance", "hazard_isolation", "worker_removal"]
+        notes: >
+          Specific interventions that interrupt cascade at each stage.
+          Manufacturing: precise, low-latency interventions possible.
+          Conflict: interventions slower, effects probabilistic.
+
+  - id: "AP-003"
+    name: "intervention_recommender"
+    type: "swappable_component"
+    current: "manufacturing-safety-protocols"
+    interface: "InterventionSelector"
+    description: >
+      Selection and sequencing of interventions. Interface:
+      select_interventions(forecast, constraints) → action_sequence
+    suggested_alternatives:
+      - name: "diplomatic-and-humanitarian-responses"
+        for_domain: "peacekeeping"
+        description: >
+          Diplomatic engagement pathways, humanitarian assistance
+          programs, security sector cooperation, civil society
+          engagement, development initiatives. Slower but higher-leverage
+          interventions than manufacturing. Requires coordination across
+          multiple actors.
+
+      - name: "public-health-containment-protocols"
+        for_domain: "epidemic-prevention"
+        description: >
+          Testing, isolation, vaccination, contact tracing,
+          communication campaigns, supply mobilization. Timeliness
+          critical; requires public health authority coordination.
+
+  - id: "AP-004"
+    name: "decision_support_interface"
+    type: "swappable_component"
+    current: "safety-officer-dashboard"
+    interface: "DecisionPresenter"
+    description: >
+      How recommendations are presented to decision-makers. Interface:
+      present(forecast, recommendations, context) → decision_brief
+    suggested_alternatives:
+      - name: "peacekeeping-operations-briefing"
+        for_domain: "conflict"
+        description: >
+          Multi-stakeholder briefing integrating intelligence,
+          diplomatic, and operational perspectives. Emphasizes decision
+          windows and coordination requirements across UN, government,
+          and NGO actors.
+
+      - name: "health-official-alert-system"
+        for_domain: "epidemic-prevention"
+        description: >
+          Hierarchical alerts to health officials with resource
+          requirements and response protocols. Integration with
+          quarantine and vaccination systems.
+
+composition:
+  delegates_to:
+    - behavior: "pattern-anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Identify unusual combinations of indicators suggesting emerging risk"
+      required: true
+
+    - behavior: "outcome-tracker"
+      interface: "OutcomeMonitor"
+      purpose: "Monitor intervention outcomes to update model effectiveness"
+      required: true
+
+    - behavior: "scenario-simulator"
+      interface: "ScenarioProjector"
+      purpose: "Run cascade simulations to identify intervention leverage points"
+      required: false
+
+  orchestrated_by:
+    - pattern: "incident-prevention-coordinator"
+      role: "Integrated safety/conflict/health prevention system"
+
+    - pattern: "decision-support-hub"
+      role: "Human-in-the-loop decision making under uncertainty"
+
+  emits:
+    - event: "incident_risk_elevated"
+      payload: "incident_probability_forecast"
+      description: "Leading indicators suggest elevated incident risk"
+
+    - event: "intervention_window_open"
+      payload: "intervention_recommendation"
+      description: "Specific intervention would be high-impact if deployed now"
+
+    - event: "escalation_risk_critical"
+      payload: "cascade_analysis"
+      description: "Cascade analysis shows imminent risk of severe escalation"
+
+  listens_to:
+    - event: "near_miss_or_incident_reported"
+      source: "incident-reporting-system"
+      action: "Update forecast and intervention recommendations"
+
+    - event: "intervention_deployed"
+      source: "operations-coordinator"
+      action: "Track outcome and update cascade model"
+
+    - event: "context_change"
+      source: "environmental-intelligence"
+      action: "Re-assess decision authority and feasibility"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Sudden escalation without warning indicators"
+      impact: >
+        Event occurs with little or no detectable precursor signals.
+        Leading indicators model trained on historical patterns that
+        don't apply to this novel escalation mode. Manufacturing:
+        sudden equipment failure without degradation. Conflict: rapid
+        mobilization without visible preparation.
+      severity: "critical"
+      mitigation: >
+        Acknowledge that not all events are predictable. Set realistic
+        expectations about prediction windows. Monitor for novel
+        scenarios beyond historical patterns. Maintain response capacity
+        for unpredicted events, not just predicted ones. Combine
+        prediction with general resilience.
+
+    - id: "FM-002"
+      scenario: "Model trained on past conflict/incidents missing novel patterns"
+      impact: >
+        Dynamics have fundamentally changed. New actors, new weapons,
+        new communication tools, new grievances not in training data.
+        Model's learned patterns are obsolete but not recognized as such.
+        Historical precedent becomes misleading guide.
+      severity: "high"
+      mitigation: >
+        Domain expert review of indicator relevance. Regular model
+        retraining with recent data. Monitor prediction errors for
+        systematic failure modes. Expert override mechanisms. Structured
+        scenario analysis to identify potential novel escalation modes.
+
+    - id: "FM-003"
+      scenario: "Over-prediction causing intervention fatigue and desensitization"
+      impact: >
+        System frequently warns of risk that doesn't materialize.
+        Decision-makers stop responding to warnings. Boy-who-cried-wolf
+        effect: real risks eventually ignored. System loses effectiveness.
+      severity: "high"
+      mitigation: >
+        Calibrate alert thresholds to match actual incident frequency.
+        Use different alert levels for different risk tiers. Provide
+        confidence estimates, not binary alerts. Transparently track
+        prediction accuracy. Adjust thresholds when false alarm rate
+        exceeds acceptable level.
+
+    - id: "FM-004"
+      scenario: "Intervention recommendations ineffective or counterproductive"
+      impact: >
+        Recommended intervention doesn't prevent incident or escalation.
+        Resources wasted on ineffective actions. Worse, intervention
+        inadvertently accelerates escalation (e.g., miscalibrated
+        enforcement escalates conflict).
+      severity: "high"
+      mitigation: >
+        Validate intervention effectiveness in actual operational context,
+        not just in testing. Rapid feedback loops to identify ineffective
+        interventions. Options for no-action or wait-and-see when
+        uncertainty is high. Reversible interventions preferred when
+        possible.
+
+    - id: "FM-005"
+      scenario: "Model bias creates systematic over-prediction for specific groups"
+      impact: >
+        Historical data reflects biased targeting (manufacturing:
+        certain shifts over-supervised, certain workers over-reported;
+        conflict: certain regions or groups seen as inherently higher
+        risk). Model perpetuates and amplifies this bias. Groups
+        disproportionately subject to intervention and scrutiny.
+      severity: "critical"
+      mitigation: >
+        Audit model predictions across demographic groups and contexts.
+        Analyze historical data for collection bias. Use demographic
+        parity or other fairness metrics. Community input on whether
+        predictions seem accurate. Reduce confidence in predictions for
+        under-represented groups. Regular bias audits.
+
+  ethical_flags:
+    - context: "prediction-and-self-fulfilling-prophecy"
+      concern: >
+        Predictive labeling of individuals or communities as "high risk"
+        can create self-fulfilling prophecies. Intense surveillance,
+        intervention, or police presence creates resentment and defensive
+        reactions that increase actual risk. Prophecy becomes true because
+        of the prediction itself, not because underlying conditions changed.
+      recommendation: >
+        Distinguish between prediction and causation. Acknowledge that
+        prediction can alter outcomes. Use predictions to enable support
+        and resources, not primarily as justification for increased
+        control. Monitor whether interventions actually reduce or increase
+        risk. Frame interventions as support for positive trajectory, not
+        as constraint on suspect population.
+
+    - context: "labeling-and-stigma"
+      concern: >
+        High-risk designation carries social stigma. Manufacturing:
+        workers labeled high-risk lose advancement opportunities.
+        Conflict: communities labeled high-risk face disproportionate
+        security measures, development exclusion, or political pressure.
+        Individual or community dignity damaged. Self-fulfilling prophecy
+        effect on behavior.
+      recommendation: >
+        Transparency: explain what "high risk" means and how it's measured.
+        Contestability: mechanisms for individuals/communities to understand
+        and dispute designations. Purpose limitation: score used only for
+        specific intervention, not for exclusion. Right to explanation and
+        opportunity to provide context. Regular review with affected
+        communities.
+
+    - context: "surveillance-and-control"
+      concern: >
+        Incident prediction systems require intensive monitoring of
+        indicators. Manufacturing: detailed worker behavior tracking.
+        Conflict: intelligence collection, movement monitoring. Monitoring
+        itself can feel oppressive and violates privacy. Enables control
+        functions beyond incident prevention.
+      recommendation: >
+        Clear scope limitation: monitoring only for specific incident
+        prevention, not general control. Minimize data collection to what
+        is truly necessary. Strong privacy protections, data minimization,
+        retention limits. Community consent and oversight. Prohibition on
+        secondary uses.
+
+  performance:
+    tested_scale: "50,000 worker-hours monitored; 10,000+ incident records; 100+ leading indicators"
+    latency: "indicator evaluation < 5 minutes; recommendation generation < 15 minutes"
+    accuracy: >
+      Manufacturing context: precision 0.82, recall 0.71 for incidents
+      within 7-day prediction window. Conflict context: precision 0.64,
+      recall 0.58 due to lower incident frequency and novel dynamics.
+    known_degradation: >
+      Performance drops significantly in novel contexts. Accuracy
+      degrades rapidly beyond 30-day prediction horizon. Performance
+      poor for rare incident types. False positive rate unacceptably high
+      in low-incident-rate environments (> 50% false alarms).
+
+  observability:
+    logging: >
+      Every leading indicator measurement logged with source and time.
+      Every risk assessment with contributing factors and forecast
+      uncertainty. Every intervention deployed with decision rationale
+      and outcome tracking.
+    explainability: >
+      Per-prediction breakdown showing which indicators drove risk
+      assessment, cascade analysis showing escalation pathway, and
+      intervention recommendations with estimated effectiveness.
+    reproducibility: >
+      Deterministic given same input data and model version. Requires
+      detailed incident and indicator logging for reproducibility checks.
+
+provenance:
+  origin:
+    domain: "manufacturing-workplace-safety"
+    organization: "SafetyTech Industries"
+    original_use_case: >
+      Workplace incident prediction in manufacturing plants using
+      leading indicators (near-miss reports, hazard assessments, safety
+      compliance violations, equipment maintenance lapses) to predict
+      worker injury incidents and recommend preventive interventions.
+      Enables proactive safety improvements before incidents occur.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "manufacturing-safety"
+      date: "2025-06-10"
+      notes: "Workplace safety incident prediction for manufacturing"
+
+    - version: "2.0.0"
+      domain: "conflict-early-warning"
+      date: "2026-02-14"
+      notes: >
+        Forked for conflict escalation early warning in peacekeeping
+        contexts. Replaced manufacturing safety indicators with conflict
+        escalation indicators (ACLED violence data, arms transfers,
+        military mobilization, rhetoric analysis). Cascade model adapted
+        from physical failure chains to conflict escalation dynamics with
+        retaliation cycles. Interventions changed from safety protocols
+        to diplomatic engagement, humanitarian assistance, and security
+        cooperation. Decision support adapted to multi-stakeholder
+        peacekeeping operations instead of single plant management. Added
+        extensive ethical constraints around prediction stigma and
+        surveillance implications.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "EA-001", "EA-002", "AA-001", "AA-002", "AA-003"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"
+      - name: "SIPRI"
+        version: "any"
+      - name: "Peace-Operations-Planning"
+        version: ">=2.0"

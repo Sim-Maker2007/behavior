@@ -1,0 +1,559 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Data Privacy Guardian
+# =============================================================================
+# Originally built for: GDPR/CCPA personal data compliance for tech platforms
+# Forked for: Humanitarian beneficiary data protection
+# =============================================================================
+
+identity:
+  name: "data-privacy-guardian"
+  display_name: "Data Privacy Guardian"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["data-protection", "compliance", "consent", "privacy", "humanitarian", "security"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "compliance-and-constraint-checking"
+  description: >
+    Maps all data flows through a system, enforces consent-based access
+    control, monitors who accesses what data and when, minimizes collection
+    to only necessary data, and detects breaches or policy violations.
+    Adapts from tech platform compliance to humanitarian contexts where
+    data can determine life-or-death outcomes.
+
+  sub_patterns:
+    - "data-flow-mapping"
+    - "consent-management"
+    - "access-control-monitoring"
+    - "data-minimization-enforcement"
+    - "breach-detection"
+
+  analogous_domains:
+    - domain: "gdpr-compliance"
+      similarity: 0.90
+      notes: >
+        Original domain. Data flow mapping, consent tracking (right to be
+        forgotten), access logging, data minimization principles.
+        Regulatory framework is prescriptive; violations have legal penalties.
+
+    - domain: "humanitarian-data-protection"
+      similarity: 0.80
+      notes: >
+        Protecting beneficiary data in humanitarian response. Data can be
+        weaponized if accessed by hostile actors (e.g., identifying ethnic
+        minorities for persecution). Consent in power-imbalanced contexts
+        (beneficiary vs aid agency) is complex.
+
+    - domain: "hipaa-patient-data"
+      similarity: 0.85
+      notes: >
+        Similar framework: who can access medical data, audit trails,
+        patient consent. HIPAA focuses on healthcare system privacy;
+        humanitarian extends to protection from external threats.
+
+    - domain: "children-online-privacy-coppa"
+      similarity: 0.78
+      notes: >
+        COPPA addresses consent for minors (parents consent instead).
+        Humanitarian data protection requires similar age-aware consent
+        and extra protection for minors in conflict zones.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "on data_collection_request"
+      - "on access_request to stored_data"
+      - "on periodic_audit_cycle (daily)"
+      - "on breach_detection_alert"
+      - "on policy_update"
+
+  inputs:
+    - name: "data_item"
+      type: "data_record"
+      required: true
+      description: >
+        Data being collected or accessed: what information, about whom,
+        collected by whom, for what purpose, with what consent status
+      freshness: "real-time"
+
+    - name: "regulatory_framework"
+      type: "policy_ruleset"
+      required: true
+      description: >
+        Applicable regulations: GDPR/CCPA (tech), ICRC Professional
+        Standards + local data protection laws (humanitarian), HIPAA
+        (healthcare), COPPA (children)
+      freshness: "< 1 week"
+
+    - name: "consent_record"
+      type: "consent_object"
+      required: true
+      description: >
+        Consent given by data subject: scope (what data, for what purpose),
+        timestamp, mechanism (click-through, verbal, written, witnessed),
+        informed level, ability to withdraw
+      freshness: "current"
+
+    - name: "access_control_matrix"
+      type: "role_permissions"
+      required: true
+      description: >
+        Who can access what data under what conditions: role-based access
+        (admin/health-worker/donor), data classification (public/sensitive/
+        highly-sensitive), purpose-limits (treatment only vs aggregate
+        reporting)
+      freshness: "< 1 day"
+
+    - name: "threat_intelligence"
+      type: "security_assessment"
+      required: false
+      description: >
+        Known threat actors, past breaches, local security situation.
+        In humanitarian context: which groups are targeting this population
+      freshness: "< 24 hours"
+
+  outputs:
+    - name: "compliance_decision"
+      type: "approve_or_block"
+      description: >
+        Whether data collection or access is allowed under current
+        policy and consent, with reasoning
+
+    - name: "audit_log"
+      type: "access_record"
+      description: >
+        Immutable record of who accessed what, when, why, from where
+
+    - name: "data_minimization_recommendation"
+      type: "data_reduction_plan"
+      description: >
+        Suggests which collected data can be deleted or de-identified
+        to reduce exposure if breach occurs
+
+    - name: "breach_alert"
+      type: "security_incident"
+      description: >
+        Detected suspicious access pattern or policy violation;
+        triggers escalation
+
+    - name: "consent_status_report"
+      type: "compliance_report"
+      description: >
+        Current consent status for all data subjects, with withdrawals,
+        expiry dates, scope limitations
+
+  reasoning:
+    method: "policy-enforcement-engine"
+    objectives:
+      - "Prevent unauthorized access to sensitive data (weight: 0.5)"
+      - "Comply with regulatory framework (weight: 0.3)"
+      - "Enable legitimate data use for beneficiary welfare (weight: 0.15)"
+      - "Detect breaches early (weight: 0.05)"
+    approach: >
+      Pipeline: (1) classify data by sensitivity level,
+      (2) retrieve applicable consent and access rules,
+      (3) check access request against rules,
+      (4) log decision and access attempt,
+      (5) run periodic breach detection (unusual access patterns),
+      (6) recommend data deletion/de-identification to minimize risk,
+      (7) alert on policy violations.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Data subjects provided explicit, informed consent"
+      strength: "hard"
+      adaptation_note: >
+        In humanitarian contexts, consent is complex: beneficiaries may
+        feel coerced (aid dependency), power imbalance with agency staff,
+        literacy barriers in consent forms. Implement witnessed consent,
+        consent in local language with community leader validation, right
+        to refuse without aid loss.
+
+    - id: "DA-002"
+      assumption: "Data classification is stable and complete"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian data may have hidden sensitivities. Ethnic ID that's
+        safe to record may become deadly in conflict. Build periodic
+        re-assessment: when threat level changes, reclassify data.
+
+    - id: "DA-003"
+      assumption: "Access logs are tamper-proof and complete"
+      strength: "soft"
+      adaptation_note: >
+        In low-resource humanitarian contexts, logging may be spotty.
+        Use cryptographic signatures; synchronize to external audit
+        server to prevent local tampering.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Single organization controls all data"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian response involves UN agencies, NGOs, local authorities.
+        Data sharing between organizations requires inter-agency data
+        protection agreements. Track data in transit between organizations.
+
+    - id: "EA-002"
+      assumption: "Security infrastructure is robust"
+      strength: "soft"
+      adaptation_note: >
+        Crisis zones often have poor physical security. Devices stolen,
+        networks compromised. Implement field-level security: encrypted
+        local storage, offline operation, data destruction on device
+        loss protocols.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Regulatory framework is single and clear"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian response often spans multiple countries with different
+        laws. International humanitarian law (ICRC standards) may conflict
+        with local government demands. Prioritize international standards;
+        escalate conflicts to leadership.
+
+    - id: "AA-002"
+      assumption: "Consent withdrawal is always possible"
+      strength: "soft"
+      adaptation_note: >
+        In some contexts, data subject depends on the organization for
+        survival (shelter, food). Withdrawal may feel impossible. Offer
+        consent withdrawal without service loss. Allow proxy withdrawal
+        (community leader, human rights monitor) if beneficiary unable.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "regulatory_framework"
+    type: "swappable_component"
+    current: "gdpr_ccpa_compliance_checker"
+    interface: "RegulatoryFramework"
+    description: >
+      Encodes compliance rules. Interface:
+      check_compliance(data_request, framework) → {allowed, reason}
+    suggested_alternatives:
+      - name: "icrc_humanitarian_data_protection"
+        for_domain: "humanitarian"
+        description: >
+          ICRC Professional Standards on Protection + local data
+          protection laws where present. Framework: data minimization,
+          security classification (public/confidential/strictly
+          confidential), need-to-know principle, secure storage,
+          destruction timelines.
+
+      - name: "hipaa_healthcare_privacy"
+        for_domain: "healthcare"
+        description: >
+          HIPAA Privacy Rule + Security Rule. Framework: PHI (Protected
+          Health Information) access restrictions, patient rights, audit
+          requirements, breach notification.
+
+  - id: "AP-002"
+    name: "consent_model"
+    type: "swappable_component"
+    current: "click_through_consent"
+    interface: "ConsentModel"
+    description: >
+      Consent acquisition and tracking. Interface:
+      get_consent(data_subject, scope) → {consent_token, validity_period}
+    suggested_alternatives:
+      - name: "humanitarian_witnessed_consent"
+        for_domain: "humanitarian"
+        description: >
+          Consent in person, in local language, with witness (community
+          leader/monitor), documented with photo/video. Addresses power
+          imbalance and literacy barriers. Includes easy withdrawal
+          mechanism without service loss.
+
+      - name: "low_literacy_consent"
+        for_domain: "public-health-low-literacy"
+        description: >
+          Consent explained orally, signed with thumbprint, in local
+          language. Community leader validates understanding. Reconsent
+          periodically (quarterly) to detect coercion.
+
+  - id: "AP-003"
+    name: "data_classification"
+    type: "configurable"
+    parameters:
+      - name: "sensitivity_categories"
+        current: ["public", "internal", "restricted", "confidential"]
+        suggested_values: >
+          For humanitarian: public (aggregated statistics)/confidential
+          (individual names and locations)/highly-sensitive (ethnicity,
+          displacement status, medical conditions, security concerns —
+          exposure could enable targeting for persecution)/strategic
+          (coordination data, operational capacity).
+
+      - name: "threat_aware_classification"
+        current: "static"
+        suggested_values: >
+          For humanitarian: dynamic reclassification based on threat
+          level. When conflict escalates, ethnicity data reclassified
+          from confidential to highly-sensitive. Automatic deletion
+          triggered if threat exceeds threshold.
+
+      - name: "data_retention_windows"
+        current: "GDPR: 90 days minimum"
+        suggested_values: >
+          For humanitarian: shortest practical window. Beneficiary list
+          kept only while aid active; deleted 30 days after closure.
+          Case notes kept longer if consent given, encrypted and
+          segregated from identity.
+
+  - id: "AP-004"
+    name: "breach_detection"
+    type: "configurable"
+    parameters:
+      - name: "anomaly_signals"
+        current: ["unusual_access_time", "bulk_download", "geographic_mismatch"]
+        suggested_values: >
+          For humanitarian: add suspicious access patterns (accessing
+          high-sensitivity data without operational need), concurrent
+          access from multiple locations (device compromise), correlation
+          with threat intelligence (accessing data about group targeted
+          by known threat actor).
+
+      - name: "alert_escalation"
+        current: "email to compliance officer"
+        suggested_values: >
+          For humanitarian: immediate alert to security lead + data
+          protection officer + field manager. In active conflict: alert
+          to local partner org. High-severity breaches: cascade to all
+          data subjects immediately (they need to know they're at risk).
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "encryption-service"
+      interface: "EncryptionService"
+      purpose: "Encrypt sensitive data at rest and in transit"
+      required: true
+
+    - behavior: "audit-logger"
+      interface: "AuditLogger"
+      purpose: "Maintain immutable access logs"
+      required: true
+
+    - behavior: "threat-intelligence-tracker"
+      interface: "ThreatIntelligence"
+      purpose: "Monitor known threat actors and security incidents"
+      required: false
+
+    - behavior: "consent-manager"
+      interface: "ConsentManager"
+      purpose: "Track consent status and withdrawals"
+      required: true
+
+  orchestrated_by:
+    - pattern: "data-governance-framework"
+      role: "Central data protection policy in humanitarian response system"
+
+  emits:
+    - event: "access_allowed"
+      payload: "compliance_decision"
+      description: "Emitted when access request is approved"
+
+    - event: "access_denied"
+      payload: "compliance_decision"
+      description: "Emitted when access request is blocked with reason"
+
+    - event: "breach_detected"
+      payload: "breach_alert"
+      description: "Emitted when suspicious access pattern detected; triggers escalation"
+
+    - event: "consent_withdrawn"
+      payload: "data_subject_id"
+      description: "Emitted when consent is withdrawn; triggers data deletion"
+
+    - event: "data_minimization_opportunity"
+      payload: "data_reduction_plan"
+      description: "Emitted when data can be safely deleted or de-identified"
+
+  listens_to:
+    - event: "data_collection_initiated"
+      source: "program-staff"
+      action: "Check consent and compliance"
+
+    - event: "access_request_submitted"
+      source: "user-system"
+      action: "Validate against access control matrix"
+
+    - event: "threat_level_changed"
+      source: "security-monitor"
+      action: "Reclassify data and audit access"
+
+    - event: "regulatory_update"
+      source: "compliance-team"
+      action: "Update policy ruleset"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Breach goes undetected; beneficiary data exposed to hostile actors"
+      impact: "Vulnerable populations targeted for persecution, displacement, violence"
+      severity: "critical"
+      mitigation: >
+        Multi-layer detection: access log anomalies + external threat
+        intelligence + periodic integrity checks. When breach suspected,
+        immediately notify data subjects and field partners so they can
+        take protective measures. Retain encrypted backups to detect
+        what data was exposed.
+
+    - id: "FM-002"
+      scenario: "Consent is formally valid but actually coerced"
+      impact: "Data collected unethically despite passing compliance checks"
+      severity: "high"
+      mitigation: >
+        Witnessed consent with community validation. Periodic reconsent
+        (quarterly) with independent interviewer. Anonymous channel for
+        consent withdrawal without aid loss. Monitor consent patterns:
+        if 100% of population "consents," coercion is likely.
+
+    - id: "FM-003"
+      scenario: "Data minimization not enforced; old data retained indefinitely"
+      impact: "Unnecessary exposure: if breach occurs, more data compromised"
+      severity: "high"
+      mitigation: >
+        Automated deletion on schedule: beneficiary data expires 30 days
+        after program closure unless explicit consent for longer retention.
+        Quarterly audit of data age and relevance. Manual review required
+        to override automatic deletion.
+
+    - id: "FM-004"
+      scenario: "Data classification outdated; threat changes but classification doesn't"
+      impact: "Previously safe data becomes dangerous to expose"
+      severity: "high"
+      mitigation: >
+        Threat-aware reclassification triggered by threat intelligence
+        updates. When conflict escalates, run reclassification sweep.
+        Trigger automatic destruction of highly-sensitive data if threat
+        exceeds tolerance threshold.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: >
+        Data collected to help displaced people can be weaponized if
+        accessed by hostile actors (ethnic ID for persecution, location
+        for targeting, medical conditions to identify vulnerable
+        individuals for coercion)
+      recommendation: >
+        Beneficiary data protection is life-or-death. Treat as national
+        security data: encryption, access controls, threat-aware
+        classification. Partner with local security experts to assess
+        threats specific to context. When in doubt, delete.
+
+    - context: "humanitarian"
+      concern: >
+        Aid agencies collecting data may be perceived as surveillance
+        by beneficiary communities, damaging trust
+      recommendation: >
+        Be radically transparent: explain what data is collected, by
+        whom, stored where, accessed by whom, for how long. Community
+        consent not just individual. Offer alternatives: can beneficiary
+        opt out of data collection and still get aid? (Usually yes;
+        make this explicit.)
+
+    - context: "humanitarian"
+      concern: >
+        Power imbalance: beneficiaries depend on aid agency, making
+        "voluntary" consent questionable
+      recommendation: >
+        Require independent consent verification (not agency staff).
+        Allow community leader or human rights monitor to review consent
+        process. Implement strong data deletion rights: consent
+        withdrawal must include retroactive data deletion without
+        service loss.
+
+  performance:
+    tested_scale: "100K data subjects, 50+ organizational users, 1M access requests/day"
+    latency: "< 100ms for access decision"
+    accuracy: "Breach detection precision > 0.95 (false positive rate < 5%)"
+    known_degradation: >
+      Anomaly detection less effective in contexts with unstable network
+      (connections drop frequently). Low-resource environments may not
+      have secure logging infrastructure; compensate with periodic
+      integrity audits.
+
+  observability:
+    logging: "Every data access logged with user, timestamp, data accessed, purpose, approval status"
+    explainability: >
+      Each compliance decision includes: applicable rules, consent status,
+      access rights, why approved/denied
+    reproducibility: "Deterministic given policy ruleset and consent records"
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "tech-platform"
+    organization: "TechCorp Platform Services"
+    original_use_case: >
+      GDPR/CCPA compliance for consumer tech platform. Managing user
+      data consent, restricting access to customer data, detecting
+      unauthorized access, enabling data subject rights (deletion,
+      portability). Compliance required to avoid regulatory fines.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "tech-platform"
+      date: "2026-01-10"
+      notes: "GDPR compliance engine with consent tracking and access logging"
+
+    - version: "1.5.0"
+      domain: "tech-platform"
+      date: "2026-01-30"
+      notes: "Added CCPA support and data minimization recommendations"
+      adaptation_points_changed: ["AP-001"]
+
+    - version: "2.0.0"
+      domain: "humanitarian"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian beneficiary data protection. Major changes:
+        consent model adapted for low-literacy, power-imbalanced contexts
+        (witnessed consent, community validation); data classification
+        threat-aware (ethnicity reclassified when conflict escalates);
+        ICRC standards replace GDPR as primary framework; breach detection
+        includes hostile actor intelligence; destruction timelines
+        shortened dramatically; consent withdrawal implemented without
+        service loss.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "EA-001", "EA-002", "AA-001", "AA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+        integration: "CrewAI Tool wrapper for policy enforcement"
+      - name: "LangGraph"
+        version: ">=0.1"
+        integration: "LangGraph node for event-driven compliance checks"

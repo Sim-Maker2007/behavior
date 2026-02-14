@@ -1,0 +1,319 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Patient Risk Stratifier
+# =============================================================================
+# Originally built for: Insurance policyholder risk scoring
+# Forked for: Community health worker patient prioritization
+# =============================================================================
+
+identity:
+  name: "patient-risk-stratifier"
+  display_name: "Patient Risk Stratifier"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["risk-scoring", "health", "stratification", "prioritization", "triage"]
+
+problem_pattern:
+  category: "pattern-matching-and-classification"
+  description: >
+    Scores individuals based on multiple risk factors to classify them
+    into risk tiers, prioritize interventions, and predict which
+    individuals are most likely to experience adverse outcomes without
+    proactive intervention.
+
+  sub_patterns:
+    - "multi-factor-risk-scoring"
+    - "threshold-based-tier-classification"
+    - "intervention-prioritization"
+    - "outcome-prediction"
+    - "risk-trend-monitoring"
+
+  analogous_domains:
+    - domain: "insurance-risk-scoring"
+      similarity: 0.85
+      notes: >
+        Original domain. Scoring policyholders on claims risk using
+        demographics, behavior, and history.
+    - domain: "community-health-prioritization"
+      similarity: 0.79
+      notes: >
+        Prioritizing patient visits for community health workers.
+        Risk factors shift from financial to clinical and social.
+    - domain: "credit-risk-assessment"
+      similarity: 0.82
+      notes: >
+        Nearly identical pattern. Scoring borrowers on default risk.
+    - domain: "student-dropout-prediction"
+      similarity: 0.70
+      notes: >
+        Identifying at-risk students using attendance, grades, and
+        social factors. Same multi-factor scoring structure.
+    - domain: "child-welfare-risk-assessment"
+      similarity: 0.73
+      notes: >
+        Screening referrals for child safety risk. Higher ethical
+        stakes and more qualitative inputs.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "weekly risk re-scoring for all active profiles"
+      - "on new_data_received for real-time score update"
+      - "on intervention_completed for outcome tracking"
+
+  inputs:
+    - name: "individual_profiles"
+      type: "list<individual_record>"
+      required: true
+      description: >
+        Each individual with demographics, history, current status,
+        and any available behavioral or environmental data.
+
+    - name: "risk_model"
+      type: "scoring_model"
+      required: true
+      description: >
+        Weighted factors, thresholds, and classification rules
+        defining how risk scores are calculated.
+
+    - name: "intervention_history"
+      type: "list<intervention_record>"
+      required: false
+      description: "Past interventions and their outcomes for model refinement"
+      default_behavior: "Score without intervention history"
+
+  outputs:
+    - name: "risk_scores"
+      type: "list<scored_individual>"
+      description: >
+        Each individual with risk score, tier classification,
+        contributing factors, and trend direction.
+      confidence_included: true
+
+    - name: "priority_list"
+      type: "ranked_intervention_queue"
+      description: >
+        Ordered list of individuals who would benefit most from
+        proactive intervention, with recommended actions.
+
+    - name: "cohort_analysis"
+      type: "population_risk_report"
+      description: >
+        Aggregate risk distribution, emerging risk clusters,
+        and trend analysis across the population.
+
+  reasoning:
+    method: "weighted-multi-factor-scoring-with-thresholds"
+    objectives:
+      - "Correctly identify highest-risk individuals (weight: 0.5)"
+      - "Minimize false negatives — never miss someone at serious risk (weight: 0.3)"
+      - "Generate actionable prioritization for limited intervention capacity (weight: 0.2)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Structured data exists for all risk factors"
+      strength: "soft"
+      adaptation_note: >
+        Community health data in low-resource settings is often
+        incomplete. Support partial scoring with explicit confidence
+        degradation. SMS-based data collection from field workers.
+
+    - id: "DA-002"
+      assumption: "Risk factors are validated and evidence-based"
+      strength: "hard"
+      adaptation_note: >
+        Health risk factors must be clinically validated for the
+        local population. Import risk models from WHO/CDC guidelines
+        adapted for local disease burden and demographics.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Interventions can be delivered to prioritized individuals"
+      strength: "soft"
+      adaptation_note: >
+        Community health workers have limited capacity and coverage.
+        Priority list must account for geographic clustering and
+        worker travel time, not just individual risk scores.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Scoring is used internally for resource allocation"
+      strength: "soft"
+      adaptation_note: >
+        Health risk scores have profound implications for individuals.
+        Ensure scores support clinical decisions, never replace them.
+        Community consent and transparency about scoring criteria.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "risk_factors"
+    type: "configurable"
+    parameters:
+      - name: "factor_weights"
+        current: ["claims_history: 0.3", "demographics: 0.2", "behavior: 0.3", "environment: 0.2"]
+        notes: >
+          Health: replace with clinical risk factors (chronic conditions,
+          medication adherence, vaccination status, nutritional markers),
+          social determinants (housing, water access, income), and
+          environmental factors (disease vector exposure, air quality).
+      - name: "tier_thresholds"
+        current: ["low: 0-30", "medium: 31-60", "high: 61-100"]
+        notes: "Health tiers should map to clinical action protocols"
+
+  - id: "AP-002"
+    name: "scoring_algorithm"
+    type: "swappable_component"
+    current: "actuarial_risk_model"
+    interface: "RiskScorer"
+    description: >
+      Core scoring logic. Interface:
+      score(individual, model) → {score, factors, confidence}
+    suggested_alternatives:
+      - name: "clinical_risk_calculator"
+        for_domain: "community-health"
+        description: >
+          Uses validated clinical risk scores (Framingham, WHO CVD
+          risk charts) combined with social determinant indicators.
+          Calibrated for local disease prevalence.
+
+  - id: "AP-003"
+    name: "output_interface"
+    type: "swappable_component"
+    current: "underwriter_dashboard"
+    interface: "RiskPresenter"
+    description: >
+      How results are presented to users. Interface:
+      present(scores, audience) → formatted_output
+    suggested_alternatives:
+      - name: "chw_mobile_priority_list"
+        for_domain: "community-health"
+        description: >
+          Simple mobile-optimized list for community health workers:
+          patient name, village, risk tier (color-coded), and
+          recommended action. Works offline with SMS sync.
+
+composition:
+  delegates_to:
+    - behavior: "anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Detect sudden risk score changes indicating emerging crisis"
+      required: false
+    - behavior: "notification-sender"
+      interface: "NotificationService"
+      purpose: "Alert care teams about high-risk individuals"
+      required: true
+
+  orchestrated_by:
+    - pattern: "care-coordination-hub"
+      role: "Risk assessment component of population health management"
+
+  emits:
+    - event: "high_risk_identified"
+      payload: "scored_individual"
+      description: "Individual scored above critical threshold"
+    - event: "risk_trend_alert"
+      payload: "cohort_analysis"
+      description: "Emerging risk cluster detected in population"
+
+  listens_to:
+    - event: "new_health_data"
+      source: "health-information-system"
+      action: "Re-score affected individuals"
+    - event: "intervention_outcome"
+      source: "care-tracking-system"
+      action: "Update model with outcome data"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "High-risk individual scored low due to missing data"
+      impact: "Missed intervention; preventable adverse outcome"
+      severity: "critical"
+      mitigation: >
+        Flag individuals with significant data gaps. Never classify
+        as low-risk without minimum data completeness. Default to
+        higher tier when uncertain.
+
+    - id: "FM-002"
+      scenario: "Scoring model encodes demographic bias"
+      impact: "Systematic under-prioritization of certain groups"
+      severity: "high"
+      mitigation: >
+        Regular bias audits across demographic groups. Ensure risk
+        scores predict outcomes equally well across populations.
+        Community advisory input on scoring criteria.
+
+    - id: "FM-003"
+      scenario: "Risk scores used for denial of service rather than prioritization"
+      impact: "Vulnerable individuals excluded from care"
+      severity: "critical"
+      mitigation: >
+        Purpose limitation enforced in design: scores are for
+        prioritization (who gets proactive outreach first), never
+        for exclusion. Audit all score-based decisions.
+
+  ethical_flags:
+    - context: "health"
+      concern: "Risk scoring can create self-fulfilling prophecies and stigma"
+      recommendation: >
+        Scores should be intervention-oriented: "this person would
+        benefit most from proactive care" not "this person is most
+        likely to get sick." Language matters.
+
+    - context: "any"
+      concern: "Algorithmic scoring of individuals raises fundamental fairness questions"
+      recommendation: >
+        Full transparency about scoring criteria. Right to explanation
+        for individuals. Regular external audit. Community oversight
+        of how scores are used.
+
+  performance:
+    tested_scale: "50,000 individuals, 15 risk factors, weekly scoring"
+    latency: "< 100ms per individual scoring; < 10 minutes for full population"
+    accuracy: "AUC 0.82 for top-tier risk prediction in backtesting"
+    known_degradation: "Accuracy drops below 0.70 when > 40% of risk factors are missing"
+
+  observability:
+    logging: "Every score with contributing factors and data completeness"
+    explainability: "Per-individual factor breakdown showing what drives the score"
+    reproducibility: "Deterministic given same inputs and model version"
+
+provenance:
+  origin:
+    domain: "insurance"
+    organization: "InsureTech"
+    original_use_case: >
+      Scoring insurance policyholders on claims risk for underwriting
+      decisions and proactive loss prevention outreach.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "insurance-underwriting"
+      date: "2025-11-01"
+      notes: "Policyholder risk scoring for loss prevention"
+
+    - version: "2.0.0"
+      domain: "community-health"
+      date: "2026-02-14"
+      notes: >
+        Forked for community health worker prioritization. Replaced
+        actuarial model with clinical risk calculator, added social
+        determinants, mobile-optimized CHW interface, and bias auditing.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "EA-001", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

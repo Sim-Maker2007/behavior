@@ -1,0 +1,666 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Sentiment & Feedback Analyzer
+# =============================================================================
+# Originally built for: Product review and customer feedback analysis for brand management
+# Forked for: Community perception monitoring for humanitarian accountability
+# =============================================================================
+
+identity:
+  name: "sentiment-and-feedback-analyzer"
+  display_name: "Sentiment & Feedback Analyzer"
+  version: "1.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["sentiment-analysis", "feedback-aggregation", "community-engagement", "accountability", "nlp"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "information-synthesis-and-routing"
+  description: >
+    Aggregates feedback from multiple sources (surveys, social media,
+    complaint channels, focus groups), classifies sentiment and themes,
+    identifies emerging issues, prioritizes responses, and feeds
+    community feedback back to decision-makers while ensuring that
+    feedback translates into action.
+
+  sub_patterns:
+    - "sentiment-classification"
+    - "theme-extraction"
+    - "trend-detection"
+    - "response-prioritization"
+    - "multilingual-analysis"
+
+  analogous_domains:
+    - domain: "brand-sentiment-analysis"
+      similarity: 0.90
+      notes: >
+        Original domain. Product reviews aggregated and analyzed for
+        brand perception, emerging issues, and customer satisfaction trends.
+        Maps directly to humanitarian feedback.
+
+    - domain: "humanitarian-community-feedback"
+      similarity: 0.76
+      notes: >
+        Aid recipients provide feedback on aid quality, timeliness,
+        dignity of delivery, and unmet needs. Sentiment analysis used
+        for accountability and program improvement.
+
+    - domain: "political-opinion-monitoring"
+      similarity: 0.72
+      notes: >
+        Opinion polling and sentiment tracking. But humanitarian feedback
+        must avoid surveillance implications; goal is empowerment, not
+        monitoring for suppression.
+
+    - domain: "employee-engagement-analysis"
+      similarity: 0.80
+      notes: >
+        Employee surveys analyzed for morale, retention risk, and policy
+        concerns. Similar feedback → action loop, but with employer power
+        differential.
+
+    - domain: "patient-satisfaction-surveys"
+      similarity: 0.78
+      notes: >
+        Hospital patient feedback on care quality, responsiveness, dignity.
+        Similar humanitarian accountability concerns.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "continuous"
+    conditions:
+      - "New feedback submitted to any source (surveys, hotline, social media)"
+      - "Daily batch analysis and aggregation"
+      - "Weekly trend reports to stakeholders"
+
+  inputs:
+    - name: "feedback_stream"
+      type: "stream<feedback>"
+      required: true
+      description: >
+        Continuous stream of community feedback from multiple sources:
+        household surveys, complaint hotlines, community feedback boxes,
+        focus group transcripts, social media posts, radio call-ins.
+        Can be structured (survey responses) or unstructured (free text).
+      freshness: "real-time to daily"
+
+    - name: "sentiment_model"
+      type: "nlp_model"
+      required: true
+      description: >
+        Pre-trained model for sentiment classification (positive/negative/neutral)
+        and intensity scoring. Must handle multilingual input.
+      freshness: "< 3 months (retraining)"
+
+    - name: "theme_taxonomy"
+      type: "hierarchy"
+      required: true
+      description: >
+        Hierarchical categorization of feedback themes. Configurable per
+        context (product features vs. humanitarian services).
+      examples:
+        - "shelter (adequacy, safety, maintenance)"
+        - "water-and-sanitation (availability, quality, gender-specific)"
+        - "health-services (accessibility, wait times, medication availability)"
+        - "food (quality, quantity, cultural appropriateness)"
+        - "safety-and-protection (violence, exploitation, harassment)"
+        - "dignity-and-respect (treatment by aid workers, transparency)"
+        - "family-separation (reunification support, child protection)"
+
+    - name: "priority_rules"
+      type: "rule_set"
+      required: true
+      description: >
+        Rules for prioritizing responses. Safety/protection issues
+        priority 1, urgent needs priority 2, systemic concerns priority 3.
+
+    - name: "response_database"
+      type: "action_log"
+      required: false
+      description: >
+        Log of past feedback and actions taken in response (closed loop).
+        Used to track whether feedback led to change and to identify
+        repeated unaddressed issues.
+
+    - name: "demographic_data"
+      type: "map<person_id, demographics>"
+      required: false
+      description: >
+        Optional demographic data (age, gender, special needs) to identify
+        whether satisfaction differs by population segment.
+
+  outputs:
+    - name: "sentiment_score"
+      type: "scored_feedback"
+      description: >
+        Each feedback item classified for sentiment, themes, intensity,
+        and demographic segment. Confidence scores included.
+
+    - name: "theme_report"
+      type: "theme_aggregation"
+      description: >
+        Aggregation of feedback by theme: frequency, sentiment distribution,
+        quoted excerpts, demographic patterns. Shows which issues matter most
+        to community.
+
+    - name: "trend_analysis"
+      type: "trend_report"
+      description: >
+        Temporal trends: is satisfaction improving or declining? Are new
+        issues emerging? Which themes have momentum?
+
+    - name: "action_recommendations"
+      type: "prioritized_actions"
+      description: >
+        Prioritized list of issues requiring response, with suggested
+        actions, expected impact, and resource requirements.
+
+    - name: "accountability_report"
+      type: "community_report"
+      description: >
+        Public-facing summary of feedback heard, concerns identified,
+        and actions being taken. Demonstrates responsiveness to community.
+
+  reasoning:
+    method: "multi-layer-sentiment-and-thematic-analysis"
+    objectives:
+      - "Accurately capture community sentiment (weight: 0.3)"
+      - "Identify systemic issues and emerging problems (weight: 0.4)"
+      - "Ensure feedback leads to action and closes the feedback loop (weight: 0.3)"
+    approach: >
+      Multi-stage: (1) Sentiment classification and intensity scoring
+      for each feedback item, (2) Thematic coding using NLP entity recognition
+      and taxonomy matching, (3) Demographic segmentation to identify if
+      issues affect specific populations disproportionately, (4) Trend
+      detection to identify emerging issues or shifts, (5) Prioritization
+      using rule-based logic (safety > urgency > systemic), (6) Generate
+      action recommendations with expected impact, (7) Track whether
+      previous feedback led to action (accountability loop).
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Feedback represents true community opinion"
+      strength: "soft"
+      adaptation_note: >
+        Brand reviews: mostly authentic (financial incentive to be honest).
+        Humanitarian feedback: may be biased (fear of aid withdrawal if
+        negative, social desirability bias in presence of aid worker,
+        power imbalance). Use anonymous surveys and community mobilizers
+        (trusted locals) to collect feedback, not aid workers. Combine
+        quantitative surveys with qualitative focus groups to triangulate.
+
+    - id: "DA-002"
+      assumption: "Sufficient feedback volume to draw statistical conclusions"
+      strength: "soft"
+      adaptation_note: >
+        Brand: thousands of reviews per month. Camp: surveys reach maybe
+        10-20% of population. May not be representative. Use stratified
+        sampling by demographic group and location. Report margins of
+        error explicitly. Small N in subgroups should not be over-interpreted.
+
+    - id: "DA-003"
+      assumption: "Feedback is expressed clearly in text/speech"
+      strength: "soft"
+      adaptation_note: >
+        Online reviews: clear, written. Oral feedback from illiterate or
+        traumatized populations: may be fragmented, indirect, or expressed
+        through emotion rather than words. Train coders to listen for
+        implicit concerns. Consider body language and context in focus groups.
+
+    - id: "DA-004"
+      assumption: "Themes are consistent and don't overlap"
+      strength: "soft"
+      adaptation_note: >
+        "This water is unsafe" could be a water quality issue (theme) or
+        a protection concern (water source in unsafe area). Feedback often
+        touches multiple themes. Allow multi-coding; track co-occurrence
+        patterns.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Feedback channels are neutral and non-coercive"
+      strength: "soft"
+      adaptation_note: >
+        Brand surveys: voluntary. Camp feedback: may be coerced (aid
+        worker present = power imbalance) or risky to give negative feedback.
+        Prioritize anonymous channels (suggestion boxes), trusted intermediaries
+        (community mobilizers), and private 1:1 interviews over group settings.
+
+    - id: "EA-002"
+      assumption: "Community can articulate needs clearly"
+      strength: "soft"
+      adaptation_note: >
+        Traumatized populations may struggle to express needs. Children
+        may not have voice. Disabled or chronically ill may be invisible.
+        Use participatory approaches: involve community leaders in designing
+        feedback collection, co-design solutions, and represent vulnerable
+        groups explicitly in feedback channels.
+
+    - id: "EA-003"
+      assumption: "Feedback triggers rapid response"
+      strength: "soft"
+      adaptation_note: >
+        Brand: customer service responds in hours. Camp: responses may
+        take days or weeks due to resource constraints. Must still close
+        the loop — inform community what was heard and what actions taken,
+        even if full solution is delayed.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Feedback analysis informs but doesn't override human decision-making"
+      strength: "hard"
+      adaptation_note: >
+        Same in both domains. Sentiment analysis identifies issues but
+        leadership decides response. Decision-maker must understand confidence
+        levels and subgroup differences when choosing action.
+
+    - id: "AA-002"
+      assumption: "Community has voice in decisions affecting them"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian principle: participation and accountability.
+        Feedback analysis must empower affected populations, not surveil
+        them. Share findings with community; involve community in
+        prioritizing which issues to address first. This is accountability,
+        not monitoring.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "sentiment_model"
+    type: "swappable_component"
+    current: "product_brand_sentiment_classifier"
+    interface: "SentimentClassifier"
+    description: >
+      Classifies sentiment and intensity. Interface:
+      classify(text, language) → {sentiment: positive|neutral|negative, intensity: 0-1}
+    suggested_alternatives:
+      - name: "product_brand_sentiment"
+        for_domain: "e-commerce"
+        description: >
+          Trained on product reviews. Understands "fast shipping" as
+          positive, "damaged on arrival" as negative. Intensity relates
+          to product satisfaction.
+
+      - name: "humanitarian_community_sentiment"
+        for_domain: "humanitarian-accountability"
+        description: >
+          Trained on aid feedback. Understands contextual positivity:
+          "at least the water is clean even though there's not enough"
+          is mixed sentiment (grateful but unmet need). Also handles
+          expressions of suffering, grief, and trauma. Sentiment is about
+          satisfaction with aid + hope for resolution, not emotional
+          positivity.
+
+      - name: "multilingual_feedback_classifier"
+        for_domain: "humanitarian"
+        description: >
+          Handles 20+ languages (major refugee source countries).
+          Translates to English for central analysis while preserving
+          original text for validation.
+
+  - id: "AP-002"
+    name: "source_aggregator"
+    type: "swappable_component"
+    current: "social_media_and_review_aggregator"
+    interface: "FeedbackSourceManager"
+    description: >
+      Integrates feedback from multiple sources with consistent metadata.
+      Interface: ingest(feedback_item, source_type) → normalized_feedback
+    suggested_alternatives:
+      - name: "social_media_aggregator"
+        for_domain: "brand-management"
+        description: >
+          APIs to Twitter, Instagram, review sites. Monitoring brand
+          mentions and hashtags.
+
+      - name: "humanitarian_feedback_aggregator"
+        for_domain: "humanitarian-accountability"
+        description: >
+          Integrates from: household surveys (mobile app or paper), complaint
+          hotlines (SMS, phone, WhatsApp), community feedback boxes (physical),
+          focus group transcripts (manual), community radio call-ins (recorded),
+          and social media (Facebook, Twitter, TikTok where available).
+          Must handle low-bandwidth channels (SMS) and offline collection
+          (paper forms) equally to online.
+
+  - id: "AP-003"
+    name: "theme_taxonomy"
+    type: "configurable"
+    parameters:
+      - name: "top_level_categories"
+        current:
+          - "product_quality"
+          - "shipping_and_delivery"
+          - "customer_service"
+          - "pricing"
+          - "website_usability"
+        notes: >
+          For humanitarian, replace with:
+          - "shelter (adequacy, safety, maintenance, repair)"
+          - "water_and_sanitation (availability, quality, gender-specific facilities)"
+          - "health_services (accessibility, wait times, medication, vaccines, referrals)"
+          - "food_and_nutrition (quantity, quality, cultural appropriateness, special diets)"
+          - "protection_and_safety (violence, exploitation, harassment, child protection)"
+          - "dignity_and_respect (treatment by staff, transparency, complaint handling)"
+          - "family_and_separation (reunification, cash assistance, school access for children)"
+          - "livelihoods (work opportunities, economic support)"
+          - "information_and_communication (understanding programs, feedback channels)"
+
+      - name: "sentiment_mapping"
+        current: "5-star rating directly to sentiment"
+        notes: >
+          For humanitarian: "adequate" is positive in context of emergency,
+          not "excellent." Map: 1-star → strongly negative, 2-star →
+          negative, 3-star → mixed (survival met but needs unmet),
+          4-star → positive (needs largely met), 5-star → strongly positive.
+
+      - name: "demographic_stratification"
+        current: "optional (user profile)"
+        notes: >
+          For humanitarian: CRITICAL. Women's safety concerns may be
+          invisible if feedback not stratified. Always analyze by: gender,
+          age (children separately), disability status, health condition,
+          and family composition. Report if specific groups are consistently
+          less satisfied.
+
+  - id: "AP-004"
+    name: "accountability_framework"
+    type: "configurable"
+    parameters:
+      - name: "feedback_to_action_loop"
+        current: "feedback analyzed; recommendations generated; (no tracking if action taken)"
+        notes: >
+          For humanitarian: CRITICAL. Log every piece of feedback and
+          track action taken: "Feedback theme: water quality concerns
+          (50 people). Action: Water system audit scheduled for week
+          of Feb 28. Status: In progress." Close the loop with community:
+          publish what was heard and what's being done.
+
+      - name: "response_timelines"
+        current: "no SLA"
+        notes: >
+          For humanitarian: set response timelines by priority. Safety
+          issues: acknowledged within 24 hours, action plan within 7 days.
+          Urgent needs: within 1 week. Systemic issues: within 30 days.
+          Track compliance.
+
+      - name: "community_communication"
+        current: "optional (internal insights)"
+        notes: >
+          For humanitarian: REQUIRED. Share findings with community.
+          "We heard from X% of you that water quality is concerning.
+          We're taking these steps: [list]. Timeline: [dates]. Check back
+          in 2 weeks for progress update." This is accountability in action.
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "language-identifier"
+      interface: "LanguageDetector"
+      purpose: "Identify language of feedback for routing to multilingual models"
+      required: true
+
+    - behavior: "translation-service"
+      interface: "Translator"
+      purpose: "Translate non-English feedback for central analysis"
+      required: false
+
+    - behavior: "entity-recognizer"
+      interface: "EntityExtractor"
+      purpose: "Extract specific issues, locations, and names from free-text feedback"
+      required: false
+
+    - behavior: "trend-tracker"
+      interface: "TrendAnalyzer"
+      purpose: "Identify temporal trends and emerging issues"
+      required: false
+
+    - behavior: "action-planner"
+      interface: "ResponsePlanner"
+      purpose: "Generate specific action recommendations from thematic analysis"
+      required: true
+
+    - behavior: "community-communicator"
+      interface: "PublicReporter"
+      purpose: "Translate findings into community-facing reports"
+      required: true
+
+  orchestrated_by:
+    - pattern: "camp-management-system"
+      role: "Feeds feedback collection events and demographic data"
+    - pattern: "coordination-hub"
+      role: "Receives action recommendations and approves responses"
+    - pattern: "monitoring-and-evaluation-framework"
+      role: "Consumes trend analysis for program improvement"
+
+  emits:
+    - event: "feedback_analyzed"
+      payload: "sentiment_score"
+      description: "Individual feedback item classified and coded"
+
+    - event: "theme_summary_updated"
+      payload: "theme_report"
+      description: "Daily aggregation of feedback by theme and sentiment"
+
+    - event: "trend_detected"
+      payload: "trend_analysis"
+      description: "Emerging issue or significant shift in community perception"
+
+    - event: "action_recommended"
+      payload: "action_recommendations"
+      description: "Prioritized list of responses based on feedback"
+
+    - event: "accountability_report_ready"
+      payload: "accountability_report"
+      description: "Public summary of what was heard and actions being taken"
+
+    - event: "safety_alert"
+      payload: "escalation"
+      description: "Critical feedback indicating protection/safety concern"
+
+  listens_to:
+    - event: "action_completed"
+      source: "operations-manager"
+      action: "Update accountability report; close feedback loop with community"
+
+    - event: "action_not_possible"
+      source: "operations-manager"
+      action: "Communicate constraints to community; set realistic expectations"
+
+    - event: "feedback_quality_issue"
+      source: "quality-assurance"
+      action: "Investigate; adjust collection method if systematic bias detected"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Feedback analysis shows negative sentiment but no action taken"
+      impact: "Community learns feedback is ignored; stops providing input; loses trust in organization"
+      severity: "critical"
+      mitigation: >
+        Accountability framework is not optional. Every piece of feedback
+        must be logged and tracked through to action or explicit decision
+        not to act. If action is impossible, communicate honestly with
+        community: "We heard this concern. We cannot address it because
+        [reason]. We will [alternative]." Silence = broken trust.
+
+    - id: "FM-002"
+      scenario: "Feedback from power imbalance (aid worker present) is unrepresentative"
+      impact: "Negative feedback about services underrepresented; programs don't improve"
+      severity: "high"
+      mitigation: >
+        Collect feedback through trusted community members, not aid staff.
+        Use anonymous channels (suggestion boxes, phone hotlines). Offer
+        both group and 1:1 feedback opportunities. Weight anonymous feedback
+        higher than feedback collected by aid staff presence.
+
+    - id: "FM-003"
+      scenario: "Feedback from certain groups not collected (marginalized, non-literate)"
+      impact: "Concerns of most vulnerable remain invisible; aid fails those with least voice"
+      severity: "high"
+      mitigation: >
+        Intentional outreach to vulnerable groups. Work with community
+        leaders to reach: children, elderly, disabled, illiterate, minorities.
+        Use oral interviews for non-literate. Explicitly track coverage:
+        "This survey reached 60% of households; under-represented groups:
+        [list]." Adjust methodology to improve representation.
+
+    - id: "FM-004"
+      scenario: "Sentiment analysis misses context; positive sentiment masks serious concern"
+      impact: "Community says 'good' politely; system classifies as satisfied; real problems unaddressed"
+      severity: "high"
+      mitigation: >
+        Use human coders alongside automated analysis. Audit classifications:
+        sample feedback items and verify sentiment and theme coding by hand.
+        If automation misses nuance, increase human review threshold. In
+        humanitarian context, qualitative depth matters more than volume.
+
+    - id: "FM-005"
+      scenario: "Feedback system becomes surveillance; repressive actor monitors to suppress dissent"
+      impact: "Community fears retaliation for negative feedback; stops speaking truth; system corrupted"
+      severity: "critical"
+      mitigation: >
+        Feedback system must empower, not surveil. Design principles:
+        (1) Community controls what feedback is shared/public (consent),
+        (2) Feedback never flows to government security services without
+        explicit approval, (3) Anonymity protected technically (hashed IDs,
+        aggregation), (4) Independent oversight (external monitor board),
+        (5) Purpose limitation: feedback used for program improvement only,
+        not population identification/tracking.
+
+  ethical_flags:
+    - context: "humanitarian-community-feedback"
+      concern: >
+        Monitoring what affected populations say about aid organizations
+        could be repurposed as population surveillance by aid organization
+        or government. Feedback data includes individual-level information
+        that could identify dissidents or vulnerable populations.
+      recommendation: >
+        Feedback system must empower communities, not surveil them. Operate
+        transparently about what feedback is collected and how it's used.
+        Provide community oversight: involve affected population in reviewing
+        how feedback is handled. Technical controls: anonymize before central
+        analysis, delete individual-level records after aggregation (keep
+        only theme-level summaries), encrypt data in transit and at rest.
+
+    - context: "humanitarian-community-feedback"
+      concern: >
+        Feedback from marginalized groups (women, minorities, disabled)
+        must flow back to those groups with agency to act. Otherwise,
+        their voices are extracted without benefit to them.
+      recommendation: >
+        Close the feedback-to-action loop visibly and inclusively.
+        "We heard from women about safety concerns. We're implementing
+        [actions]. Women will lead community oversight of safety improvements."
+        Accountability flows both directions: organization accountable to
+        community AND community involved in accountability.
+
+    - context: "any"
+      concern: >
+        Feedback analysis embeds normative judgments about what matters.
+        Taxonomy of themes reflects organizational priorities, not community
+        priorities. Community may care about things organization didn't ask about.
+      recommendation: >
+        Co-design feedback taxonomy with community. "What matters most to
+        you about aid?" not "rate our services on these dimensions we chose."
+        Leave space for open-ended feedback. Periodically review whether
+        themes reflect actual community concerns or are imposed from outside.
+
+  performance:
+    tested_scale: "10,000-100,000 feedback items per month; campaigns of 100,000+ people"
+    latency: "Daily theme aggregation < 30 min; trend detection on weekly basis"
+    accuracy: >
+      Sentiment classification: precision/recall ~0.85 for English;
+      0.75 for non-English (lower but acceptable). Theme coding:
+      requires significant human review (maybe 30-50% of items initially).
+      Automation reduces to 10-20% as models mature.
+    known_degradation: >
+      Accuracy drops for: sentiment in languages/cultures where directness
+      is impolite (speakers mask true sentiment); multilingual code-switching;
+      written feedback (inherently lower sentiment signal than oral);
+      feedback from traumatized populations (emotional expression may not
+      map to sentiment scales); feedback collected with power imbalance
+      (likely biased toward politeness).
+
+  observability:
+    logging: "All feedback items with source, language, sentiment, themes, confidence scores"
+    explainability: >
+      Each theme summary shows: representative quotes, demographic
+      distribution, trend line, and proposed actions. Each action recommendation
+      shows: which feedback themes it addresses, expected impact, and
+      resource requirements. Accountability report shows: feedback heard,
+      actions taken, timeline, and next steps.
+    reproducibility: >
+      Deterministic sentiment/theme assignment given same model and rules.
+      Model versions tracked. Changes to taxonomy or thresholds documented
+      and require approval before implementation.
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "e-commerce"
+    organization: "ABC Registry"
+    original_use_case: >
+      Aggregating product reviews from multiple platforms to understand
+      customer sentiment, identify product quality issues, and inform
+      business decisions about features and customer service improvements.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "e-commerce-brand-management"
+      date: "2025-08-01"
+      notes: "Product review aggregation and sentiment analysis"
+
+    - version: "1.0.0"
+      domain: "humanitarian-accountability"
+      date: "2026-02-14"
+      notes: >
+        Forked for community feedback analysis in humanitarian programs.
+        Replaced product reviews with multi-channel feedback sources (surveys,
+        hotlines, focus groups, radio), adapted sentiment model to humanitarian
+        context (contextual positivity, trauma-informed), extended theme taxonomy
+        to humanitarian accountability framework, and added explicit feedback-to-action
+        tracking and community communication loop.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-001", "DA-002", "DA-003", "DA-004", "EA-001", "EA-002", "EA-003"]
+
+  compatibility:
+    frameworks:
+      - name: "Hugging Face Transformers"
+        version: ">=4.30"
+        integration: "Multilingual sentiment and NER models"
+      - name: "spaCy"
+        version: ">=3.5"
+        integration: "Text processing and entity extraction"
+      - name: "Twilio"
+        version: ">=8.10"
+        integration: "SMS feedback collection and dissemination"
+      - name: "Django REST"
+        version: ">=3.14"
+        integration: "Backend API for feedback platform"

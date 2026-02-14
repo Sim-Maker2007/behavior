@@ -1,0 +1,333 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Fleet Route Optimizer
+# =============================================================================
+# Originally built for: Delivery fleet routing for regional distribution
+# Forked for: Humanitarian aid convoy routing in conflict zones
+# =============================================================================
+
+identity:
+  name: "fleet-route-optimizer"
+  display_name: "Fleet Route Optimizer"
+  version: "2.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["routing", "logistics", "fleet", "optimization", "delivery"]
+
+problem_pattern:
+  category: "constrained-resource-allocation"
+  description: >
+    Optimizes routes for a fleet of vehicles to minimize total cost (time,
+    fuel, distance) while satisfying delivery windows, vehicle capacity
+    limits, driver hours regulations, and real-time road conditions.
+
+  sub_patterns:
+    - "vehicle-routing-with-time-windows"
+    - "dynamic-rerouting-on-disruption"
+    - "capacity-bin-packing"
+    - "multi-depot-coordination"
+
+  analogous_domains:
+    - domain: "delivery-logistics"
+      similarity: 0.93
+      notes: >
+        Original domain. Last-mile delivery with time windows, capacity
+        constraints, and customer priority tiers.
+    - domain: "humanitarian-convoy-routing"
+      similarity: 0.76
+      notes: >
+        Aid convoy routing through conflict zones. Routes constrained by
+        security clearances, road damage, and checkpoint negotiations
+        rather than traffic patterns.
+    - domain: "waste-collection-routing"
+      similarity: 0.85
+      notes: >
+        Nearly identical structure — vehicles visiting locations with
+        capacity limits. Simpler time constraints.
+    - domain: "mobile-health-clinic-routing"
+      similarity: 0.78
+      notes: >
+        Routing mobile health teams to villages. Service time at each
+        stop is longer and less predictable than deliveries.
+
+behavior:
+  trigger:
+    type: "scheduled"
+    conditions:
+      - "daily at 04:00 for next-day route planning"
+      - "on disruption_detected for real-time rerouting"
+      - "on new_delivery_added for dynamic insertion"
+
+  inputs:
+    - name: "delivery_requests"
+      type: "list<delivery_order>"
+      required: true
+      description: >
+        Destinations with: location, time window, cargo specifications,
+        priority level, and any special handling requirements.
+      freshness: "< 2 hours"
+
+    - name: "fleet_status"
+      type: "list<vehicle_state>"
+      required: true
+      description: >
+        Each vehicle with: current location, capacity, fuel level,
+        driver hours remaining, and any maintenance restrictions.
+
+    - name: "road_network"
+      type: "graph<location, route_segment>"
+      required: true
+      description: >
+        Road network with travel times, distance, road conditions,
+        and any restrictions (weight limits, hazmat routes).
+      freshness: "< 1 hour for traffic; < 24 hours for road conditions"
+
+    - name: "constraints"
+      type: "constraint_set"
+      required: true
+      description: >
+        Driver hours of service, vehicle capacity, delivery windows,
+        fuel range, and any prohibited routes.
+
+  outputs:
+    - name: "route_plan"
+      type: "list<vehicle_route>"
+      description: >
+        Per-vehicle optimized route with stop sequence, estimated
+        arrival times, and load plan.
+      confidence_included: true
+
+    - name: "exception_report"
+      type: "unserviceable_list"
+      description: >
+        Deliveries that cannot be made within constraints, with
+        explanation and suggested alternatives.
+
+    - name: "cost_breakdown"
+      type: "route_analytics"
+      description: >
+        Total distance, fuel, time, and per-delivery cost estimates.
+
+  reasoning:
+    method: "hybrid-metaheuristic-optimization"
+    objectives:
+      - "Minimize total route cost (distance + time + fuel) (weight: 0.4)"
+      - "Maximize on-time delivery rate (weight: 0.3)"
+      - "Balance workload across drivers (weight: 0.15)"
+      - "Minimize vehicle wear and empty miles (weight: 0.15)"
+
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Road network is digitized with reliable travel time estimates"
+      strength: "hard"
+      adaptation_note: >
+        In conflict/disaster zones, road conditions change hourly. Bridges
+        destroyed, new checkpoints, landmines. Requires real-time field
+        intelligence integration and conservative routing with fallback paths.
+
+    - id: "DA-002"
+      assumption: "Delivery locations have precise GPS coordinates"
+      strength: "soft"
+      adaptation_note: >
+        Humanitarian delivery points may be described as "the school near
+        the river" or "IDP camp sector 3." Requires fuzzy location matching
+        and field-verified waypoints.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Vehicles can travel freely on all roads"
+      strength: "hard"
+      adaptation_note: >
+        Conflict zones require security clearances, convoy scheduling
+        through checkpoints, and negotiated access windows. Add security
+        layer that checks route feasibility against access permissions.
+
+    - id: "EA-002"
+      assumption: "Fuel and maintenance are readily available"
+      strength: "soft"
+      adaptation_note: >
+        In crisis zones, fuel supply is unreliable. Route plans must
+        account for fuel availability at waypoints and include reserve
+        margins for detours.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single dispatcher controls all vehicles"
+      strength: "hard"
+      adaptation_note: >
+        Humanitarian logistics involves multiple organizations sharing
+        road access. Requires deconfliction with other convoys and
+        coordination with military/security forces for escort scheduling.
+
+adaptation_points:
+  - id: "AP-001"
+    name: "routing_engine"
+    type: "swappable_component"
+    current: "commercial_vrp_solver"
+    interface: "RouteOptimizer"
+    description: >
+      Core routing algorithm. Interface:
+      optimize(requests, fleet, network) → routes
+    suggested_alternatives:
+      - name: "conflict_aware_router"
+        for_domain: "humanitarian"
+        description: >
+          Adds security risk scoring per route segment, checkpoint
+          wait time estimation, and convoy grouping requirements.
+          Routes minimize risk × time rather than just time.
+
+  - id: "AP-002"
+    name: "road_condition_source"
+    type: "swappable_component"
+    current: "traffic_api"
+    interface: "RoadConditionProvider"
+    description: >
+      Provides real-time road conditions. Interface:
+      get_conditions(segment) → {travel_time, status, restrictions}
+    suggested_alternatives:
+      - name: "field_intelligence_aggregator"
+        for_domain: "humanitarian"
+        description: >
+          Aggregates OCHA access maps, UN security reports, field
+          team observations, and satellite damage assessments.
+
+  - id: "AP-003"
+    name: "priority_logic"
+    type: "configurable"
+    parameters:
+      - name: "priority_tiers"
+        current: ["premium", "standard", "economy"]
+        notes: >
+          Humanitarian: life-saving supplies → medical → shelter →
+          food → non-food items. Priority is need severity, not
+          customer tier.
+      - name: "reroute_trigger_threshold"
+        current: "15 min delay"
+        notes: "Humanitarian: any security incident triggers immediate reroute"
+
+composition:
+  delegates_to:
+    - behavior: "geocoder"
+      interface: "Geocoder"
+      purpose: "Resolve location descriptions to coordinates"
+      required: true
+    - behavior: "anomaly-detector"
+      interface: "AnomalyDetector"
+      purpose: "Detect unusual delays or route deviations"
+      required: false
+
+  orchestrated_by:
+    - pattern: "supply-chain-coordinator"
+      role: "Delivery execution component of broader logistics"
+
+  emits:
+    - event: "routes_published"
+      payload: "route_plan"
+      description: "Optimized routes ready for dispatch"
+    - event: "delivery_exception"
+      payload: "exception_report"
+      description: "Deliveries that cannot be fulfilled within constraints"
+    - event: "route_disrupted"
+      payload: "disruption_alert"
+      description: "Real-time route disruption requiring intervention"
+
+  listens_to:
+    - event: "road_closure_reported"
+      source: "field-intelligence"
+      action: "Reroute affected vehicles"
+    - event: "new_delivery_urgent"
+      source: "dispatch-system"
+      action: "Insert into existing routes if feasible"
+    - event: "vehicle_breakdown"
+      source: "fleet-tracker"
+      action: "Redistribute remaining stops to other vehicles"
+
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Route plan sends vehicle through newly dangerous area"
+      impact: "Driver and cargo at risk"
+      severity: "critical"
+      mitigation: >
+        Real-time security feed integration. Automatic route validation
+        against latest access data before dispatch. Driver authority to
+        deviate from planned route with automatic re-optimization.
+
+    - id: "FM-002"
+      scenario: "Optimization over-packs routes leaving no buffer"
+      impact: "Cascading delays when any delivery takes longer than planned"
+      severity: "medium"
+      mitigation: >
+        Built-in buffer time per stop (configurable). Maximum route
+        utilization cap (85% of theoretical capacity).
+
+    - id: "FM-003"
+      scenario: "Dynamic rerouting creates conflicting instructions"
+      impact: "Driver confusion, missed deliveries"
+      severity: "high"
+      mitigation: >
+        Single source of truth for active route. Clear version numbering.
+        Driver confirmation required before route change takes effect.
+
+  ethical_flags:
+    - context: "humanitarian"
+      concern: "Route optimization may systematically skip hard-to-reach communities"
+      recommendation: >
+        Include accessibility equity constraint: every registered delivery
+        point must be served within maximum time window regardless of
+        route efficiency. Hard-to-reach populations often need aid most.
+
+    - context: "humanitarian"
+      concern: "Route data reveals aid distribution patterns exploitable by armed groups"
+      recommendation: >
+        Operational security: route plans classified, not shared publicly.
+        Randomize timing patterns. Limit digital route trail retention.
+
+  performance:
+    tested_scale: "50 vehicles, 500 deliveries, 200km radius"
+    latency: "< 45 seconds for full route optimization; < 5 seconds for single insertion"
+    accuracy: "92% on-time delivery rate in simulation; 85% in field conditions"
+    known_degradation: "Quality drops significantly with > 100 vehicles due to solver complexity"
+
+  observability:
+    logging: "All route decisions, rerouting events, and delivery outcomes logged"
+    explainability: "Each route includes cost breakdown and alternative routes considered"
+    reproducibility: "Near-deterministic given same inputs and solver seed"
+
+provenance:
+  origin:
+    domain: "delivery-logistics"
+    organization: "RetailCo"
+    original_use_case: >
+      Routing delivery fleet for regional distribution of consumer goods
+      to retail locations and direct-to-customer deliveries.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "delivery-logistics"
+      date: "2025-10-15"
+      notes: "Basic fleet routing for regional delivery network"
+
+    - version: "2.0.0"
+      domain: "humanitarian-logistics"
+      date: "2026-02-14"
+      notes: >
+        Forked for humanitarian convoy routing. Added security risk
+        scoring, checkpoint negotiation windows, conflict-aware routing,
+        and multi-org convoy deconfliction.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003"]
+      assumptions_changed: ["DA-001", "DA-002", "EA-001", "EA-002", "AA-001"]
+
+  compatibility:
+    frameworks:
+      - name: "CrewAI"
+        version: ">=0.28"
+      - name: "LangGraph"
+        version: ">=0.1"

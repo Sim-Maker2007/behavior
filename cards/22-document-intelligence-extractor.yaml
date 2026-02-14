@@ -1,0 +1,585 @@
+abc_version: "0.1.0"
+
+# =============================================================================
+# AGENT BEHAVIOR CARD: Document Intelligence Extractor
+# =============================================================================
+# Originally built for: Invoice and receipt processing for accounts payable automation
+# Forked for: Humanitarian registration document processing (IDs, birth certificates, asylum claims)
+# =============================================================================
+
+identity:
+  name: "document-intelligence-extractor"
+  display_name: "Document Intelligence Extractor"
+  version: "1.0.0"
+  authors:
+    - name: "ABC Contributors"
+      org: "ABC Registry"
+      contact: "hello@abcregistry.org"
+  license: "Apache-2.0"
+  created: "2026-02-14"
+  updated: "2026-02-14"
+  tags: ["document-processing", "ocr", "field-extraction", "pattern-matching", "classification"]
+
+# -----------------------------------------------------------------------------
+# PROBLEM PATTERN
+# -----------------------------------------------------------------------------
+problem_pattern:
+  category: "pattern-matching-and-classification"
+  description: >
+    Ingests images or PDFs of documents, classifies the document type,
+    extracts structured data fields from unstructured text, validates
+    extracted data against rules and reference databases, and returns
+    machine-readable records with confidence scores and validation status.
+
+  sub_patterns:
+    - "document-type-classification"
+    - "field-extraction"
+    - "validation-cross-referencing"
+    - "multilingual-ocr"
+    - "handwriting-recognition"
+
+  analogous_domains:
+    - domain: "invoice-processing"
+      similarity: 0.90
+      notes: >
+        Original domain. Invoices and receipts have standardized layouts
+        with fixed fields (invoice number, amount, date, vendor). OCR
+        and extraction rules map directly to document processing.
+
+    - domain: "humanitarian-document-processing"
+      similarity: 0.75
+      notes: >
+        Registering refugees requires processing 200+ ID formats across
+        dozens of countries, plus handwritten forms. More variability
+        than invoices but same extraction pattern.
+
+    - domain: "medical-records-digitization"
+      similarity: 0.80
+      notes: >
+        Patient records combine structured fields (name, DOB) with
+        handwritten clinical notes. Validation against medical
+        terminology databases rather than accounting rules.
+
+    - domain: "legal-document-review"
+      similarity: 0.82
+      notes: >
+        Contracts and legal documents require field extraction and
+        clause identification. Similar structured-plus-narrative
+        pattern to refugee registration forms.
+
+    - domain: "banking-kyc-onboarding"
+      similarity: 0.85
+      notes: >
+        Know Your Customer document verification uses same ID classification
+        and field extraction approach with cross-reference validation
+        against sanctions/watchlists.
+
+# -----------------------------------------------------------------------------
+# BEHAVIOR SPECIFICATION
+# -----------------------------------------------------------------------------
+behavior:
+  trigger:
+    type: "event-driven"
+    conditions:
+      - "Document image/PDF uploaded or scanned"
+      - "Batch processing mode for bulk digitization campaigns"
+
+  inputs:
+    - name: "document_image"
+      type: "image|pdf"
+      required: true
+      description: >
+        Scanned document, photograph, or PDF. Can be color, grayscale,
+        or poor quality. May contain handwriting, stamps, or printed text.
+      freshness: "on-demand"
+
+    - name: "document_type_hint"
+      type: "string"
+      required: false
+      description: >
+        Optional hint about document type (e.g., 'passport', 'invoice',
+        'birth_certificate'). Improves extraction accuracy if provided.
+
+    - name: "extraction_schema"
+      type: "rule_set"
+      required: true
+      description: >
+        Configurable schema defining which fields to extract, validation
+        rules for each field, and cross-reference checks.
+
+    - name: "reference_databases"
+      type: "map<string, database>"
+      required: false
+      description: >
+        External databases for validation (country codes, valid
+        date ranges, sanctioned entity lists, population registries).
+
+    - name: "document_models"
+      type: "map<string, model>"
+      required: true
+      description: >
+        Pre-trained models for document type classification and OCR.
+        Swappable per domain (invoice templates vs. ID formats).
+      freshness: "< 1 month (retraining)"
+
+  outputs:
+    - name: "classified_document"
+      type: "document_record"
+      description: >
+        Classified document with type, detected language, and
+        confidence scores for type classification.
+      confidence_included: true
+
+    - name: "extracted_fields"
+      type: "structured_data"
+      description: >
+        Extracted fields as key-value pairs with confidence scores,
+        source locations (bounding boxes), and extraction method
+        (OCR, template matching, handwriting recognition).
+
+    - name: "validation_report"
+      type: "validation_result"
+      description: >
+        Validation status for each field: passed, failed (with reason),
+        or manual_review_needed. Includes cross-reference check results.
+
+    - name: "digitized_record"
+      type: "json"
+      description: >
+        Complete machine-readable record ready for database ingestion
+        or downstream processing. Null values for unextracted fields.
+
+  reasoning:
+    method: "multi-stage-extraction-with-validation"
+    objectives:
+      - "Accurately classify document type despite variability (weight: 0.3)"
+      - "Extract key fields with high confidence (weight: 0.4)"
+      - "Flag data requiring human review without blocking workflow (weight: 0.3)"
+    approach: >
+      Multi-stage: (1) Document classification using vision transformer
+      on full page or layout analysis, (2) Localize field regions based
+      on document-type-specific templates, (3) Apply OCR to field regions
+      (handling handwriting via separate path), (4) Parse extracted text
+      using regex, NLP, or entity recognition, (5) Validate against
+      schema rules and cross-reference databases, (6) Route to human
+      review if confidence below threshold or validation fails.
+
+# -----------------------------------------------------------------------------
+# DOMAIN ASSUMPTIONS
+# -----------------------------------------------------------------------------
+domain_assumptions:
+  data_assumptions:
+    - id: "DA-001"
+      assumption: "Document images are reasonably legible (minimum 200 DPI)"
+      strength: "hard"
+      adaptation_note: >
+        Invoice images from scanners usually meet this. Refugee
+        documents photographed with smartphones may not. Add
+        preprocessing: image enhancement, super-resolution, and
+        de-skewing before OCR.
+
+    - id: "DA-002"
+      assumption: "Document layout is consistent within a document type"
+      strength: "hard"
+      adaptation_note: >
+        Invoices from a single vendor have consistent layouts. ID
+        documents vary by country — passport vs. national ID vs.
+        travel document have completely different structures.
+        Build type-specific layout models, not one universal model.
+
+    - id: "DA-003"
+      assumption: "Extracted text can be validated against structured rules"
+      strength: "soft"
+      adaptation_note: >
+        Invoice amounts have numeric formats. Dates can be validated
+        as plausible. Refugee names may not follow expected patterns
+        if transliterated or if the person has single name + family
+        name conventions differ. Use permissive validation with
+        manual review for edge cases.
+
+    - id: "DA-004"
+      assumption: "Reference databases are accurate and complete"
+      strength: "soft"
+      adaptation_note: >
+        Country codes change slowly (reliable). Population registries
+        in developing regions are incomplete or outdated. Validate
+        against the most reliable source available, but don't reject
+        as "invalid" if missing — flag for manual verification instead.
+
+  environment_assumptions:
+    - id: "EA-001"
+      assumption: "Documents are in single language per document"
+      strength: "soft"
+      adaptation_note: >
+        Invoices are usually monolingual. Refugee documents often
+        contain multiple languages: national language + English
+        + local languages. Need multilingual OCR and language
+        detection per region.
+
+    - id: "EA-002"
+      assumption: "Document text is printed"
+      strength: "soft"
+      adaptation_note: >
+        Many refugee documents are handwritten or a mix of printed
+        and handwritten. Requires separate handwriting recognition
+        model trained on multilingual handwriting. More error-prone
+        than printed OCR.
+
+  authority_assumptions:
+    - id: "AA-001"
+      assumption: "Single organization controls extraction rules and validation logic"
+      strength: "hard"
+      adaptation_note: >
+        Same in humanitarian context — NGO owns the extraction
+        schema. But validation must respect data sovereignty:
+        different countries may have different data requirements
+        and retention policies.
+
+    - id: "AA-002"
+      assumption: "Extracted data is used only within the organization"
+      strength: "soft"
+      adaptation_note: >
+        Refugee documentation often needs to be shared with
+        government authorities or other organizations. Must track
+        data provenance and consent. Extracted data should include
+        confidence levels and extraction method for downstream
+        users to evaluate.
+
+# -----------------------------------------------------------------------------
+# ADAPTATION POINTS
+# -----------------------------------------------------------------------------
+adaptation_points:
+  - id: "AP-001"
+    name: "document_models"
+    type: "swappable_component"
+    current: "invoice_receipt_classifier_and_ocr"
+    interface: "DocumentModel"
+    description: >
+      Models for document type classification and text extraction.
+      Interface: classify(image) → document_type; extract_regions(image, type) → regions
+    suggested_alternatives:
+      - name: "invoice_receipt_templates"
+        for_domain: "accounts-payable"
+        description: >
+          Template matching and regex extraction. Works well for
+          standardized, printed invoices from known vendors.
+      - name: "id_format_library"
+        for_domain: "humanitarian-registration"
+        description: >
+          200+ document format classifiers for passports, national IDs,
+          travel documents, birth certificates, marriage certificates
+          across ~180 countries. Includes handwritten field handling.
+      - name: "medical_record_parser"
+        for_domain: "health-records"
+        description: >
+          Clinical document classification (lab results, prescriptions,
+          discharge summaries) with medical NLP for field extraction.
+
+  - id: "AP-002"
+    name: "extraction_rules"
+    type: "configurable"
+    parameters:
+      - name: "field_definitions"
+        current:
+          - "invoice_number"
+          - "vendor_name"
+          - "invoice_date"
+          - "total_amount"
+          - "line_items"
+        notes: >
+          For humanitarian, replace with:
+          - document_id_number
+          - full_name
+          - date_of_birth
+          - issuing_country
+          - issue_date
+          - expiration_date
+          - identifying_marks (scars, distinguishing features)
+      - name: "field_formats"
+        current: "rigid (e.g., date as YYYY-MM-DD)"
+        notes: >
+          For humanitarian: flexible (dates may be handwritten,
+          partially visible, or in local calendar systems).
+          Include multiple acceptable formats.
+      - name: "mandatory_vs_optional"
+        current: "All fields required; document invalid if any missing"
+        notes: >
+          For humanitarian: some documents have incomplete data
+          (no expiration date, missing middle name). Document
+          validity determined by presence of key fields + manual
+          review, not strict schema compliance.
+
+  - id: "AP-003"
+    name: "validation_engine"
+    type: "swappable_component"
+    current: "accounting_validation"
+    interface: "Validator"
+    description: >
+      Validates extracted data against rules and reference databases.
+      Interface: validate(fields, schema, references) → validation_result
+    suggested_alternatives:
+      - name: "accounting_validation"
+        for_domain: "accounts-payable"
+        description: >
+          Checks numeric fields (amounts, tax), date ranges, vendor
+          matching against approved vendor list, and logical rules
+          (unit price × quantity = line total).
+      - name: "identity_verification"
+        for_domain: "humanitarian-registration"
+        description: >
+          Validates ID number format by country, cross-checks against
+          population registries where available, verifies date of birth
+          is plausible, and flags if person is on high-risk watchlists.
+          Handles incomplete reference databases gracefully.
+      - name: "medical_terminology_validation"
+        for_domain: "health-records"
+        description: >
+          Validates diagnoses against ICD-10, medications against
+          formulary, and lab values against normal ranges.
+
+  - id: "AP-004"
+    name: "ocr_pipeline"
+    type: "configurable"
+    parameters:
+      - name: "text_recognition_model"
+        current: "EasyOCR (general)"
+        notes: >
+          For humanitarian: language-specific models or transfer learning
+          from printed to handwritten in low-resource languages.
+          Start with Tesseract for printed, transition to deep learning
+          for handwriting.
+      - name: "preprocessing"
+        current: "basic (rotate, denoise)"
+        notes: >
+          For humanitarian: aggressive preprocessing for smartphone
+          photos. Include perspective correction, shadow removal,
+          and adaptive thresholding for low-contrast documents.
+      - name: "language_handling"
+        current: "single language"
+        notes: >
+          For humanitarian: auto-detect language per region, apply
+          multilingual OCR, handle mixed-script documents (Latin +
+          Arabic, for example).
+
+# -----------------------------------------------------------------------------
+# COMPOSITION
+# -----------------------------------------------------------------------------
+composition:
+  delegates_to:
+    - behavior: "image-preprocessor"
+      interface: "ImageProcessor"
+      purpose: "Enhance, denoise, and deskew document images"
+      required: true
+
+    - behavior: "ocr-engine"
+      interface: "OCRService"
+      purpose: "Extract text from document regions"
+      required: true
+
+    - behavior: "entity-recognizer"
+      interface: "EntityRecognizer"
+      purpose: "Identify and parse structured entities (dates, names, IDs)"
+      required: false
+
+    - behavior: "reference-checker"
+      interface: "ReferenceDatabase"
+      purpose: "Validate extracted data against external databases"
+      required: false
+
+    - behavior: "human-review-router"
+      interface: "ReviewQueue"
+      purpose: "Route low-confidence extractions to human reviewers"
+      required: true
+
+  orchestrated_by:
+    - pattern: "document-intake-system"
+      role: "Feeds document images from scan, camera, or upload"
+    - pattern: "data-quality-pipeline"
+      role: "Validates digitized records before database ingestion"
+    - pattern: "registration-system"
+      role: "Uses extracted data to create or update person records"
+
+  emits:
+    - event: "document_classified"
+      payload: "classified_document"
+      description: "Document type identified with confidence score"
+
+    - event: "fields_extracted"
+      payload: "extracted_fields"
+      description: "All attempted field extractions with confidence and location"
+
+    - event: "validation_complete"
+      payload: "validation_report"
+      description: "Validation results for all extracted fields"
+
+    - event: "record_ready"
+      payload: "digitized_record"
+      description: "Complete record ready for ingestion"
+
+    - event: "manual_review_needed"
+      payload: "review_request"
+      description: "Low-confidence extraction or validation failure"
+
+  listens_to:
+    - event: "human_review_complete"
+      source: "human-reviewer"
+      action: "Use review feedback to update confidence scores and retrain models"
+
+    - event: "extraction_error_reported"
+      source: "downstream-user"
+      action: "Log error for model improvement; escalate systematic errors"
+
+# -----------------------------------------------------------------------------
+# TRUST & SAFETY
+# -----------------------------------------------------------------------------
+trust:
+  failure_modes:
+    - id: "FM-001"
+      scenario: "Misclassified document type leads to wrong extraction schema"
+      impact: "Critical fields missed or misinterpreted; record is useless"
+      severity: "critical"
+      mitigation: >
+        Always output confidence score for type classification.
+        If confidence < 80%, route to human for document type confirmation
+        before applying extraction schema. Type misclassification should
+        block pipeline with human review.
+
+    - id: "FM-002"
+      scenario: "OCR errors in critical fields (ID number, name, DOB)"
+      impact: "Person cannot be identified; records don't match; system unusable"
+      severity: "critical"
+      mitigation: >
+        Show original image region alongside extracted text. Include
+        confidence score per field. For critical fields (ID, name, DOB),
+        require human review if confidence < 95% or if extracted text
+        doesn't validate against expected format.
+
+    - id: "FM-003"
+      scenario: "Handwriting misrecognized, producing plausible but wrong data"
+      impact: "Silent corruption: extracted data looks valid but is incorrect"
+      severity: "high"
+      mitigation: >
+        Handwritten field extraction should route to human review
+        automatically. Mark fields as 'handwritten_extracted' in output.
+        Never merge handwritten extractions with OCR without explicit
+        confidence threshold per field type.
+
+    - id: "FM-004"
+      scenario: "Validation passes but data is actually invalid (reference DB wrong)"
+      impact: "Invalid person record created with confidence"
+      severity: "high"
+      mitigation: >
+        Track validation database accuracy. If reference data is incomplete,
+        flag validation status as 'could_not_verify' rather than 'valid'.
+        Include data quality metadata in output.
+
+  ethical_flags:
+    - context: "humanitarian-registration"
+      concern: >
+        Document processing for refugees has asylum implications. Errors
+        can separate families (if database doesn't match due to OCR error),
+        deny protection (if name doesn't match due to transliteration),
+        or create false matches to wanted persons/sanctions lists.
+      recommendation: >
+        Every extracted record includes confidence scores and original
+        images for verification. Cross-matching must include fuzzy matching
+        and human review for potential false positives. Never auto-deny
+        based on extraction errors — flag for human investigation.
+
+    - context: "humanitarian-registration"
+      concern: >
+        Extracted personal data (name, DOB, ID number) could be stolen
+        or misused if stored insecurely or shared inappropriately.
+      recommendation: >
+        Digitized records contain PII. Enforce access controls, encryption
+        at rest, and audit logging. Include data retention policies in
+        output metadata. Never share extracted data with third parties
+        without explicit consent from the person registered.
+
+    - context: "humanitarian-registration"
+      concern: >
+        Handwriting recognition on documents may reveal additional
+        information (annotations, corrections) that violates privacy
+        or confidentiality of the original document creator.
+      recommendation: >
+        Extract only specified fields defined in schema. Do not extract
+        or analyze annotations, corrections, or metadata outside the
+        field list. Document what was extracted and what was ignored.
+
+    - context: "any"
+      concern: >
+        Automated document classification may embed biases (e.g., classifying
+        documents from certain countries as 'invalid' due to training
+        data imbalance).
+      recommendation: >
+        Test classification accuracy separately for each document type
+        and source region. Include accuracy metrics in output. Monitor
+        for systematic misclassifications by origin. Retrain regularly
+        on balanced datasets.
+
+  performance:
+    tested_scale: "1000 documents/day in production; batch processing up to 10,000"
+    latency: >
+      Single document: ~5-10 seconds (OCR + extraction + validation).
+      Batch of 100: ~15 minutes. Highly variable by document quality
+      and language complexity.
+    accuracy: >
+      Printed invoices: 99% field extraction accuracy, 99% validation pass.
+      Refugee IDs (mixed printed/handwritten): 92% field extraction,
+      88% validation pass (many require manual review).
+      Handwritten forms: 75% extraction accuracy; most require verification.
+    known_degradation: >
+      Accuracy drops significantly for: low-quality photos, handwriting,
+      non-Latin scripts, multiple languages, and documents from regions
+      not seen in training data. Requires human review more frequently
+      in humanitarian context than accounts payable.
+
+  observability:
+    logging: "All documents processed with extraction confidence, validation results, and human review routing"
+    explainability: >
+      Each output includes: extracted text with bounding boxes,
+      confidence per field, validation rules applied, and whether field
+      was OCR'd or template-extracted
+    reproducibility: >
+      Deterministic given same document image and model version. Changes
+      to OCR model or extraction rules should be versioned and tracked.
+
+# -----------------------------------------------------------------------------
+# PROVENANCE
+# -----------------------------------------------------------------------------
+provenance:
+  origin:
+    domain: "accounts-payable"
+    organization: "ABC Registry"
+    original_use_case: >
+      Digitizing invoices and receipts for expense processing and
+      accounts payable automation in a mid-size organization.
+
+  lineage:
+    - version: "1.0.0"
+      domain: "accounts-payable"
+      date: "2025-10-15"
+      notes: "Basic OCR and field extraction for invoice processing"
+
+    - version: "1.0.0"
+      domain: "humanitarian-registration"
+      date: "2026-02-14"
+      notes: >
+        Forked for refugee document processing. Replaced single-template
+        extraction with multi-format document classification library,
+        added handwriting recognition, extended OCR to multilingual,
+        and adapted validation to work with incomplete reference databases.
+      adaptation_points_changed: ["AP-001", "AP-002", "AP-003", "AP-004"]
+      assumptions_changed: ["DA-002", "DA-003", "DA-004", "EA-001", "EA-002"]
+
+  compatibility:
+    frameworks:
+      - name: "LangChain"
+        version: ">=0.1"
+        integration: "Document processing chain with vision models"
+      - name: "Hugging Face Transformers"
+        version: ">=4.30"
+        integration: "Vision transformer for document classification"
+      - name: "Tesseract"
+        version: ">=5.0"
+        integration: "Core OCR engine with language packs"
