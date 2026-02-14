@@ -2379,12 +2379,16 @@ window.addEventListener('scroll', function() {
   else nav.classList.remove('scrolled');
 
   var btt = document.getElementById('back-to-top');
-  if (window.scrollY > 400) btt.classList.add('show');
-  else btt.classList.remove('show');
+  if (btt) {
+    if (window.scrollY > 400) btt.classList.add('show');
+    else btt.classList.remove('show');
+  }
 });
 
-document.getElementById('back-to-top').addEventListener('click', function() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+document.addEventListener('click', function(e) {
+  if (e.target.closest('#back-to-top')) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 });
 
 // ===== RENDER CARDS =====
