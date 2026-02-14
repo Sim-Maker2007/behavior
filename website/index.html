@@ -1293,19 +1293,19 @@
   <a href="#cards-section" class="hero-cta">Get Started</a>
   <div class="hero-stats">
     <div class="stat">
-      <div class="stat-number" id="card-count">25</div>
+      <div class="stat-number" id="card-count">35</div>
       <div class="stat-label">Behavior Cards</div>
     </div>
     <div class="stat">
-      <div class="stat-number">8</div>
+      <div class="stat-number">12</div>
       <div class="stat-label">Pattern Categories</div>
     </div>
     <div class="stat">
-      <div class="stat-number">25</div>
+      <div class="stat-number">35</div>
       <div class="stat-label">Domain Bridges</div>
     </div>
     <div class="stat">
-      <div class="stat-number">10</div>
+      <div class="stat-number">16</div>
       <div class="stat-label">Certified</div>
     </div>
   </div>
@@ -2428,6 +2428,316 @@ const cards = [
     ],
     tags: ["scenario-planning", "risk-modeling", "contingency-planning", "crisis-simulation", "preparedness"],
     frameworks: ["SimPy", "NumPy/SciPy", "MESA", "Plotly"]
+  },
+  {
+    id: "26",
+    name: "Fraud Detection & Prevention Engine",
+    slug: "fraud-detection-prevention-engine",
+    version: "1.0.0",
+    pattern: "anomaly-classification-response",
+    patternLabel: "Anomaly Detection",
+    description: "Identifies adversarial patterns in transactional data — account takeover, identity spoofing, synthetic fraud — by combining behavioral baselines with real-time signal analysis and adaptive thresholds.",
+    origin: "Financial Services",
+    fork: "Insurance Claims Fraud",
+    originDetail: "Detecting fraudulent credit card transactions and account takeover attempts in real-time banking systems",
+    forkDetail: "Identifying staged accidents, inflated claims, and provider collusion in insurance claim submissions",
+    adaptationPoints: [
+      { name: "risk_scorer", type: "swappable_component", desc: "Swap transaction velocity model for claims pattern analyzer with provider network graph analysis" },
+      { name: "identity_verifier", type: "swappable_component", desc: "Replace KYC document checker with claimant history cross-referencer and witness consistency analyzer" },
+      { name: "threshold_tuner", type: "configurable", desc: "Adjust false-positive tolerance (finance: 1-2%, insurance: 5-8%) and escalation sensitivity per fraud category" },
+      { name: "alert_dispatcher", type: "swappable_component", desc: "Swap real-time block/allow for SIU case queue with evidence packaging and regulatory filing" }
+    ],
+    analogousDomains: [
+      { domain: "Insurance Claims Fraud", similarity: 0.80 },
+      { domain: "Academic Integrity Monitoring", similarity: 0.68 },
+      { domain: "Benefits & Welfare Fraud", similarity: 0.75 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "False positive blocks legitimate high-value transaction", impact: "Customer churn, reputational damage, potential legal liability" },
+      { severity: "high", scenario: "Adversary reverse-engineers detection thresholds", impact: "Fraud bypasses all automated controls" },
+      { severity: "high", scenario: "Model drift as fraud patterns evolve", impact: "Declining catch rate, increasing losses over time" }
+    ],
+    tags: ["fraud", "security", "anomaly-detection", "risk-scoring", "adversarial"],
+    frameworks: ["LangGraph", "CrewAI", "AutoGen"]
+  },
+  {
+    id: "27",
+    name: "Recommendation & Matching Engine",
+    slug: "recommendation-matching-engine",
+    version: "1.0.0",
+    pattern: "similarity-ranking-selection",
+    patternLabel: "Matching & Ranking",
+    description: "Computes multi-dimensional compatibility scores between entities (people, products, opportunities) using collaborative filtering, content-based features, and contextual signals to surface the best matches.",
+    origin: "E-Commerce Product Recommendations",
+    fork: "Job-Candidate Matching",
+    originDetail: "Recommending products based on purchase history, browsing behavior, and similar customer profiles",
+    forkDetail: "Matching job seekers to openings using skills, experience, culture fit, and career trajectory analysis",
+    adaptationPoints: [
+      { name: "similarity_model", type: "swappable_component", desc: "Swap collaborative filtering for skills-gap analysis with weighted competency scoring and growth potential" },
+      { name: "feature_extractor", type: "swappable_component", desc: "Replace purchase/browse signals with resume parsing, assessment scores, and behavioral interview signals" },
+      { name: "ranking_weights", type: "configurable", desc: "Adjust dimension weights: skills match (0.3), culture fit (0.2), growth potential (0.2), location (0.15), compensation (0.15)" },
+      { name: "feedback_loop", type: "extensible", desc: "Add interview outcome tracking, 90-day retention signal, and hiring manager satisfaction for model retraining" }
+    ],
+    analogousDomains: [
+      { domain: "Job-Candidate Matching", similarity: 0.76 },
+      { domain: "Donor-Project Matching", similarity: 0.72 },
+      { domain: "Patient-Clinical Trial Matching", similarity: 0.70 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Filter bubble — recommendations reinforce narrow preferences", impact: "Reduced discovery, user fatigue, declining engagement" },
+      { severity: "critical", scenario: "Bias in training data produces discriminatory matches", impact: "Legal liability, fairness violations, reputational harm" },
+      { severity: "medium", scenario: "Cold start — insufficient data for new entities", impact: "Poor initial recommendations, high early churn" }
+    ],
+    tags: ["recommendation", "matching", "ranking", "collaborative-filtering", "personalization"],
+    frameworks: ["LangGraph", "CrewAI", "AutoGen"]
+  },
+  {
+    id: "28",
+    name: "Knowledge Base Q&A Agent",
+    slug: "knowledge-base-qa-agent",
+    version: "1.0.0",
+    pattern: "retrieval-augmented-generation",
+    patternLabel: "RAG & Search",
+    description: "Retrieves relevant passages from organizational knowledge bases using semantic search, then generates accurate, cited answers with confidence scores and source attribution for verifiability.",
+    origin: "Enterprise IT Helpdesk",
+    fork: "Legal Case Research",
+    originDetail: "Answering employee IT questions using internal wikis, runbooks, and ticket history with auto-escalation",
+    forkDetail: "Searching legal precedents, statutes, and case law to answer attorney queries with citation-ready references",
+    adaptationPoints: [
+      { name: "retriever", type: "swappable_component", desc: "Swap wiki/Confluence connector for legal database connector (Westlaw, LexisNexis) with citation-aware chunking" },
+      { name: "answer_generator", type: "swappable_component", desc: "Replace conversational IT tone with formal legal analysis structure (IRAC: Issue, Rule, Application, Conclusion)" },
+      { name: "confidence_threshold", type: "configurable", desc: "IT: 0.7 confidence ok; Legal: 0.9+ required with mandatory 'not legal advice' disclaimers below threshold" },
+      { name: "source_ranker", type: "extensible", desc: "Add jurisdiction filtering, recency weighting, and court hierarchy prioritization for legal sources" }
+    ],
+    analogousDomains: [
+      { domain: "Legal Case Research", similarity: 0.74 },
+      { domain: "Medical Protocol Search", similarity: 0.78 },
+      { domain: "Regulatory Guidance Lookup", similarity: 0.72 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Hallucinated answer presented with high confidence", impact: "User acts on fabricated information; legal/medical risk" },
+      { severity: "high", scenario: "Stale knowledge base — answer was correct 6 months ago", impact: "Outdated guidance applied to current situation" },
+      { severity: "medium", scenario: "Retrieved passages are relevant but answer synthesis is wrong", impact: "Correct sources, incorrect conclusion — harder to catch" }
+    ],
+    tags: ["rag", "knowledge-management", "search", "question-answering", "retrieval"],
+    frameworks: ["LangGraph", "LlamaIndex", "CrewAI"]
+  },
+  {
+    id: "29",
+    name: "Approval Workflow Orchestrator",
+    slug: "approval-workflow-orchestrator",
+    version: "1.0.0",
+    pattern: "sequential-decision-under-uncertainty",
+    patternLabel: "Sequential Decisions",
+    description: "Manages multi-step, multi-role approval chains with conditional routing, parallel approvals, escalation on timeout, delegation rules, and full audit trail for compliance-sensitive processes.",
+    origin: "Corporate Expense Approvals",
+    fork: "Clinical Trial Protocol Approval",
+    originDetail: "Routing expense reports through manager → finance → VP chains with auto-approval below thresholds",
+    forkDetail: "Orchestrating IRB review, sponsor approval, and regulatory submission with 21 CFR Part 11 compliance",
+    adaptationPoints: [
+      { name: "routing_engine", type: "swappable_component", desc: "Swap org-chart hierarchy routing for regulatory body routing (IRB → sponsor → FDA) with parallel review paths" },
+      { name: "approval_rules", type: "configurable", desc: "Adjust thresholds, timeout periods (corporate: 48h, clinical: 30 days), quorum requirements, and veto rules" },
+      { name: "compliance_logger", type: "swappable_component", desc: "Replace SOX audit trail with 21 CFR Part 11 electronic signatures and timestamped amendment tracking" },
+      { name: "escalation_handler", type: "extensible", desc: "Add regulatory deadline tracking, patient safety escalation, and DSMB emergency review triggers" }
+    ],
+    analogousDomains: [
+      { domain: "Clinical Trial Approval", similarity: 0.73 },
+      { domain: "Building Permit Workflow", similarity: 0.71 },
+      { domain: "Grant Disbursement Processing", similarity: 0.76 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Approval bypassed due to routing logic error", impact: "Unauthorized action taken; compliance violation; regulatory penalty" },
+      { severity: "high", scenario: "Escalation timeout missed — request stuck indefinitely", impact: "Process blockage; missed deadlines; patient enrollment delayed" },
+      { severity: "medium", scenario: "Delegation chain creates circular dependency", impact: "Infinite loop; no one can approve; manual intervention required" }
+    ],
+    tags: ["workflow", "approval", "orchestration", "compliance", "governance"],
+    frameworks: ["LangGraph", "CrewAI", "Temporal"]
+  },
+  {
+    id: "30",
+    name: "Onboarding & Training Sequencer",
+    slug: "onboarding-training-sequencer",
+    version: "1.0.0",
+    pattern: "adaptive-sequencing",
+    patternLabel: "Adaptive Sequencing",
+    description: "Designs and delivers personalized learning paths based on role requirements, skill assessments, and real-time progress signals — adapting sequence, pace, and content difficulty dynamically.",
+    origin: "Corporate Employee Onboarding",
+    fork: "Patient Rehabilitation Planning",
+    originDetail: "Sequencing compliance training, tool setup, team introductions, and role-specific skill modules for new hires",
+    forkDetail: "Adapting rehabilitation exercise sequences based on recovery progress, pain tolerance, and mobility assessments",
+    adaptationPoints: [
+      { name: "assessment_engine", type: "swappable_component", desc: "Swap multiple-choice skill quizzes for physical therapy assessments (ROM measurements, pain scales, functional tests)" },
+      { name: "content_library", type: "swappable_component", desc: "Replace training modules with exercise protocols, instructional videos, and progressive loading schedules" },
+      { name: "pacing_algorithm", type: "configurable", desc: "Corporate: competency gates; Rehab: pain-gated progression with therapist override and plateau detection" },
+      { name: "progress_tracker", type: "extensible", desc: "Add clinical outcome measures (FIM scores), insurance milestone reporting, and discharge readiness prediction" }
+    ],
+    analogousDomains: [
+      { domain: "Patient Rehabilitation Planning", similarity: 0.71 },
+      { domain: "Refugee Resettlement Guidance", similarity: 0.68 },
+      { domain: "Software Adoption Journeys", similarity: 0.74 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Assessment misclassifies skill level — wrong starting point", impact: "Boredom (too easy) or overwhelm (too hard); disengagement" },
+      { severity: "critical", scenario: "Rehab: progresses patient too fast past pain threshold", impact: "Reinjury; setback in recovery; potential harm" },
+      { severity: "medium", scenario: "Content gaps — no module exists for identified skill gap", impact: "Incomplete learning path; false completion signal" }
+    ],
+    tags: ["onboarding", "training", "adaptive-learning", "sequencing", "personalization"],
+    frameworks: ["LangGraph", "CrewAI"]
+  },
+  {
+    id: "31",
+    name: "Contract & Legal Clause Analyzer",
+    slug: "contract-legal-clause-analyzer",
+    version: "1.0.0",
+    pattern: "document-structure-extraction",
+    patternLabel: "Document Intelligence",
+    description: "Extracts obligations, deadlines, risk clauses, and compliance gaps from legal documents using NLP-powered clause identification, cross-reference resolution, and configurable risk taxonomies.",
+    origin: "Corporate Contract Review",
+    fork: "Donor Agreement Analysis",
+    originDetail: "Reviewing vendor contracts for unfavorable terms, auto-renewal traps, liability exposure, and SLA gaps",
+    forkDetail: "Parsing humanitarian donor agreements for earmarking restrictions, reporting deadlines, and co-funding obligations",
+    adaptationPoints: [
+      { name: "clause_classifier", type: "swappable_component", desc: "Swap commercial clause taxonomy (indemnity, IP, SLA) for donor clause taxonomy (earmarks, conditions, reporting)" },
+      { name: "risk_scorer", type: "swappable_component", desc: "Replace financial risk model with compliance risk model (donor audit probability, reputational risk, beneficiary impact)" },
+      { name: "deadline_extractor", type: "configurable", desc: "Adjust date parsing for fiscal year formats, humanitarian reporting cycles, and multi-timezone coordination" },
+      { name: "output_formatter", type: "swappable_component", desc: "Swap legal memo format for donor compliance matrix with RAG status indicators and action items" }
+    ],
+    analogousDomains: [
+      { domain: "Donor Agreement Analysis", similarity: 0.77 },
+      { domain: "Lease Agreement Review", similarity: 0.80 },
+      { domain: "Regulatory Filing Analysis", similarity: 0.73 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Missed obligation clause — deadline passes without action", impact: "Contract breach; financial penalty; relationship damage" },
+      { severity: "high", scenario: "Misclassified clause severity — critical risk marked as low", impact: "Unmitigated exposure; surprise liability" },
+      { severity: "medium", scenario: "Cross-reference resolution fails in complex multi-party agreements", impact: "Obligations attributed to wrong party; incomplete risk picture" }
+    ],
+    tags: ["legal", "contract-analysis", "nlp", "compliance", "document-intelligence"],
+    frameworks: ["LangGraph", "LlamaIndex", "CrewAI"]
+  },
+  {
+    id: "32",
+    name: "Meeting Summarizer & Action Tracker",
+    slug: "meeting-summarizer-action-tracker",
+    version: "1.0.0",
+    pattern: "temporal-signal-extraction",
+    patternLabel: "Signal Extraction",
+    description: "Processes meeting transcripts to extract key decisions, action items with assignees and deadlines, open questions, and sentiment shifts — then tracks follow-through across subsequent meetings.",
+    origin: "Corporate Standups & All-Hands",
+    fork: "Humanitarian Coordination Meetings",
+    originDetail: "Summarizing daily standups, sprint retrospectives, and quarterly all-hands with Jira/Slack integration",
+    forkDetail: "Processing inter-agency coordination meetings (OCHA clusters) with multi-language support and crisis-priority action tracking",
+    adaptationPoints: [
+      { name: "transcription_source", type: "swappable_component", desc: "Swap Zoom/Teams API for field radio transcription, WhatsApp voice notes, and satellite phone call logs" },
+      { name: "action_classifier", type: "swappable_component", desc: "Replace Jira ticket creation with humanitarian action tracking (3W: Who does What Where) and OCHA reporting" },
+      { name: "language_handler", type: "swappable_component", desc: "Add multi-language transcript processing with code-switching detection and terminology standardization" },
+      { name: "priority_schema", type: "configurable", desc: "Swap sprint priority for humanitarian urgency (life-saving → time-critical → important → routine)" }
+    ],
+    analogousDomains: [
+      { domain: "Humanitarian Coordination Meetings", similarity: 0.74 },
+      { domain: "Clinical Case Conferences", similarity: 0.71 },
+      { domain: "Legislative Committee Sessions", similarity: 0.69 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Action item attributed to wrong person", impact: "Task falls through cracks; no one takes ownership" },
+      { severity: "medium", scenario: "Transcription errors in technical terms or proper nouns", impact: "Garbled action items; confusion about specifics" },
+      { severity: "critical", scenario: "Sensitive information in summary shared to wrong audience", impact: "Security breach; protection concerns in humanitarian contexts" }
+    ],
+    tags: ["meetings", "summarization", "action-tracking", "nlp", "collaboration"],
+    frameworks: ["LangGraph", "CrewAI", "AutoGen"]
+  },
+  {
+    id: "33",
+    name: "Energy & Sustainability Optimizer",
+    slug: "energy-sustainability-optimizer",
+    version: "1.0.0",
+    pattern: "constrained-resource-allocation",
+    patternLabel: "Resource Allocation",
+    description: "Optimizes energy consumption, carbon emissions, and resource waste across operations by modeling usage patterns, forecasting demand, and recommending operational changes within sustainability targets.",
+    origin: "Commercial Building HVAC",
+    fork: "Agricultural Water Management",
+    originDetail: "Optimizing heating, cooling, and lighting schedules across commercial buildings to minimize energy costs and carbon footprint",
+    forkDetail: "Managing irrigation schedules, water allocation, and drought response across agricultural operations with groundwater preservation",
+    adaptationPoints: [
+      { name: "consumption_model", type: "swappable_component", desc: "Swap HVAC thermal model for crop evapotranspiration model with soil moisture sensors and weather forecast integration" },
+      { name: "optimization_objective", type: "configurable", desc: "Adjust weights: cost (0.3), carbon (0.3), comfort/yield (0.25), resilience (0.15) — agriculture adds aquifer sustainability" },
+      { name: "sensor_interface", type: "swappable_component", desc: "Replace BMS/IoT building sensors with agricultural sensors (soil moisture, NDVI satellite, flow meters, rain gauges)" },
+      { name: "reporting_engine", type: "extensible", desc: "Add ESG reporting, carbon credit calculations, and regulatory compliance (EU Taxonomy, TCFD, water rights)" }
+    ],
+    analogousDomains: [
+      { domain: "Agricultural Water Management", similarity: 0.73 },
+      { domain: "Fleet Emissions Planning", similarity: 0.70 },
+      { domain: "Manufacturing Waste Reduction", similarity: 0.68 }
+    ],
+    failureModes: [
+      { severity: "high", scenario: "Optimization sacrifices comfort/yield for efficiency targets", impact: "Building occupant complaints; crop failure; economic loss" },
+      { severity: "critical", scenario: "Sensor failure provides false low-consumption readings", impact: "Overuse goes undetected; aquifer depletion; equipment damage" },
+      { severity: "medium", scenario: "Weather forecast error compounds optimization decisions", impact: "Sub-optimal resource allocation for 24-48h; recovery lag" }
+    ],
+    tags: ["sustainability", "energy", "optimization", "carbon", "resource-management"],
+    frameworks: ["CrewAI", "LangGraph", "NumPy/SciPy"]
+  },
+  {
+    id: "34",
+    name: "Multi-Agent Task Delegator",
+    slug: "multi-agent-task-delegator",
+    version: "1.0.0",
+    pattern: "hierarchical-task-decomposition",
+    patternLabel: "Orchestration",
+    description: "Decomposes complex goals into subtasks, assigns them to specialized agents based on capability matching, manages dependencies and parallel execution, handles failures with retry and fallback strategies.",
+    origin: "Software Development Pipeline",
+    fork: "Humanitarian Response Coordination",
+    originDetail: "Orchestrating code generation, review, testing, and deployment agents in an automated CI/CD pipeline",
+    forkDetail: "Coordinating assessment, logistics, medical, shelter, and WASH agents in multi-sector emergency response",
+    adaptationPoints: [
+      { name: "task_decomposer", type: "swappable_component", desc: "Swap code-task DAG builder for humanitarian response plan decomposer with sector dependencies and access constraints" },
+      { name: "agent_registry", type: "swappable_component", desc: "Replace developer tool agents with humanitarian sector agents (health, shelter, WASH, protection, logistics)" },
+      { name: "failure_strategy", type: "configurable", desc: "Software: retry 3x then fail; Humanitarian: degrade gracefully, never fully fail, always produce partial result" },
+      { name: "priority_resolver", type: "swappable_component", desc: "Swap sprint priority for life-saving priority with resource contention resolution and ethical triage logic" }
+    ],
+    analogousDomains: [
+      { domain: "Humanitarian Response Coordination", similarity: 0.72 },
+      { domain: "Manufacturing Assembly Orchestration", similarity: 0.69 },
+      { domain: "Research Paper Writing Pipeline", similarity: 0.74 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Circular dependency in task graph — deadlock", impact: "Entire pipeline halts; no output produced; timeout waste" },
+      { severity: "high", scenario: "Agent capability mismatch — task assigned to wrong specialist", impact: "Low-quality output cascades to dependent tasks" },
+      { severity: "high", scenario: "Parallel execution race condition corrupts shared state", impact: "Inconsistent results; non-deterministic failures" }
+    ],
+    tags: ["orchestration", "multi-agent", "task-decomposition", "delegation", "pipeline"],
+    frameworks: ["LangGraph", "CrewAI", "AutoGen", "Temporal"]
+  },
+  {
+    id: "35",
+    name: "Predictive Maintenance Scheduler",
+    slug: "predictive-maintenance-scheduler",
+    version: "1.0.0",
+    pattern: "temporal-prediction-scheduling",
+    patternLabel: "Predictive Analytics",
+    description: "Predicts when equipment or infrastructure will fail using sensor data, usage patterns, and degradation models — then optimally schedules maintenance windows to minimize downtime and cost.",
+    origin: "Manufacturing Equipment",
+    fork: "Medical Device Maintenance",
+    originDetail: "Predicting CNC machine, conveyor, and robotic arm failures using vibration, temperature, and cycle count data",
+    forkDetail: "Scheduling maintenance for MRI machines, ventilators, and infusion pumps with patient-safety-first prioritization",
+    adaptationPoints: [
+      { name: "degradation_model", type: "swappable_component", desc: "Swap mechanical wear curves for medical device calibration drift models with regulatory compliance windows (FDA/IEC)" },
+      { name: "sensor_pipeline", type: "swappable_component", desc: "Replace industrial IoT (vibration, thermal) with medical device telemetry (error logs, calibration drift, usage hours)" },
+      { name: "scheduling_optimizer", type: "configurable", desc: "Manufacturing: minimize production downtime; Medical: patient safety first, then minimize procedure cancellations" },
+      { name: "compliance_tracker", type: "extensible", desc: "Add FDA 21 CFR 820 maintenance records, Joint Commission readiness, and manufacturer service agreement tracking" }
+    ],
+    analogousDomains: [
+      { domain: "Medical Device Maintenance", similarity: 0.76 },
+      { domain: "Bridge & Infrastructure Inspection", similarity: 0.72 },
+      { domain: "Fleet Vehicle Servicing", similarity: 0.78 }
+    ],
+    failureModes: [
+      { severity: "critical", scenario: "Predicted 30 days remaining but fails in 2 days", impact: "Unplanned downtime; production halt; patient safety risk in medical" },
+      { severity: "high", scenario: "Over-maintenance — too many false predictions of imminent failure", impact: "Unnecessary downtime; wasted parts and labor; reduced trust in system" },
+      { severity: "medium", scenario: "Sensor data gap — missing telemetry during critical period", impact: "Model operates blind; predictions revert to time-based fallback" }
+    ],
+    tags: ["predictive-maintenance", "scheduling", "iot", "degradation-modeling", "reliability"],
+    frameworks: ["CrewAI", "LangGraph", "NumPy/SciPy", "TensorFlow"]
   }
 ];
 
@@ -2757,7 +3067,17 @@ const complianceScores = {
   "document-intelligence-extractor": { overall: 91.0, level: "Certified" },
   "infrastructure-capacity-planner": { overall: 86.4, level: "Compatible" },
   "sentiment-and-feedback-analyzer": { overall: 88.8, level: "Compatible" },
-  "crisis-simulation-planner": { overall: 88.7, level: "Compatible" }
+  "crisis-simulation-planner": { overall: 88.7, level: "Compatible" },
+  "fraud-detection-prevention-engine": { overall: 91.5, level: "Certified" },
+  "recommendation-matching-engine": { overall: 88.3, level: "Compatible" },
+  "knowledge-base-qa-agent": { overall: 90.2, level: "Certified" },
+  "approval-workflow-orchestrator": { overall: 89.1, level: "Compatible" },
+  "onboarding-training-sequencer": { overall: 87.6, level: "Compatible" },
+  "contract-legal-clause-analyzer": { overall: 90.8, level: "Certified" },
+  "meeting-summarizer-action-tracker": { overall: 88.9, level: "Compatible" },
+  "energy-sustainability-optimizer": { overall: 91.3, level: "Certified" },
+  "multi-agent-task-delegator": { overall: 92.5, level: "Certified" },
+  "predictive-maintenance-scheduler": { overall: 90.0, level: "Certified" }
 };
 
 const similarityMap = {
@@ -2765,8 +3085,8 @@ const similarityMap = {
   "workforce-shift-scheduler": ["inventory-rebalance-optimizer","travel-disruption-manager","fleet-route-optimizer"],
   "budget-envelope-allocator": ["inventory-rebalance-optimizer","workforce-shift-scheduler","daily-intelligence-briefer"],
   "fleet-route-optimizer": ["workforce-shift-scheduler","inventory-rebalance-optimizer","budget-envelope-allocator"],
-  "pattern-anomaly-detector": ["environmental-impact-monitor","supply-chain-disruption-detector","equipment-health-monitor"],
-  "equipment-health-monitor": ["supply-chain-disruption-detector","regulatory-compliance-checker","pattern-anomaly-detector"],
+  "pattern-anomaly-detector": ["fraud-detection-prevention-engine","environmental-impact-monitor","supply-chain-disruption-detector"],
+  "equipment-health-monitor": ["predictive-maintenance-scheduler","supply-chain-disruption-detector","pattern-anomaly-detector"],
   "supply-chain-disruption-detector": ["equipment-health-monitor","pattern-anomaly-detector","patient-risk-stratifier"],
   "comms-triage-router": ["daily-intelligence-briefer","sentiment-and-feedback-analyzer","travel-disruption-manager"],
   "regulatory-compliance-checker": ["equipment-health-monitor","daily-intelligence-briefer","patient-risk-stratifier"],
@@ -2779,13 +3099,23 @@ const similarityMap = {
   "customer-journey-orchestrator": ["safety-incident-predictor","daily-intelligence-briefer","dynamic-pricing-engine"],
   "dynamic-pricing-engine": ["infrastructure-capacity-planner","customer-journey-orchestrator","travel-disruption-manager"],
   "travel-disruption-manager": ["workforce-shift-scheduler","daily-intelligence-briefer","multi-party-negotiator"],
-  "adaptive-content-personalizer": ["comms-triage-router","daily-intelligence-briefer","travel-disruption-manager"],
+  "adaptive-content-personalizer": ["recommendation-matching-engine","onboarding-training-sequencer","comms-triage-router"],
   "data-privacy-guardian": ["regulatory-compliance-checker","visual-damage-assessor","infrastructure-capacity-planner"],
   "visual-damage-assessor": ["daily-intelligence-briefer","data-privacy-guardian","patient-risk-stratifier"],
-  "document-intelligence-extractor": ["comms-triage-router","sentiment-and-feedback-analyzer","daily-intelligence-briefer"],
+  "document-intelligence-extractor": ["contract-legal-clause-analyzer","meeting-summarizer-action-tracker","comms-triage-router"],
   "infrastructure-capacity-planner": ["crisis-simulation-planner","environmental-impact-monitor","inventory-rebalance-optimizer"],
   "sentiment-and-feedback-analyzer": ["comms-triage-router","daily-intelligence-briefer","environmental-impact-monitor"],
-  "crisis-simulation-planner": ["infrastructure-capacity-planner","project-risk-cascade-planner","travel-disruption-manager"]
+  "crisis-simulation-planner": ["infrastructure-capacity-planner","project-risk-cascade-planner","travel-disruption-manager"],
+  "fraud-detection-prevention-engine": ["pattern-anomaly-detector","data-privacy-guardian","regulatory-compliance-checker"],
+  "recommendation-matching-engine": ["adaptive-content-personalizer","customer-journey-orchestrator","sentiment-and-feedback-analyzer"],
+  "knowledge-base-qa-agent": ["document-intelligence-extractor","adaptive-content-personalizer","regulatory-compliance-checker"],
+  "approval-workflow-orchestrator": ["multi-agent-task-delegator","regulatory-compliance-checker","project-risk-cascade-planner"],
+  "onboarding-training-sequencer": ["adaptive-content-personalizer","recommendation-matching-engine","customer-journey-orchestrator"],
+  "contract-legal-clause-analyzer": ["document-intelligence-extractor","regulatory-compliance-checker","data-privacy-guardian"],
+  "meeting-summarizer-action-tracker": ["document-intelligence-extractor","sentiment-and-feedback-analyzer","comms-triage-router"],
+  "energy-sustainability-optimizer": ["infrastructure-capacity-planner","environmental-impact-monitor","fleet-route-optimizer"],
+  "multi-agent-task-delegator": ["approval-workflow-orchestrator","project-risk-cascade-planner","crisis-simulation-planner"],
+  "predictive-maintenance-scheduler": ["equipment-health-monitor","safety-incident-predictor","infrastructure-capacity-planner"]
 };
 
 // ===== INITIAL RENDER =====
