@@ -632,6 +632,76 @@
     color: var(--cyan-glow);
   }
 
+  /* ===== ACTION BUTTONS ===== */
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-btn.primary {
+    background: var(--cyan-glow);
+    color: var(--bg-deep);
+  }
+
+  .action-btn.primary:hover {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .action-btn.secondary {
+    background: var(--cyan-faint);
+    color: var(--cyan-glow);
+    border: 1px solid var(--border-active);
+  }
+
+  .action-btn.secondary:hover {
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+  }
+
+  .action-btn.github {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .action-btn.github:hover {
+    border-color: var(--border-active);
+    color: var(--text-primary);
+  }
+
+  .copy-feedback {
+    color: #81c784;
+    font-size: 12px;
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .copy-feedback.show {
+    opacity: 1;
+  }
+
   .no-results {
     text-align: center;
     padding: 60px 24px;
@@ -1102,73 +1172,174 @@ filtersEl.addEventListener('click', (e) => {
 const overlay = document.getElementById('modal-overlay');
 const modalContent = document.getElementById('modal-content');
 
+function generateYAML(card) {
+  const yaml = `abc_version: "0.1.0"
+
+identity:
+  name: "${card.slug}"
+  display_name: "${card.name}"
+  version: "${card.version}"
+  authors:
+    - name: "Your Name"
+      org: "Your Organization"
+  license: "Apache-2.0"
+  tags: [${card.tags.map(t => `"${t}"`).join(', ')}]
+
+problem_pattern:
+  category: "${card.pattern}"
+  description: >
+    ${card.description}
+
+  analogous_domains:
+${card.analogousDomains.map(d => `    - domain: "${d.domain}"
+      similarity: ${d.similarity}`).join('\n')}
+
+adaptation_points:
+${card.adaptationPoints.map((ap, i) => `  - id: "AP-${String(i+1).padStart(3,'0')}"
+    name: "${ap.name}"
+    type: "${ap.type}"
+    description: >
+      ${ap.desc}`).join('\n\n')}
+
+trust:
+  failure_modes:
+${card.failureModes.map((fm, i) => `    - id: "FM-${String(i+1).padStart(3,'0')}"
+      scenario: "${fm.scenario}"
+      impact: "${fm.impact}"
+      severity: "${fm.severity}"`).join('\n\n')}
+
+provenance:
+  origin:
+    domain: "${card.origin.toLowerCase().replace(/ /g, '-')}"
+    original_use_case: "${card.originDetail}"
+
+  lineage:
+    - version: "${card.version}"
+      domain: "${card.fork.toLowerCase().replace(/ /g, '-')}"
+      notes: "Forked: ${card.originDetail} → ${card.forkDetail}"
+
+  compatibility:
+    frameworks:
+${card.frameworks.map(f => `      - name: "${f}"`).join('\n')}
+`;
+  return yaml;
+}
+
+function copyYAML() {
+  if (!currentModalCard) return;
+  const yaml = generateYAML(currentModalCard);
+  navigator.clipboard.writeText(yaml).then(function() {
+    var fb = document.getElementById('copy-feedback');
+    if (fb) { fb.classList.add('show'); setTimeout(function() { fb.classList.remove('show'); }, 2000); }
+  });
+}
+
+function downloadYAML() {
+  if (!currentModalCard) return;
+  var card = currentModalCard;
+  var yaml = generateYAML(card);
+  var blob = new Blob([yaml], { type: 'text/yaml' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = card.slug + '.yaml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Store current card for button handlers
+let currentModalCard = null;
+
 function openModal(card) {
-  modalContent.innerHTML = `
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>${card.name}</h2>
-    <div class="modal-subtitle">ABC-${card.id} &middot; v${card.version} &middot; ${card.pattern}</div>
+  currentModalCard = card;
+  const ghFileMap = {
+    "01": "01-inventory-rebalance-optimizer",
+    "02": "02-workforce-shift-scheduler",
+    "03": "03-budget-envelope-allocator",
+    "05": "05-pattern-anomaly-detector",
+    "06": "06-equipment-health-monitor",
+    "07": "07-supply-chain-disruption-detector",
+    "08": "08-comms-triage-router",
+    "10": "10-daily-intelligence-briefer",
+    "11": "11-multi-party-negotiator",
+    "15": "15-project-risk-cascade-planner"
+  };
+  const ghFile = ghFileMap[card.id] || card.slug;
+  const ghUrl = "https://github.com/Sim-Maker2007/behavior/blob/main/cards/" + ghFile + ".yaml";
 
-    <div class="modal-fork-story">
-      <div class="modal-fork-label">Fork Story</div>
-      <div class="modal-fork-flow">
-        <span class="origin">${card.originDetail}</span>
-        <span class="arrow">→</span>
-        <span class="target">${card.forkDetail}</span>
-      </div>
-    </div>
+  let html = '';
+  html += '<button class="modal-close" onclick="closeModal()">&#10005;</button>';
+  html += '<h2>' + card.name + '</h2>';
+  html += '<div class="modal-subtitle">ABC-' + card.id + ' &middot; v' + card.version + ' &middot; ' + card.pattern + '</div>';
 
-    <div class="modal-section">
-      <h3>Description</h3>
-      <p>${card.description}</p>
-    </div>
+  // Action buttons
+  html += '<div class="modal-actions">';
+  html += '<button class="action-btn primary" onclick="copyYAML()">';
+  html += '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  html += 'Copy YAML <span class="copy-feedback" id="copy-feedback">Copied!</span></button>';
+  html += '<button class="action-btn secondary" onclick="downloadYAML()">';
+  html += '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  html += 'Download .yaml</button>';
+  html += '<a class="action-btn github" href="' + ghUrl + '" target="_blank">';
+  html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>';
+  html += 'View on GitHub</a>';
+  html += '</div>';
 
-    <div class="modal-section">
-      <h3>Adaptation Points</h3>
-      <ul class="adaptation-list">
-        ${card.adaptationPoints.map(ap => `
-          <li class="adaptation-item">
-            <div class="adaptation-item-header">
-              <span class="adaptation-name">${ap.name}</span>
-              <span class="adaptation-type">${ap.type}</span>
-            </div>
-            <div class="adaptation-desc">${ap.desc}</div>
-          </li>
-        `).join('')}
-      </ul>
-    </div>
+  // Fork story
+  html += '<div class="modal-fork-story">';
+  html += '<div class="modal-fork-label">Fork Story</div>';
+  html += '<div class="modal-fork-flow">';
+  html += '<span class="origin">' + card.originDetail + '</span>';
+  html += '<span class="arrow">&rarr;</span>';
+  html += '<span class="target">' + card.forkDetail + '</span>';
+  html += '</div></div>';
 
-    <div class="modal-section">
-      <h3>Analogous Domains</h3>
-      <div class="domain-tag-list">
-        ${card.analogousDomains.map(d => `
-          <div class="domain-tag">
-            ${d.domain}
-            <span class="domain-similarity">${(d.similarity * 100).toFixed(0)}%</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>
+  // Description
+  html += '<div class="modal-section"><h3>Description</h3>';
+  html += '<p>' + card.description + '</p></div>';
 
-    <div class="modal-section">
-      <h3>Failure Modes</h3>
-      <ul class="failure-list">
-        ${card.failureModes.map(fm => `
-          <li class="failure-item">
-            <span class="failure-severity ${fm.severity}">${fm.severity.replace(/_/g, ' ')}</span>
-            <div class="failure-scenario">${fm.scenario}</div>
-            <div class="failure-impact">${fm.impact}</div>
-          </li>
-        `).join('')}
-      </ul>
-    </div>
+  // Adaptation Points
+  html += '<div class="modal-section"><h3>Adaptation Points</h3><ul class="adaptation-list">';
+  card.adaptationPoints.forEach(function(ap) {
+    html += '<li class="adaptation-item">';
+    html += '<div class="adaptation-item-header">';
+    html += '<span class="adaptation-name">' + ap.name + '</span>';
+    html += '<span class="adaptation-type">' + ap.type + '</span>';
+    html += '</div>';
+    html += '<div class="adaptation-desc">' + ap.desc + '</div>';
+    html += '</li>';
+  });
+  html += '</ul></div>';
 
-    <div class="modal-section">
-      <h3>Compatible Frameworks</h3>
-      <div class="domain-tag-list">
-        ${card.frameworks.map(f => `<div class="domain-tag">${f}</div>`).join('')}
-      </div>
-    </div>
-  `;
+  // Analogous Domains
+  html += '<div class="modal-section"><h3>Analogous Domains</h3><div class="domain-tag-list">';
+  card.analogousDomains.forEach(function(d) {
+    html += '<div class="domain-tag">' + d.domain;
+    html += ' <span class="domain-similarity">' + (d.similarity * 100).toFixed(0) + '%</span></div>';
+  });
+  html += '</div></div>';
+
+  // Failure Modes
+  html += '<div class="modal-section"><h3>Failure Modes</h3><ul class="failure-list">';
+  card.failureModes.forEach(function(fm) {
+    html += '<li class="failure-item">';
+    html += '<span class="failure-severity ' + fm.severity + '">' + fm.severity.replace(/_/g, ' ') + '</span>';
+    html += '<div class="failure-scenario">' + fm.scenario + '</div>';
+    html += '<div class="failure-impact">' + fm.impact + '</div>';
+    html += '</li>';
+  });
+  html += '</ul></div>';
+
+  // Frameworks
+  html += '<div class="modal-section"><h3>Compatible Frameworks</h3><div class="domain-tag-list">';
+  card.frameworks.forEach(function(f) {
+    html += '<div class="domain-tag">' + f + '</div>';
+  });
+  html += '</div></div>';
+
+  modalContent.innerHTML = html;
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
