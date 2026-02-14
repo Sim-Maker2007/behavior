@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - ABC Standard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --bg-surface: #0a1628;
+            --bg-card: #0d1f3c;
+            --bg-card-hover: #112a4a;
+            --cyan-glow: #00e5ff;
+            --cyan-dim: #0097a7;
+            --cyan-faint: rgba(0, 229, 255, 0.08);
+            --blue-glow: #4fc3f7;
+            --purple-glow: #b388ff;
+            --text-primary: #e8edf5;
+            --text-secondary: #8899b0;
+            --text-muted: #4a5d78;
+            --border: rgba(0, 229, 255, 0.12);
+            --border-active: rgba(0, 229, 255, 0.35);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--cyan-glow), var(--blue-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--cyan-glow);
+        }
+
+        .nav-links a.active {
+            border-bottom: 2px solid var(--cyan-glow);
+            padding-bottom: 0.5rem;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--cyan-glow);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -7px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: var(--bg-surface);
+                padding: 2rem;
+                border-bottom: 1px solid var(--border);
+                gap: 1rem;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(79, 195, 247, 0.03) 100%);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--cyan-glow), var(--blue-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 3rem 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+
+        /* Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .toc-sidebar {
+                display: none;
+            }
+
+            .toc-toggle {
+                display: block;
+            }
+        }
+
+        /* Table of Contents */
+        .toc-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .toc-sidebar h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--cyan-glow);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .toc-list a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            padding-left: 0.75rem;
+        }
+
+        .toc-list a:hover,
+        .toc-list a.active {
+            color: var(--cyan-glow);
+            background: rgba(0, 229, 255, 0.08);
+            border-left-color: var(--cyan-glow);
+        }
+
+        .toc-toggle {
+            display: none;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .toc-toggle:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-active);
+        }
+
+        /* Content */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        section {
+            scroll-margin-top: 100px;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.5rem;
+        }
+
+        .section-1 .section-icon {
+            background: rgba(0, 229, 255, 0.15);
+            color: var(--cyan-glow);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+
+        .section-2 .section-icon {
+            background: rgba(79, 195, 247, 0.15);
+            color: var(--blue-glow);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+        }
+
+        .section-3 .section-icon {
+            background: rgba(179, 136, 255, 0.15);
+            color: var(--purple-glow);
+            border: 1px solid rgba(179, 136, 255, 0.3);
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-1 .section-header h2 {
+            color: var(--cyan-glow);
+        }
+
+        .section-2 .section-header h2 {
+            color: var(--blue-glow);
+        }
+
+        .section-3 .section-header h2 {
+            color: var(--purple-glow);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-active);
+            transform: translateY(-4px);
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-1 .card h3 {
+            color: var(--cyan-glow);
+        }
+
+        .section-2 .card h3 {
+            color: var(--blue-glow);
+        }
+
+        .section-3 .card h3 {
+            color: var(--purple-glow);
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-1 .card-badge {
+            background: rgba(0, 229, 255, 0.2);
+            color: var(--cyan-glow);
+        }
+
+        .section-2 .card-badge {
+            background: rgba(79, 195, 247, 0.2);
+            color: var(--blue-glow);
+        }
+
+        .section-3 .card-badge {
+            background: rgba(179, 136, 255, 0.2);
+            color: var(--purple-glow);
+        }
+
+        /* Lists */
+        .card ul, .card ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .card li {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .card strong {
+            color: var(--text-primary);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #0a0e1a;
+            border: 1px solid rgba(0, 229, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .code-block code {
+            color: var(--cyan-glow);
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .keyword { color: var(--blue-glow); }
+        .string { color: var(--purple-glow); }
+        .comment { color: var(--text-muted); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.95rem;
+        }
+
+        table th {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--cyan-glow);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+
+        table td {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        table tr:hover {
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-item {
+            background: rgba(0, 229, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .grid-item:hover {
+            background: rgba(0, 229, 255, 0.08);
+            border-color: var(--border-active);
+            transform: translateY(-6px);
+        }
+
+        .grid-item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .grid-item-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--cyan-glow);
+            color: var(--bg-deep);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Checklist */
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 229, 255, 0.05);
+            border-left: 3px solid var(--cyan-glow);
+            border-radius: 6px;
+        }
+
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cyan-glow);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .checklist-item input[type="checkbox"]:checked + .checklist-checkbox {
+            background: var(--cyan-glow);
+        }
+
+        .checklist-item input[type="checkbox"]:checked + .checklist-checkbox::after {
+            content: '✓';
+            color: var(--bg-deep);
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .checklist-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+
+        /* Highlights */
+        .highlight {
+            background: rgba(0, 229, 255, 0.1);
+            border-left: 4px solid var(--cyan-glow);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+        }
+
+        .highlight strong {
+            color: var(--cyan-glow);
+        }
+
+        .section-2 .highlight {
+            background: rgba(79, 195, 247, 0.1);
+            border-left-color: var(--blue-glow);
+        }
+
+        .section-2 .highlight strong {
+            color: var(--blue-glow);
+        }
+
+        .section-3 .highlight {
+            background: rgba(179, 136, 255, 0.1);
+            border-left-color: var(--purple-glow);
+        }
+
+        .section-3 .highlight strong {
+            color: var(--purple-glow);
+        }
+
+        /* Back to Top */
+        #backToTop {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 500;
+        }
+
+        #backToTop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #backToTop:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+            transform: translateY(-4px);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--cyan-glow);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cyan-glow);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--cyan-glow);
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 229, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 229, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="nav-brand">ABC Standard</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Registry</a></li>
+            <li><a href="how-it-works.html" class="active">How It Works</a></li>
+            <li><a href="https://abcstandard.org" target="_blank" rel="noopener">Website</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>How ABC Standard Works</h1>
+            <p>A technical foundation for capturing, discovering, and composing reusable AI agent behaviors through abstraction and systematic documentation.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Table of Contents -->
+        <aside class="toc-sidebar" id="tocSidebar">
+            <h3>Contents</h3>
+            <ul class="toc-list">
+                <li><a href="#section-1">Implementation Guide</a></li>
+                <li style="margin-left: 1rem;"><a href="#core-concept">Core Concept</a></li>
+                <li style="margin-left: 1rem;"><a href="#abc-card-anatomy">ABC Card Anatomy</a></li>
+                <li style="margin-left: 1rem;"><a href="#adaptation-points">Adaptation Points</a></li>
+                <li style="margin-left: 1rem;"><a href="#compliance-scoring">Compliance Scoring</a></li>
+                <li><a href="#section-2">Similarity Engine</a></li>
+                <li style="margin-left: 1rem;"><a href="#the-problem">The Problem</a></li>
+                <li style="margin-left: 1rem;"><a href="#six-dimensions">Six Dimensions</a></li>
+                <li style="margin-left: 1rem;"><a href="#online-offline">Online vs Offline</a></li>
+                <li><a href="#section-3">Trust & Failure Framework</a></li>
+                <li style="margin-left: 1rem;"><a href="#failure-categories">Failure Categories</a></li>
+                <li style="margin-left: 1rem;"><a href="#severity-blast-radius">Severity & Blast Radius</a></li>
+                <li style="margin-left: 1rem;"><a href="#operational-guardrails">Operational Guardrails</a></li>
+            </ul>
+        </aside>
+
+        <button class="toc-toggle" id="tocToggle">☰ Table of Contents</button>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <!-- Section 1: Implementation Guide -->
+            <section class="section-1" id="section-1">
+                <div class="section-header">
+                    <div class="section-icon">📋</div>
+                    <h2>Implementation Guide</h2>
+                </div>
+
+                <!-- Core Concept -->
+                <div class="card" id="core-concept">
+                    <h3><span style="color: var(--cyan-glow);">●</span> Core Concept: Portability Through Abstraction</h3>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">The fundamental insight that drives the ABC Standard:</p>
+                    <div class="highlight">
+                        <strong>Every valuable AI agent behavior has been solved before in another domain.</strong> ABC cards capture the abstract pattern so it can be discovered and reused across contexts.
+                    </div>
+                    <p style="margin-top: 1.5rem;">This principle manifests in the Swap Test:</p>
+                    <div class="highlight">
+                        <strong>The Swap Test:</strong> "If you can't swap the implementation without changing the interface, it's not actually an adaptation point — it's a dependency." This is the core principle that defines what makes an adaptation point truly valuable.
+                    </div>
+                </div>
+
+                <!-- ABC Card Anatomy -->
+                <div class="card" id="abc-card-anatomy">
+                    <h3><span style="color: var(--cyan-glow);">●</span> ABC Card Anatomy: 7 Required Sections</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Every ABC card must include these seven sections to be considered complete:</p>
+
+                    <div style="background: rgba(0, 229, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <ol style="list-style-position: inside;">
+                            <li style="margin-bottom: 1rem;"><strong>Identity</strong> — Name, version, authors, tags. The unique fingerprint of the card.</li>
+                            <li style="margin-bottom: 1rem;"><strong>Problem Pattern</strong> — Category, description, sub-patterns, analogous domains. What problem does this solve, and where has it appeared before?</li>
+                            <li style="margin-bottom: 1rem;"><strong>Behavior Specification</strong> — Trigger, inputs, outputs, reasoning. The functional contract of the behavior.</li>
+                            <li style="margin-bottom: 1rem;"><strong>Domain Assumptions</strong> — Data, environment, authority. Each marked as hard (must have) or soft (degrades gracefully).</li>
+                            <li style="margin-bottom: 1rem;"><strong>Adaptation Points</strong> — Swappable components, configurable parameters, extensible capabilities. Where and how can this be modified?</li>
+                            <li style="margin-bottom: 1rem;"><strong>Composition</strong> — Events emitted/consumed, delegates. How does this interact with other behaviors?</li>
+                            <li><strong>Provenance</strong> — Origin domain, lineage, fork history. Where did this come from and how has it evolved?</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Adaptation Points -->
+                <div class="card" id="adaptation-points">
+                    <h3><span style="color: var(--cyan-glow);">●</span> Adaptation Point Types</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">ABC Standard defines three types of adaptation points, each with different implementation requirements:</p>
+
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--cyan-glow); display: block; margin-bottom: 0.75rem;">swappable_component</strong>
+                        <p style="color: var(--text-secondary);">Complete implementation replacement without interface change. Example: Swap an ARIMA forecaster for a neural network predictor while maintaining the same input/output signature.</p>
+                        <div class="code-block"><span class="code-label">Example Swap</span><code><span class="keyword">swap</span> ARIMAForecaster <span class="keyword">→</span> NeuralNetForecaster
+<span class="comment"># Same interface, completely different algorithm</span></code></div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--cyan-glow); display: block; margin-bottom: 0.75rem;">configurable</strong>
+                        <p style="color: var(--text-secondary);">Parameter tuning within documented ranges. Example: Optimization horizon can be set from 1 to 90 days depending on domain needs.</p>
+                        <div class="code-block"><span class="code-label">Example Configuration</span><code>optimization_horizon: <span class="string">45 days</span>  <span class="comment"># Valid: 1-90</span></code></div>
+                    </div>
+
+                    <div>
+                        <strong style="color: var(--cyan-glow); display: block; margin-bottom: 0.75rem;">extensible</strong>
+                        <p style="color: var(--text-secondary);">Add new capabilities without changing existing ones. Follows the Open/Closed Principle: open for extension, closed for modification.</p>
+                        <div class="code-block"><span class="code-label">Example Extension</span><code><span class="keyword">extend</span> PostProcessingHook {
+  <span class="keyword">on_forecast</span>(result) → CustomValidation()
+}</code></div>
+                    </div>
+                </div>
+
+                <!-- Domain Assumptions -->
+                <div class="card" id="domain-assumptions">
+                    <h3><span style="color: var(--cyan-glow);">●</span> Domain Assumptions Classification</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Every assumption in a domain must be classified and documented:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Meaning</th>
+                                <th>Action Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>hard</strong></td>
+                                <td>Behavior breaks completely without this assumption</td>
+                                <td>Must have runtime guards that fail fast</td>
+                            </tr>
+                            <tr>
+                                <td><strong>soft</strong></td>
+                                <td>Behavior degrades gracefully if assumption fails</td>
+                                <td>Document degradation path; provide fallback mechanism</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="highlight">
+                        <strong>Guard Example:</strong> If your behavior requires fresh data (hard assumption), implement a guard that checks timestamp and raises an exception if data is stale. Don't silently proceed.
+                    </div>
+                </div>
+
+                <!-- Compliance Scoring -->
+                <div class="card" id="compliance-scoring">
+                    <h3><span style="color: var(--cyan-glow);">●</span> Compliance Scoring: 100-Point System</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">ABC cards are scored on how thoroughly they implement the standard:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Points</th>
+                                <th>Evaluation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Formal interfaces per adaptation point</td>
+                                <td>15</td>
+                                <td>Each AP has a documented, testable interface</td>
+                            </tr>
+                            <tr>
+                                <td>2+ implementations per adaptation point</td>
+                                <td>15</td>
+                                <td>Prove the AP actually works by having 2+ implementations</td>
+                            </tr>
+                            <tr>
+                                <td>Swap tests passing</td>
+                                <td>20</td>
+                                <td>Test suite validates swapping between implementations</td>
+                            </tr>
+                            <tr>
+                                <td>Configurable parameters externalized</td>
+                                <td>10</td>
+                                <td>Config is outside code, validated at runtime</td>
+                            </tr>
+                            <tr>
+                                <td>Hard assumption runtime guards</td>
+                                <td>10</td>
+                                <td>Guards check preconditions, fail fast if violated</td>
+                            </tr>
+                            <tr>
+                                <td>Soft degradation paths documented</td>
+                                <td>5</td>
+                                <td>Clear fallback behavior when soft assumptions fail</td>
+                            </tr>
+                            <tr>
+                                <td>Event schemas typed</td>
+                                <td>5</td>
+                                <td>All emitted events have explicit schemas</td>
+                            </tr>
+                            <tr>
+                                <td>Decoupled event dispatch</td>
+                                <td>10</td>
+                                <td>Behaviors communicate via event bus, not direct calls</td>
+                            </tr>
+                            <tr>
+                                <td>Isolation tests present</td>
+                                <td>5</td>
+                                <td>Each behavior tested independently</td>
+                            </tr>
+                            <tr>
+                                <td>Required directory structure</td>
+                                <td>5</td>
+                                <td>Follows ABC project layout conventions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 2rem;">
+                        <strong style="color: var(--cyan-glow); display: block; margin-bottom: 1rem;">Compliance Levels</strong>
+                        <div style="background: rgba(0, 229, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <p><strong style="color: var(--cyan-glow);">90-100: ABC Certified</strong><br>Fully backed by code and tests. Ready for production in the registry.</p>
+                        </div>
+                        <div style="background: rgba(0, 229, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <p><strong style="color: var(--cyan-glow);">70-89: ABC Compatible</strong><br>Most claims backed by code. Gaps are documented. Usable with known limitations.</p>
+                        </div>
+                        <div style="background: rgba(0, 229, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <p><strong style="color: var(--cyan-glow);">50-69: ABC Aspirational</strong><br>Describes intent and direction. Only partially implemented. For internal discussion or future work.</p>
+                        </div>
+                        <div style="background: rgba(0, 229, 255, 0.05); padding: 1rem; border-radius: 8px;">
+                            <p><strong style="color: var(--cyan-glow);">Below 50: Non-compliant</strong><br>Card is largely fiction. Does not qualify for registry publication.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checklist for Card Authors -->
+                <div class="card">
+                    <h3><span style="color: var(--cyan-glow);">●</span> Card Author Checklist</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Before submitting a card to the registry, verify all 14 of these items:</p>
+
+                    <div class="checklist">
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every <code>swappable_component</code> AP has a matching interface file</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every interface has at least 2 implementations</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every interface has a conformance test suite</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Swap tests pass for all swappable adaptation points</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every <code>configurable</code> AP has externalized, validated config</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Config boundary tests cover all documented ranges</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every hard assumption has a runtime guard</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every soft assumption has a documented degradation path</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Every emitted event has a typed schema</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">All inter-behavior communication uses event bus</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Behavior works standalone when optional delegates are absent</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Project follows required directory structure</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text"><code>abc-check</code> returns score >= 70</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox">
+                            <span class="checklist-checkbox"></span>
+                            <span class="checklist-text">Card YAML validates against ABC JSON schema</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Similarity Engine -->
+            <section class="section-2" id="section-2">
+                <div class="section-header">
+                    <div class="section-icon">🔍</div>
+                    <h2>Similarity Engine</h2>
+                </div>
+
+                <!-- The Problem -->
+                <div class="card" id="the-problem">
+                    <h3><span style="color: var(--blue-glow);">●</span> The Problem with Manual Similarity Scoring</h3>
+                    <p style="color: var(--text-secondary);">Human-assigned similarity scores don't scale and are opaque:</p>
+                    <div class="highlight">
+                        <strong>similarity: 0.82</strong><br><br>
+                        But what does 0.82 actually mean? How is it comparable to another 0.82 score from a different reviewer? How can two different humans score the same pair of cards? These are the fundamental problems with manual similarity assessment.
+                    </div>
+                    <p style="margin-top: 1.5rem; color: var(--text-secondary);">The ABC Similarity Engine solves this by decomposing similarity into six independent, computable dimensions. Each dimension answers a specific question and is calculated algorithmically or via LLM analysis.</p>
+                </div>
+
+                <!-- Six Dimensions -->
+                <div class="card" id="six-dimensions">
+                    <h3><span style="color: var(--blue-glow);">●</span> Six Decomposed Dimensions</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Each dimension is weighted and answers a specific question about how similar two cards are:</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Weight</th>
+                                <th>Question</th>
+                                <th>Computation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Problem Pattern Similarity</strong></td>
+                                <td>30%</td>
+                                <td>Do they solve the same abstract problem?</td>
+                                <td>LLM-powered semantic analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sub-Pattern Overlap</strong></td>
+                                <td>15%</td>
+                                <td>Do they share structural sub-problems?</td>
+                                <td>Jaccard similarity: 40% exact + 60% token overlap</td>
+                            </tr>
+                            <tr>
+                                <td><strong>I/O Structural Similarity</strong></td>
+                                <td>20%</td>
+                                <td>Are inputs/outputs compatible?</td>
+                                <td>Name (25%) + Type (15%) + Count (20%) + Output name (25%) + Output type (15%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reasoning Similarity</strong></td>
+                                <td>10%</td>
+                                <td>Do they use the same decision approach?</td>
+                                <td>LLM semantic comparison of method and approach</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Adaptation Portability</strong></td>
+                                <td>15%</td>
+                                <td>How much work to fork and adapt?</td>
+                                <td>Assumption softness (35%) + Swappability (40%) + AP count (25%)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Composition Compatibility</strong></td>
+                                <td>10%</td>
+                                <td>Can they work in the same ecosystem?</td>
+                                <td>Event vocab overlap (40%) + Direct composability (35%) + Delegate interface (25%)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 2rem;">
+                        <strong style="color: var(--blue-glow); display: block; margin-bottom: 1.5rem;">Detailed Dimension Explanations</strong>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 1: Problem Pattern Similarity (LLM-Powered)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Sends problem descriptions to Claude, ignoring domain-specific language and terminology. This catches cases where different domains solve identical abstract problems using different vocabulary.</p>
+                            <p style="color: var(--text-muted); font-style: italic;">Example: "Distribute medical supplies" and "Allocate seasonal gear" are structurally identical allocation problems.</p>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 2: Sub-Pattern Overlap (Computed)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Uses Jaccard similarity on <code>sub_patterns</code> fields. 40% exact matches, 60% token-level overlap to catch semantic similarity.</p>
+                            <div class="code-block"><span class="code-label">Example Comparison</span><code>sub_patterns_A: [forecasting, temporal, aggregation]
+sub_patterns_B: [time_series, temporal_aggregation, smoothing]
+<span class="comment"># "temporal" matches exactly, others have token overlap</span></code></div>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 3: I/O Structural Similarity (Computed)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Compares the structure of inputs and outputs across multiple vectors to determine functional compatibility.</p>
+                            <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                                <li>Input name similarity: 25%</li>
+                                <li>Input type compatibility: 15%</li>
+                                <li>Output name similarity: 25%</li>
+                                <li>Output type compatibility: 15%</li>
+                                <li>Input/Output count balance: 20%</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 4: Reasoning Similarity (LLM-Powered)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Compares <code>reasoning.method</code> and <code>reasoning.approach</code> semantically using Claude to determine if the decision logic is conceptually similar.</p>
+                            <div class="code-block"><span class="code-label">Example</span><code>method_A: <span class="string">reinforcement_learning</span>
+method_B: <span class="string">policy_gradient</span>
+<span class="comment"># Semantically identical for many domains</span></code></div>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 5: Adaptation Portability (Computed)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Estimates how much work is required to fork and adapt one card for another domain. Lower effort = higher similarity.</p>
+                            <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                                <li>Assumption softness (35%): Soft assumptions = easier to adapt</li>
+                                <li>Swappability (40%): More swappable components = more flexible</li>
+                                <li>Adaptation point count (25%): More APs = more adjustment options</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 0.75rem;">Dimension 6: Composition Compatibility (Computed)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Evaluates how well two cards can work together in the same system architecture.</p>
+                            <ul style="margin-top: 1rem; color: var(--text-secondary);">
+                                <li>Event vocabulary overlap (40%): Shared event types</li>
+                                <li>Direct composability (35%): Can output of one feed input of other</li>
+                                <li>Delegate interface overlap (25%): Compatible delegation points</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online vs Offline Mode -->
+                <div class="card" id="online-offline">
+                    <h3><span style="color: var(--blue-glow);">●</span> Online vs Offline Mode</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">The similarity engine operates in two modes depending on API key availability:</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 1rem;">Offline Mode (No API Key)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">When Claude API is unavailable:</p>
+                            <ul style="color: var(--text-secondary);">
+                                <li>Dimensions 1 & 4 fall back to Jaccard similarity</li>
+                                <li>Lower quality results but fully functional</li>
+                                <li>Cross-domain matching is less accurate</li>
+                                <li>Still useful for same-domain card discovery</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px;">
+                            <strong style="color: var(--blue-glow); display: block; margin-bottom: 1rem;">Online Mode (With API Key)</strong>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">When Claude API is configured:</p>
+                            <ul style="color: var(--text-secondary);">
+                                <li>Dimensions 1 & 4 use Claude for semantic analysis</li>
+                                <li>Much better cross-domain matching</li>
+                                <li>Captures abstract pattern similarity</li>
+                                <li>Recommended for production registries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future Directions -->
+                <div class="card">
+                    <h3><span style="color: var(--blue-glow);">●</span> Future: Embedding-Based Approach (Roadmap)</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">As the registry grows, we plan a phased transition to embedding-based similarity:</p>
+
+                    <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--blue-glow);">Phase 1 (Now)</strong><br>
+                        <span style="color: var(--text-secondary);">LLM-scored similarity on demand. Accurate but slower for large registries.</span>
+                    </div>
+
+                    <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--blue-glow);">Phase 2 (100+ Cards)</strong><br>
+                        <span style="color: var(--text-secondary);">Pre-computed embeddings for each card + cosine similarity for instant results.</span>
+                    </div>
+
+                    <div style="background: rgba(79, 195, 247, 0.05); padding: 1.5rem; border-radius: 8px;">
+                        <strong style="color: var(--blue-glow);">Phase 3 (1000+ Cards)</strong><br>
+                        <span style="color: var(--text-secondary);">Vector database with hybrid search combining semantic, structural, and metadata similarity.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Trust & Failure Mode Framework -->
+            <section class="section-3" id="section-3">
+                <div class="section-header">
+                    <div class="section-icon">🛡️</div>
+                    <h2>Trust & Failure Mode Framework</h2>
+                </div>
+
+                <!-- Failure Categories -->
+                <div class="card" id="failure-categories">
+                    <h3><span style="color: var(--purple-glow);">●</span> Eight Failure Categories</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Every behavioral failure falls into one of these eight categories. Understanding which category a failure belongs to helps determine mitigation strategy:</p>
+
+                    <div class="grid">
+                        <div class="grid-item">
+                            <div class="grid-item-number">1</div>
+                            <div class="grid-item-title">INPUT</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Bad data fed into the system</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">2</div>
+                            <div class="grid-item-title">MODEL</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Wrong reasoning or incorrect logic</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">3</div>
+                            <div class="grid-item-title">INTEGRATION</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">System connection and API failures</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">4</div>
+                            <div class="grid-item-title">SCALE</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Volume or performance breakdown</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">5</div>
+                            <div class="grid-item-title">DOMAIN</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Domain-specific edge cases</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">6</div>
+                            <div class="grid-item-title">HUMAN</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Human-AI interaction issues</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">7</div>
+                            <div class="grid-item-title">SECURITY</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Adversarial and access failures</p>
+                        </div>
+                        <div class="grid-item">
+                            <div class="grid-item-number">8</div>
+                            <div class="grid-item-title">ETHICAL</div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Fairness, bias, and harm issues</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Severity and Blast Radius -->
+                <div class="card" id="severity-blast-radius">
+                    <h3><span style="color: var(--purple-glow);">●</span> Severity Levels & Domain Escalation</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">The same failure can have dramatically different severity depending on the domain. This requires domain-aware severity classification:</p>
+
+                    <div class="highlight">
+                        <strong>Example: Stale Data</strong><br>
+                        In a retail recommendation system: <strong>HIGH</strong> severity (customers see outdated products)<br>
+                        In a humanitarian supply distribution system: <strong>CRITICAL</strong> severity (wrong supplies reach wrong regions)
+                    </div>
+
+                    <p style="margin-top: 2rem; color: var(--text-secondary); margin-bottom: 1rem;">Standard Severity Levels:</p>
+                    <ul style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        <li><strong>Low</strong> — Performance impact only, correctness unaffected</li>
+                        <li><strong>Medium</strong> — Accuracy degraded, workaround available</li>
+                        <li><strong>High</strong> — Incorrect results, requires manual intervention</li>
+                        <li><strong>Critical</strong> — System failure, human safety/rights at risk</li>
+                    </ul>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Blast Radius Classification</strong>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Radius</th>
+                                <th>Definition</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>local</strong></td>
+                                <td>Single decision affected</td>
+                                <td>One recommendation is wrong</td>
+                            </tr>
+                            <tr>
+                                <td><strong>downstream</strong></td>
+                                <td>Dependent systems affected</td>
+                                <td>Wrong classification propagates to billing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>systemic</strong></td>
+                                <td>Entire pipeline compromised</td>
+                                <td>Data corruption affects all future decisions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Failure Mode Documentation -->
+                <div class="card">
+                    <h3><span style="color: var(--purple-glow);">●</span> Documenting Each Failure Mode</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Every identified failure mode must be documented with these five components:</p>
+
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--purple-glow); display: block; margin-bottom: 0.75rem;">Detection</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Method, mechanism, and time_to_detect. How will we know this failure happened?</p>
+                    </div>
+
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--purple-glow); display: block; margin-bottom: 0.75rem;">Mitigation</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Preventive (stop before it happens), detective (catch as it happens), corrective (fix it after).</p>
+                    </div>
+
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--purple-glow); display: block; margin-bottom: 0.75rem;">Recovery</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Automatic, manual, and time_to_recover. How do we get back to good state?</p>
+                    </div>
+
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <strong style="color: var(--purple-glow); display: block; margin-bottom: 0.75rem;">Residual Risk</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">What cannot be eliminated? What's the best we can do?</p>
+                    </div>
+
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px;">
+                        <strong style="color: var(--purple-glow); display: block; margin-bottom: 0.75rem;">Test Reference</strong>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Link to test suite that validates detection and recovery.</p>
+                    </div>
+                </div>
+
+                <!-- Ethical Assessment -->
+                <div class="card">
+                    <h3><span style="color: var(--purple-glow);">●</span> Ethical Assessment Requirements</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Every card must include a complete ethical assessment covering:</p>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Affected Parties & Vulnerability</strong>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Identify all groups affected and their vulnerability levels. A vulnerable party in high-stakes domains (healthcare, criminal justice) requires more scrutiny.</p>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Applicable Principles</strong>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <ul style="color: var(--text-secondary);">
+                            <li><strong>do_no_harm</strong> — Minimize risk of injury or adverse outcomes</li>
+                            <li><strong>equity</strong> — Fair treatment and equal access across groups</li>
+                            <li><strong>transparency</strong> — Clear communication of how system works</li>
+                            <li><strong>accountability</strong> — Responsibility for outcomes and recourse for harms</li>
+                        </ul>
+                    </div>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Ethical Dynamics</strong>
+                    <p style="color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>fairness_gaming</strong> — How might people game the system to get unfair advantage?</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;"><strong>automation_authority</strong> — Are we automating away human judgment that should remain?</p>
+
+                    <div class="highlight">
+                        <strong>The "Would I Be Comfortable If..." Test</strong><br><br>
+                        <strong>Before publishing a card, ask:</strong> "Would I be comfortable if the people most affected by this behavior could read this entire card and understand exactly how it works, what could go wrong, and what protections are in place?"<br><br>
+                        If the answer is no, the card needs more work.
+                    </div>
+                </div>
+
+                <!-- Operational Guardrails -->
+                <div class="card" id="operational-guardrails">
+                    <h3><span style="color: var(--purple-glow);">●</span> Operational Guardrails</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Three critical guardrail mechanisms that every card should implement:</p>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Human-in-the-Loop: 3 Levels</strong>
+                    <table style="margin-bottom: 2rem;">
+                        <thead>
+                            <tr>
+                                <th>Level</th>
+                                <th>Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>mandatory_human_approval</strong></td>
+                                <td>Human must explicitly approve before action. Critical for high-stakes decisions.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>human_override_available</strong></td>
+                                <td>System acts autonomously but human can intervene. Default for most applications.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>fully_automated</strong></td>
+                                <td>No human intervention. Only for low-risk, high-volume decisions.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Graceful Degradation: Define Path</strong>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">When systems fail, define exactly what happens:</p>
+                    <ul style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        <li><strong>trigger</strong> — What condition triggers degradation</li>
+                        <li><strong>degraded_behavior</strong> — What does the system do in degraded state</li>
+                        <li><strong>user_notification</strong> — How do users know capability is reduced</li>
+                        <li><strong>auto_recovery</strong> — Does it automatically recover or need intervention</li>
+                    </ul>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Kill Switch: Emergency Stop</strong>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Every behavior must have an emergency stop mechanism:</p>
+                    <ul style="color: var(--text-secondary);">
+                        <li><strong>mechanism</strong> — How is it triggered (API call, config flag, etc.)</li>
+                        <li><strong>authorization</strong> — Who can activate it</li>
+                        <li><strong>time_to_effect</strong> — How long until behavior stops (target: < 5 seconds)</li>
+                        <li><strong>side_effects</strong> — What happens to in-flight operations</li>
+                        <li><strong>restart_procedure</strong> — Steps to resume normal operation</li>
+                    </ul>
+                </div>
+
+                <!-- Trust Scoring -->
+                <div class="card">
+                    <h3><span style="color: var(--purple-glow);">●</span> Trust Scoring: 100-Point System</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Trust is scored separately from implementation compliance:</p>
+
+                    <table style="margin-bottom: 2rem;">
+                        <thead>
+                            <tr>
+                                <th>Criteria</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>All 7 failure categories assessed</td>
+                                <td>15</td>
+                            </tr>
+                            <tr>
+                                <td>Every failure mode has detection</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Every failure mode has mitigation</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Every failure mode has recovery plan</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Domain-specific severity documented</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Blast radius classified</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ethical assessment complete</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Human oversight levels defined</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Graceful degradation modes defined</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>Kill switch documented</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Failure mode tests referenced</td>
+                                <td>10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Trust Levels</strong>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">90-100: Enterprise Ready</strong><br>
+                        <span style="color: var(--text-secondary);">Can be deployed in regulated environments with full audit trail.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">70-89: Production Ready</strong><br>
+                        <span style="color: var(--text-secondary);">Suitable for standard deployment with normal operational oversight.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">50-69: Pilot Ready</strong><br>
+                        <span style="color: var(--text-secondary);">For controlled testing with close monitoring.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px;">
+                        <p><strong style="color: var(--purple-glow);">Below 50: Development Only</strong><br>
+                        <span style="color: var(--text-secondary);">Not ready for any external deployment.</span></p>
+                    </div>
+                </div>
+
+                <!-- Overall Quality Score -->
+                <div class="card">
+                    <h3><span style="color: var(--purple-glow);">●</span> Overall Quality Score: Combined Compliance & Trust</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">The final registry readiness is determined by combining implementation compliance with trust assessment:</p>
+
+                    <div class="code-block" style="margin-bottom: 2rem;"><code><span class="keyword">Overall Quality</span> = (Compliance Score × 0.5) + (Trust Score × 0.5)</code></div>
+
+                    <strong style="color: var(--purple-glow); display: block; margin-bottom: 1rem;">Registry Tier Determination</strong>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">90-100: ABC Certified Gold</strong><br>
+                        <span style="color: var(--text-secondary);">Production-ready with comprehensive documentation and safety mechanisms.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">75-89: ABC Certified</strong><br>
+                        <span style="color: var(--text-secondary);">Meets standard for registry publication. Suitable for most use cases.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <p><strong style="color: var(--purple-glow);">60-74: ABC Compatible</strong><br>
+                        <span style="color: var(--text-secondary);">Acceptable with awareness of specific limitations.</span></p>
+                    </div>
+                    <div style="background: rgba(179, 136, 255, 0.05); padding: 1rem; border-radius: 8px;">
+                        <p><strong style="color: var(--purple-glow);">Below 60: Not Registry Ready</strong><br>
+                        <span style="color: var(--text-secondary);">Requires significant work before publication.</span></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Registry</h4>
+                <ul>
+                    <li><a href="index.html">Browse Cards</a></li>
+                    <li><a href="#">Submit Card</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Getting Started</a></li>
+                    <li><a href="#">Card Template</a></li>
+                    <li><a href="#">Compliance Checker</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul>
+                    <li><a href="#">GitHub</a></li>
+                    <li><a href="#">Discussions</a></li>
+                    <li><a href="#">Contribute</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About</h4>
+                <ul>
+                    <li><a href="https://abcstandard.org" target="_blank" rel="noopener">ABC Standard</a></li>
+                    <li><a href="#">Specification</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-brand">ABC Standard Registry</div>
+            <div class="footer-copyright">&copy; 2025 ABC Standard. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div id="backToTop">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </div>
+
+    <script>
+        // Mobile Navigation Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when link clicked
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Table of Contents Toggle (Mobile)
+        const tocToggle = document.getElementById('tocToggle');
+        const tocSidebar = document.getElementById('tocSidebar');
+
+        tocToggle.addEventListener('click', () => {
+            tocSidebar.style.display = tocSidebar.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Update active TOC link on scroll
+        function updateActiveToc() {
+            const sections = document.querySelectorAll('section');
+            const tocLinks = document.querySelectorAll('.toc-list a');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').slice(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveToc);
+
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Checklist functionality
+        const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                this.parentElement.style.opacity = this.checked ? '0.7' : '1';
+            });
+        });
+    </script>
+</body>
+</html>

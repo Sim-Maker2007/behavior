@@ -1,7 +1,8 @@
 {
   "outputDirectory": "website",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/how-it-works", "destination": "/how-it-works.html" },
+    { "source": "/((?!how-it-works).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
