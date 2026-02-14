@@ -391,6 +391,54 @@
     border: 1px solid rgba(233, 30, 99, 0.2);
   }
 
+  .card-pattern.anomaly-classification-response {
+    background: rgba(244, 67, 54, 0.1);
+    color: #ef9a9a;
+    border: 1px solid rgba(244, 67, 54, 0.2);
+  }
+
+  .card-pattern.similarity-ranking-selection {
+    background: rgba(0, 188, 212, 0.1);
+    color: #80deea;
+    border: 1px solid rgba(0, 188, 212, 0.2);
+  }
+
+  .card-pattern.retrieval-augmented-generation {
+    background: rgba(63, 81, 181, 0.1);
+    color: #9fa8da;
+    border: 1px solid rgba(63, 81, 181, 0.2);
+  }
+
+  .card-pattern.adaptive-sequencing {
+    background: rgba(76, 175, 80, 0.1);
+    color: #a5d6a7;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  .card-pattern.document-structure-extraction {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ffcc80;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+
+  .card-pattern.temporal-signal-extraction {
+    background: rgba(156, 39, 176, 0.1);
+    color: #ce93d8;
+    border: 1px solid rgba(156, 39, 176, 0.2);
+  }
+
+  .card-pattern.hierarchical-task-decomposition {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffe082;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+  }
+
+  .card-pattern.temporal-prediction-scheduling {
+    background: rgba(0, 150, 136, 0.1);
+    color: #80cbc4;
+    border: 1px solid rgba(0, 150, 136, 0.2);
+  }
+
   .card-description {
     font-size: 14px;
     line-height: 1.6;
@@ -2790,7 +2838,7 @@ function renderCards(filtered) {
         <span class="card-version">v${esc(card.version)}</span>
       </div>
       ${(() => {
-        const slug = getCardSlug(card.name);
+        const slug = card.slug;
         const comp = complianceScores[slug];
         if (!comp) return '';
         const badgeClass = comp.level === 'Certified' ? 'badge-certified' : 'badge-compatible';
@@ -3004,16 +3052,16 @@ function openModal(card) {
   html += '</div></div>';
 
   // Similar Behaviors
-  var slug = getCardSlug(card.name);
+  var slug = card.slug;
   var similar = similarityMap[slug];
   if (similar && similar.length > 0) {
     html += '<div class="modal-section"><h3>Similar Behaviors</h3>';
     html += '<div class="similar-cards-list">';
     similar.forEach(function(simSlug) {
-      var simCard = cards.find(function(c) { return getCardSlug(c.name) === simSlug; });
+      var simCard = cards.find(function(c) { return c.slug === simSlug; });
       if (simCard) {
         var simComp = complianceScores[simSlug];
-        html += '<div class="similar-card-item" onclick="closeModal(); setTimeout(function(){ openModal(cards.find(function(c){return getCardSlug(c.name)===\'' + esc(simSlug) + '\';})); }, 300);">';
+        html += '<div class="similar-card-item" onclick="closeModal(); setTimeout(function(){ openModal(cards.find(function(c){return c.slug===\'' + esc(simSlug) + '\';})); }, 300);">';
         html += '<span class="similar-card-name">' + esc(simCard.name) + '</span>';
         if (simComp) html += '<span class="similar-card-badge ' + (simComp.level === 'Certified' ? 'badge-certified' : 'badge-compatible') + '">' + simComp.level + '</span>';
         html += '</div>';
