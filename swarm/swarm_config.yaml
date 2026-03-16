@@ -1,0 +1,40 @@
+# =============================================================================
+# Agent Swarm Configuration
+# =============================================================================
+# Integrates OpenViking (context/memory) + MiroFish (simulation) + ABC Cards
+#
+# Override any value with environment variables:
+#   OPENVIKING_URL, OPENVIKING_WORKSPACE, OPENVIKING_EMBED_PROVIDER
+#   MIROFISH_URL, LLM_API_KEY, LLM_BASE_URL, LLM_MODEL_NAME, ZEP_API_KEY
+#   ABC_CARDS_DIR
+# =============================================================================
+
+# --- OpenViking: Shared context database for agents ---
+openviking:
+  mode: "local"                          # "local" (embedded) or "remote" (server)
+  workspace_path: "./viking_workspace"   # Local storage path
+  server_url: "http://localhost:1933"    # If mode=remote
+  embedding_provider: "openai"           # openai, volcengine, jina
+  embedding_model: "text-embedding-3-large"
+  vlm_provider: "litellm"
+  vlm_model: "claude-sonnet-4-20250514"
+
+# --- MiroFish: Multi-agent simulation engine ---
+mirofish:
+  backend_url: "http://localhost:5001"   # MiroFish backend API
+  llm_api_key: ""                        # Set via LLM_API_KEY env var
+  llm_base_url: "https://api.openai.com/v1"
+  llm_model_name: "gpt-4o"
+  zep_api_key: ""                        # Set via ZEP_API_KEY env var
+  max_simulation_agents: 100             # Max agents in simulation
+  simulation_steps: 50                   # Steps per simulation run
+
+# --- Behavior selection ---
+cards_directory: "./cards"               # Path to ABC card registry
+behavior_selection: "auto"               # "auto" or "manual"
+selected_cards: []                       # If manual, list card names here
+max_concurrent_agents: 10                # Max agents active simultaneously
+
+# --- Output ---
+prediction_depth: "standard"             # "quick" (10 steps), "standard" (50), "deep" (200)
+output_format: "report"                  # "report", "json", "interactive"
