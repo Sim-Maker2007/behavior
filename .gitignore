@@ -5,10 +5,11 @@ dist/
 
 # Environment variables
 .env
-.env.*
 .env.local
 .env.production
 .env.development
+!.env.example
+!swarm/.env.example
 
 # Secrets
 secrets.json
@@ -27,3 +28,9 @@ private-key.json
 # OS
 Thumbs.db
 __pycache__/
+
+# Vendor repos (cloned by swarm/setup.sh)
+vendor/
+
+# Swarm runtime data
+viking_workspace/

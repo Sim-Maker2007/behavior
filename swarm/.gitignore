@@ -1,0 +1,7 @@
+# Runtime data
+viking_workspace/
+__pycache__/
+*.pyc
+.env
+
+# Vendor repos are cloned by setup.sh

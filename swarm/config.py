@@ -7,10 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
+import yaml
 
 
 @dataclass
@@ -43,7 +40,7 @@ class SwarmConfig:
     openviking: OpenVikingConfig = field(default_factory=OpenVikingConfig)
     mirofish: MiroFishConfig = field(default_factory=MiroFishConfig)
     cards_directory: str = "./cards"
-    behavior_selection: str = "auto"  # "auto", "manual", or list of card names
+    behavior_selection: str = "auto"  # "auto" or "manual"
     selected_cards: list = field(default_factory=list)
     max_concurrent_agents: int = 10
     prediction_depth: str = "standard"  # "quick", "standard", "deep"
@@ -51,8 +48,6 @@ class SwarmConfig:
 
     @classmethod
     def from_yaml(cls, path: str) -> "SwarmConfig":
-        if yaml is None:
-            raise ImportError("PyYAML required: pip install pyyaml")
         with open(path) as f:
             raw = yaml.safe_load(f)
         return cls._from_dict(raw)
@@ -76,13 +71,11 @@ class SwarmConfig:
     def _from_dict(cls, d: dict) -> "SwarmConfig":
         cfg = cls()
         if "openviking" in d:
-            ov = d["openviking"]
-            for k, v in ov.items():
+            for k, v in d["openviking"].items():
                 if hasattr(cfg.openviking, k):
                     setattr(cfg.openviking, k, v)
         if "mirofish" in d:
-            mf = d["mirofish"]
-            for k, v in mf.items():
+            for k, v in d["mirofish"].items():
                 if hasattr(cfg.mirofish, k):
                     setattr(cfg.mirofish, k, v)
         for k in ["cards_directory", "behavior_selection", "selected_cards",

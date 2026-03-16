@@ -1,24 +1,25 @@
 """
 Agent Swarm Orchestrator — The unified entry point.
 
-Ties together:
-  - OpenViking (shared context/memory)
-  - MiroFish (multi-agent simulation)
-  - ABC Cards (behavior definitions)
-
-Pipeline:
-  1. Load & select ABC behavior cards relevant to the prediction query
+Full pipeline:
+  1. Load ABC behavior cards and select relevant agents for the query
   2. Ingest seed materials into OpenViking for semantic retrieval
-  3. Build agent profiles from selected cards
-  4. Feed context + agents into MiroFish simulation
+  3. Write seed files to disk for MiroFish upload
+  4. Run MiroFish pipeline (ontology -> graph -> simulate -> report)
   5. Capture simulation state back into OpenViking at each step
-  6. Return structured prediction results
+  6. Use OpenViking sessions to build long-term memory across predictions
+  7. Return structured prediction results with full report
+
+Requires both OpenViking and MiroFish to be running.
 """
 
 import json
 import logging
+import tempfile
 from pathlib import Path
 from typing import Callable, Optional
+
+import yaml
 
 from swarm.config import SwarmConfig
 from swarm.openviking_bridge import OpenVikingBridge, ContextEntry
@@ -30,13 +31,19 @@ logger = logging.getLogger(__name__)
 
 class AgentSwarm:
     """
-    Main orchestrator for the OpenViking + MiroFish + ABC agent swarm.
+    Orchestrates OpenViking + MiroFish + ABC behavior cards into a unified
+    agent swarm for scenario prediction and simulation.
 
     Usage:
         swarm = AgentSwarm.from_config("swarm/swarm_config.yaml")
-        swarm.ingest_seed_materials(["report.pdf", "data.csv", "https://example.com"])
+        status = swarm.initialize()
+
+        swarm.ingest_seed_materials(["report.pdf", "data.csv"])
         result = swarm.predict("What happens if X?")
-        print(result.report)
+
+        print(result.report_markdown)
+        answer = swarm.interview_agent(result, agent_id=1, question="Why?")
+        swarm.shutdown()
     """
 
     def __init__(self, config: SwarmConfig):
@@ -45,7 +52,9 @@ class AgentSwarm:
         self.simulator = MiroFishAdapter(config.mirofish)
         self.behaviors = BehaviorLoader(config.cards_directory)
         self._seed_uris: list[str] = []
+        self._seed_files: list[str] = []
         self._active_profiles: list[AgentProfile] = []
+        self._last_result: PredictionResult | None = None
 
     @classmethod
     def from_config(cls, path: str) -> "AgentSwarm":
@@ -61,20 +70,20 @@ class AgentSwarm:
 
     def initialize(self) -> dict:
         """
-        Initialize all subsystems and load behavior cards.
-        Returns a status dict with component readiness.
+        Initialize all three subsystems. Returns status dict.
+        Raises if any subsystem fails to connect.
         """
         status = {}
 
-        # 1. Initialize OpenViking context layer
+        # 1. OpenViking context layer
         self.context.initialize()
         status["openviking"] = "ready"
 
-        # 2. Initialize MiroFish simulation engine
+        # 2. MiroFish simulation engine
         self.simulator.initialize()
-        status["mirofish"] = "connected" if self.simulator._connected else "local_fallback"
+        status["mirofish"] = "ready"
 
-        # 3. Load ABC behavior cards
+        # 3. ABC behavior cards
         card_count = self.behaviors.load_all_cards()
         status["behavior_cards"] = card_count
 
@@ -83,16 +92,27 @@ class AgentSwarm:
 
     def ingest_seed_materials(self, paths: list[str]) -> list[str]:
         """
-        Ingest seed materials (files, URLs, directories) into the shared context.
-        These become the "reality seeds" that ground the simulation.
+        Ingest seed materials into OpenViking AND track files for MiroFish upload.
 
-        Returns list of viking:// URIs for the ingested materials.
+        Args:
+            paths: List of file paths, URLs, or directories
+
+        Returns:
+            List of viking:// URIs for the ingested materials
         """
         uris = []
         for path in paths:
+            # Ingest into OpenViking for semantic search
             uri = self.context.ingest_seed_material(path)
             uris.append(uri)
-            logger.info("Ingested: %s → %s", path, uri)
+
+            # Track local files for MiroFish upload
+            p = Path(path)
+            if p.exists() and p.is_file():
+                self._seed_files.append(str(p.resolve()))
+
+            logger.info("Ingested: %s -> %s", path, uri)
+
         self._seed_uris.extend(uris)
         return uris
 
@@ -100,98 +120,139 @@ class AgentSwarm:
         self,
         query: str,
         cards: list[str] | None = None,
+        project_name: str = "swarm-prediction",
         on_step: Callable[[SimulationStep], None] | None = None,
     ) -> PredictionResult:
         """
-        Run a prediction scenario.
+        Run a full prediction scenario.
+
+        1. Selects relevant ABC cards as agent behavior templates
+        2. Gathers context from OpenViking
+        3. Builds additional context from behavior cards
+        4. Runs MiroFish full pipeline (graph -> sim -> report)
+        5. Stores results back in OpenViking
 
         Args:
             query: Natural language prediction question
-            cards: Optional list of specific ABC card names to use as agents.
-                   If None, auto-selects based on query relevance.
-            on_step: Optional callback for each simulation step
+            cards: Optional list of specific ABC card names to use
+            project_name: Name for the MiroFish project
+            on_step: Optional callback for simulation progress
 
         Returns:
-            PredictionResult with report, findings, risks, and recommendations
+            PredictionResult with full report, findings, and agent data
         """
-        logger.info("Starting prediction: %s", query)
+        logger.info("=== Starting prediction: %s ===", query)
 
         # Step 1: Select relevant behavior cards
-        if cards or self.config.selected_cards:
-            profiles = self.behaviors.select_agents_for_query(
-                query,
-                max_agents=self.config.max_concurrent_agents,
-                required_cards=cards or self.config.selected_cards,
-            )
-        else:
-            profiles = self.behaviors.select_agents_for_query(
-                query,
-                max_agents=self.config.max_concurrent_agents,
-            )
-        self._active_profiles = profiles
-
-        logger.info(
-            "Selected %d agents: %s",
-            len(profiles),
-            [p.card_name for p in profiles],
+        profiles = self.behaviors.select_agents_for_query(
+            query,
+            max_agents=self.config.max_concurrent_agents,
+            required_cards=cards or self.config.selected_cards or None,
         )
+        self._active_profiles = profiles
+        logger.info("Selected %d agent behaviors: %s",
+                     len(profiles), [p.card_name for p in profiles])
 
-        # Step 2: Gather relevant context from OpenViking
-        seed_context = self._gather_context(query)
+        # Step 2: Build additional context from ABC cards + OpenViking search
+        additional_context = self._build_additional_context(query, profiles)
 
-        # Step 3: Build MiroFish agent configs from ABC profiles
-        agent_configs = [
-            self.behaviors.profile_to_mirofish_config(p)
-            for p in profiles
-        ]
-
-        # Step 4: Store behavior cards in OpenViking for agent reference
+        # Step 3: Store behavior cards in OpenViking for cross-referencing
         for profile in profiles:
             card_data = self.behaviors._cards.get(profile.card_name, {})
-            try:
-                import yaml
-                card_yaml = yaml.dump(card_data)
-            except ImportError:
-                card_yaml = json.dumps(card_data, indent=2)
-            self.context.store_behavior_card(profile.card_name, card_yaml)
+            self.context.store_behavior_card(
+                profile.card_name,
+                yaml.dump(card_data, default_flow_style=False),
+            )
 
-        # Step 5: Run simulation with step capture
+        # Step 4: Wrap on_step to also capture state in OpenViking
         def step_with_capture(step: SimulationStep):
-            # Store each simulation step in OpenViking
             self.context.store_simulation_state(step.step_number, {
+                "timestamp": step.timestamp,
                 "events": step.events,
                 "actions": step.agent_actions,
                 "state": step.world_state,
             })
-            # Forward to user callback
             if on_step:
                 on_step(step)
 
-        result = self.simulator.build_simulation(
+        # Step 5: Run the full MiroFish pipeline
+        result = self.simulator.run_full_pipeline(
+            seed_files=self._seed_files,
             query=query,
-            seed_context=seed_context,
-            agent_profiles=agent_configs,
+            project_name=project_name,
+            additional_context=additional_context,
             on_step=step_with_capture,
         )
 
-        # Step 6: Store final results as shared observation
-        self.context.store_shared_observation(
-            f"Prediction completed for: {query}. "
-            f"Confidence: {result.confidence}. "
-            f"Key findings: {'; '.join(result.key_findings[:3])}",
-            tags=["prediction-result", "completed"],
+        # Step 6: Store results in OpenViking session for long-term memory
+        self.context.add_session_message(
+            role="user",
+            content=f"Prediction query: {query}",
+        )
+        self.context.add_session_message(
+            role="assistant",
+            content=(
+                f"Prediction result (sim={result.simulation_id}): "
+                f"{result.report_markdown[:2000]}"
+            ),
         )
 
-        logger.info("Prediction complete. Confidence: %.2f", result.confidence)
+        self.context.store_shared_observation(
+            f"Prediction completed for: {query}. "
+            f"Agents: {[p.card_name for p in profiles]}. "
+            f"Findings: {'; '.join(result.key_findings[:3])}",
+            tags=["prediction-result", result.simulation_id],
+        )
+
+        self._last_result = result
+        logger.info("=== Prediction complete: sim=%s report=%s ===",
+                     result.simulation_id, result.report_id)
         return result
+
+    def interview_agent(
+        self,
+        result: PredictionResult,
+        agent_id: int,
+        question: str,
+    ) -> str:
+        """Ask a question to a specific agent from a completed simulation."""
+        response = self.simulator.interview_agent(
+            simulation_id=result.simulation_id,
+            agent_id=agent_id,
+            question=question,
+        )
+        # Store interview in OpenViking
+        self.context.store_shared_observation(
+            f"Interview agent {agent_id} in sim {result.simulation_id}: "
+            f"Q: {question} A: {response[:500]}",
+            tags=["interview", result.simulation_id],
+        )
+        return response
+
+    def chat(self, message: str, chat_history: list[dict] | None = None) -> dict:
+        """
+        Chat with the report agent about the last prediction.
+        Returns {"response": ..., "tool_calls": ..., "sources": ...}
+        """
+        if not self._last_result:
+            raise RuntimeError("No prediction has been run yet. Call predict() first.")
+        return self.simulator.chat_with_report(
+            simulation_id=self._last_result.simulation_id,
+            message=message,
+            chat_history=chat_history,
+        )
+
+    def search_context(self, query: str, top_k: int = 5) -> list[ContextEntry]:
+        """Search across all stored context (seeds, state, memories, behaviors)."""
+        return self.context.search(query, top_k=top_k)
 
     def get_active_agents(self) -> list[AgentProfile]:
         """Return the currently active agent profiles."""
         return self._active_profiles
 
-    def search_context(self, query: str, top_k: int = 5) -> list[ContextEntry]:
-        """Search across all stored context (seeds, state, memories)."""
-        return self.context.search(query, top_k=top_k)
+    def commit_memory(self) -> dict:
+        """Commit the current session to extract long-term memories."""
+        return self.context.commit_session()
 
     def shutdown(self) -> None:
         """Clean shutdown of all subsystems."""
@@ -199,45 +260,43 @@ class AgentSwarm:
         self.simulator.shutdown()
         logger.info("Swarm shut down")
 
-    def _gather_context(self, query: str) -> list[dict]:
-        """
-        Retrieve relevant context from OpenViking for the prediction query.
-        Uses tiered loading: L0 abstracts for all seeds, L1/L2 for relevant ones.
-        """
-        context_entries = []
+    # -------------------------------------------------------------------------
+    # Internal helpers
+    # -------------------------------------------------------------------------
 
-        # Get abstracts for all seed materials (cheap L0 check)
-        for uri in self._seed_uris:
-            abstract = self.context.get_abstract(uri)
-            context_entries.append({
-                "uri": uri,
-                "abstract": abstract,
-                "content": abstract,  # Start with abstract
-            })
+    def _build_additional_context(
+        self, query: str, profiles: list[AgentProfile]
+    ) -> str:
+        """
+        Build additional context string from:
+        - OpenViking semantic search results on the query
+        - ABC behavior card summaries for selected agents
+        """
+        parts = []
 
-        # Semantic search for most relevant seeds
+        # OpenViking context from seed materials
         if self._seed_uris:
-            search_results = self.context.search(
+            results = self.context.search(
                 query,
                 namespace=OpenVikingBridge.NAMESPACE_SEEDS,
                 top_k=5,
             )
-            for result in search_results:
-                # Upgrade to L1 overview for top results
-                overview = self.context.get_overview(result.uri)
-                context_entries.append({
-                    "uri": result.uri,
-                    "abstract": result.content[:200],
-                    "content": overview or result.content,
-                    "relevance_score": result.score,
-                })
+            if results:
+                parts.append("=== Relevant Context from Seed Materials ===")
+                for entry in results:
+                    abstract = entry.content[:300] if entry.content else ""
+                    parts.append(f"[{entry.uri}] (score={entry.score:.2f}): {abstract}")
+                parts.append("")
 
-        # If no seeds ingested, provide empty context
-        if not context_entries:
-            context_entries.append({
-                "uri": "viking://resources/none",
-                "abstract": "No seed materials provided",
-                "content": "Simulation will rely on agent knowledge and behavior cards only.",
-            })
+        # ABC behavior card context
+        if profiles:
+            parts.append("=== Agent Behavior Profiles (ABC Cards) ===")
+            for p in profiles:
+                parts.append(
+                    f"- {p.display_name} ({p.problem_pattern}): "
+                    f"triggers={json.dumps(p.triggers, default=str)[:200]}, "
+                    f"reasoning={p.reasoning_approach[:200]}"
+                )
+            parts.append("")
 
-        return context_entries
+        return "\n".join(parts)

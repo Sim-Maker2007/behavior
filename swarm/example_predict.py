@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 """
-Example: Running the Agent Swarm for Scenario Prediction
+Example: Full Agent Swarm Prediction
 
-This script demonstrates the full pipeline:
-  1. Initialize the swarm (OpenViking + MiroFish + ABC cards)
-  2. Ingest seed materials (reports, data, URLs)
-  3. Run a prediction query
-  4. Process results
+Runs the complete pipeline:
+  1. Initialize swarm (OpenViking + MiroFish + ABC cards)
+  2. Ingest seed materials
+  3. Run prediction (ontology -> graph -> simulate -> report)
+  4. Interview individual agents
+  5. Chat with report agent for follow-up
 
 Prerequisites:
-  pip install openviking pyyaml requests
-
-  # Optional: start MiroFish for full simulation
-  # cd MiroFish && docker compose up -d
-
-  # Set API keys
-  export LLM_API_KEY="your-key"
-  export ZEP_API_KEY="your-zep-key"  # optional, for MiroFish memory
+  ./swarm/setup.sh                     # Install everything
+  cp swarm/.env.example swarm/.env     # Add your API keys
+  docker compose -f swarm/docker-compose.yaml up -d  # Start services
 """
 
 import json
@@ -24,11 +20,9 @@ import logging
 import sys
 from pathlib import Path
 
-# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from swarm import AgentSwarm
-from swarm.config import SwarmConfig
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,76 +32,91 @@ logger = logging.getLogger("swarm-example")
 
 
 def main():
-    # --- 1. Initialize from config file or environment ---
+    # --- 1. Initialize ---
     config_path = Path(__file__).parent / "swarm_config.yaml"
-    if config_path.exists():
-        swarm = AgentSwarm.from_config(str(config_path))
-    else:
-        swarm = AgentSwarm.from_env()
+    swarm = AgentSwarm.from_config(str(config_path))
 
     status = swarm.initialize()
-    logger.info("Swarm status: %s", status)
+    print(f"Swarm ready: {status}")
+    print(f"  OpenViking: {status['openviking']}")
+    print(f"  MiroFish:   {status['mirofish']}")
+    print(f"  Cards:      {status['behavior_cards']} behavior cards loaded")
 
     # --- 2. Ingest seed materials ---
-    # These ground the simulation in real data. Can be files, URLs, or directories.
-    # Examples (uncomment as needed):
-    #
-    # swarm.ingest_seed_materials([
-    #     "reports/quarterly-supply-chain-review.pdf",
-    #     "data/commodity-prices-2025.csv",
-    #     "https://example.com/geopolitical-risk-briefing",
-    # ])
+    # Upload files that ground the simulation in reality.
+    # Supports: PDF, Markdown, TXT, CSV, URLs, directories
+    seed_files = [
+        # "reports/quarterly-supply-chain-review.pdf",
+        # "data/commodity-prices-2025.csv",
+        # "https://example.com/geopolitical-risk-briefing.md",
+    ]
+    if seed_files:
+        uris = swarm.ingest_seed_materials(seed_files)
+        print(f"\nIngested {len(uris)} seed materials")
 
     # --- 3. Run prediction ---
     def on_step(step):
-        """Optional: track simulation progress."""
-        logger.info(
-            "Step %d: %d events, %d agent actions",
-            step.step_number,
-            len(step.events),
-            len(step.agent_actions),
-        )
+        print(f"  [Step {step.step_number}] {len(step.agent_actions)} agent actions")
 
+    print("\nRunning prediction...")
     result = swarm.predict(
-        query="What happens if a major semiconductor shortage disrupts global supply chains for 6 months?",
-        # cards=["supply-chain-disruption-detector", "crisis-simulation-planner"],  # optional: force specific agents
+        query=(
+            "What happens if a major semiconductor shortage disrupts "
+            "global supply chains for 6 months?"
+        ),
+        # Optionally force specific agent behaviors:
+        # cards=["supply-chain-disruption-detector", "crisis-simulation-planner"],
         on_step=on_step,
     )
 
-    # --- 4. Process results ---
+    # --- 4. Print results ---
     print("\n" + "=" * 80)
     print("PREDICTION REPORT")
     print("=" * 80)
-    print(f"\nQuery: {result.query}")
-    print(f"Confidence: {result.confidence:.0%}")
-    print(f"Agents used: {len(result.agents_involved)}")
+    print(f"Project:      {result.project_id}")
+    print(f"Simulation:   {result.simulation_id}")
+    print(f"Report:       {result.report_id}")
+    print(f"Agents used:  {len(result.agents_involved)}")
+    print(f"Sim steps:    {len(result.simulation_steps)}")
 
     if result.key_findings:
         print("\nKey Findings:")
         for i, finding in enumerate(result.key_findings, 1):
-            print(f"  {i}. {finding}")
+            print(f"  {i}. {finding[:200]}")
 
-    if result.risk_factors:
-        print("\nRisk Factors:")
-        for risk in result.risk_factors:
-            print(f"  - {risk}")
+    print(f"\n--- Full Report ---\n{result.report_markdown}")
 
-    if result.recommended_actions:
-        print("\nRecommended Actions:")
-        for action in result.recommended_actions:
-            print(f"  - {action}")
+    # --- 5. Interview agents ---
+    if result.agents_involved:
+        agent = result.agents_involved[0]
+        print(f"\nInterviewing agent {agent.agent_id} ({agent.name})...")
+        answer = swarm.interview_agent(
+            result,
+            agent_id=int(agent.agent_id),
+            question="What was your key observation during the simulation?",
+        )
+        print(f"Agent response: {answer}")
 
-    print(f"\nFull Report:\n{result.report}")
+    # --- 6. Follow-up chat ---
+    print("\nChatting with report agent...")
+    chat_response = swarm.chat(
+        "What are the three most likely cascading effects, and which industries "
+        "would be hit first?"
+    )
+    print(f"Report agent: {chat_response.get('response', '')}")
 
-    # --- 5. Search context for follow-up ---
-    follow_up = swarm.search_context("semiconductor supply chain impact")
-    if follow_up:
-        print("\nRelated context entries:")
-        for entry in follow_up:
-            print(f"  [{entry.score:.2f}] {entry.uri}")
+    # --- 7. Search context ---
+    print("\nSearching OpenViking context...")
+    results = swarm.search_context("semiconductor impact timeline")
+    for entry in results:
+        print(f"  [{entry.score:.2f}] {entry.uri}: {entry.content[:100]}...")
 
-    # --- 6. Clean up ---
+    # --- 8. Commit long-term memory ---
+    swarm.commit_memory()
+
+    # --- 9. Cleanup ---
     swarm.shutdown()
+    print("\nDone.")
 
 
 if __name__ == "__main__":

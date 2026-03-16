@@ -1,0 +1,87 @@
+# =============================================================================
+# Agent Swarm — Full Stack
+# =============================================================================
+# Brings up OpenViking + MiroFish + their dependencies in one command.
+#
+# Usage:
+#   cp swarm/.env.example swarm/.env   # fill in your API keys
+#   docker compose -f swarm/docker-compose.yaml up -d
+#
+# Services:
+#   - openviking:  Context database (port 1933)
+#   - mirofish:    Simulation backend (port 5001)
+#   - mirofish-fe: Simulation frontend (port 3000) — optional UI
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # OpenViking — Shared context database for the swarm
+  # ---------------------------------------------------------------------------
+  openviking:
+    build:
+      context: ../vendor/OpenViking
+      dockerfile: Dockerfile
+    ports:
+      - "1933:1933"
+    environment:
+      - OPENVIKING_EMBEDDING_PROVIDER=${OPENVIKING_EMBED_PROVIDER:-openai}
+      - OPENVIKING_EMBEDDING_MODEL=${OPENVIKING_EMBED_MODEL:-text-embedding-3-large}
+      - OPENVIKING_VLM_PROVIDER=${OPENVIKING_VLM_PROVIDER:-litellm}
+      - OPENVIKING_VLM_MODEL=${OPENVIKING_VLM_MODEL:-claude-sonnet-4-20250514}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - openviking-data:/root/.openviking
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1933/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # MiroFish Backend — Multi-agent simulation engine
+  # ---------------------------------------------------------------------------
+  mirofish:
+    build:
+      context: ../vendor/MiroFish
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1}
+      - LLM_MODEL_NAME=${LLM_MODEL_NAME:-gpt-4o}
+      - ZEP_API_KEY=${ZEP_API_KEY}
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5001
+    volumes:
+      - mirofish-data:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # MiroFish Frontend — Optional web UI for visual interaction
+  # ---------------------------------------------------------------------------
+  mirofish-frontend:
+    build:
+      context: ../vendor/MiroFish/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://mirofish:5001
+    depends_on:
+      mirofish:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - with-ui  # Only start with: docker compose --profile with-ui up
+
+volumes:
+  openviking-data:
+  mirofish-data:
